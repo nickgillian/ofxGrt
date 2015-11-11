@@ -1,8 +1,8 @@
-#include "ofxGrtTimeseriesGraph.h"
+#include "ofxGrtTimeseriesPlot.h"
 
 namespace GRT{
     
-ofxGrtTimeseriesGraph::ofxGrtTimeseriesGraph(unsigned int numPoints,unsigned int numDimensions){
+ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     initialized = false;
     rangesComputed = false;
     rangesLocked = false;
@@ -17,32 +17,28 @@ ofxGrtTimeseriesGraph::ofxGrtTimeseriesGraph(unsigned int numPoints,unsigned int
     gridColor[2] = 255;
     gridColor[3] = 100;
     
-    errorLog.setProceedingText("[ERROR ofxGrtTimeseriesGraph]");
-
-    if( numPoints != 0 && numDimensions != 0 ){
-        init(numPoints,numDimensions);
-    }
+    errorLog.setProceedingText("[ERROR ofxGrtTimeseriesPlot]");
 }
 
-ofxGrtTimeseriesGraph::~ofxGrtTimeseriesGraph(){
+ofxGrtTimeseriesPlot::~ofxGrtTimeseriesPlot(){
 }
 
-bool ofxGrtTimeseriesGraph::init(unsigned int numPoints,unsigned int numDimensions){
+bool ofxGrtTimeseriesPlot::setup(unsigned int timeseriesLength,unsigned int numDimensions){
     
     initialized = false;
     
     //Cleanup the old memory
     dataBuffer.clear();
     
-    if( numPoints == 0 || numDimensions == 0 ) return false;
+    if( timeseriesLength == 0 || numDimensions == 0 ) return false;
     
     //Setup the memory for the new buffer
-    this->numPoints = numPoints;
+    this->timeseriesLength = timeseriesLength;
     this->numDimensions = numDimensions;
-    dataBuffer.resize(numPoints, VectorDouble(numDimensions,0));
+    dataBuffer.resize(timeseriesLength, VectorDouble(numDimensions,0));
     
     //Fill the buffer with empty values
-    for(unsigned int i=0; i<numPoints; i++)
+    for(unsigned int i=0; i<timeseriesLength; i++)
         dataBuffer.push_back(VectorDouble(numDimensions,0));
     
     rangesComputed = false;
@@ -54,20 +50,24 @@ bool ofxGrtTimeseriesGraph::init(unsigned int numPoints,unsigned int numDimensio
     channelNames.resize(numDimensions,"");
     
     colors.resize(numDimensions);
-    for(unsigned int n=0; n<numDimensions; n++){
+    //Setup the default colors
+    if( numDimensions >= 1 ) colors[0] = ofColor(255,0,0); //red
+    if( numDimensions >= 2 ) colors[1] = ofColor(0,255,0); //green
+    if( numDimensions >= 3 ) colors[2] = ofColor(0,0,255); //blue
+    //Randomize the remaining colors
+    for(unsigned int n=3; n<numDimensions; n++){
         colors[n][0] = ofRandom(50,255);
 	colors[n][1] = ofRandom(50,255);
 	colors[n][2] = ofRandom(50,255);
     }
-  
+
     channelVisible.resize(numDimensions,true);
     initialized = true;
     
-    return true;
-    
+    return true;    
 }
 
-bool ofxGrtTimeseriesGraph::reset(){
+bool ofxGrtTimeseriesPlot::reset(){
         
     if( !initialized ) return false;
     
@@ -85,13 +85,13 @@ bool ofxGrtTimeseriesGraph::reset(){
     return true;
 }
     
-bool ofxGrtTimeseriesGraph::setRanges(double newMin,double newMax,bool lockRanges){
+bool ofxGrtTimeseriesPlot::setRanges(double newMin,double newMax,bool lockRanges){
     VectorDouble minRanges(numDimensions,newMin);
     VectorDouble maxRanges(numDimensions,newMax);
     return setRanges(minRanges,maxRanges,lockRanges);
 }
 
-bool ofxGrtTimeseriesGraph::setRanges(VectorDouble minRanges,VectorDouble maxRanges,bool rangesLocked){
+bool ofxGrtTimeseriesPlot::setRanges(VectorDouble minRanges,VectorDouble maxRanges,bool rangesLocked){
     if( initialized && minRanges.size() == numDimensions && minRanges.size() == maxRanges.size() ){
         this->minRanges = minRanges;
         this->maxRanges = maxRanges;
@@ -102,7 +102,7 @@ bool ofxGrtTimeseriesGraph::setRanges(VectorDouble minRanges,VectorDouble maxRan
     return false;
 }
     
-bool ofxGrtTimeseriesGraph::setData( const vector< VectorDouble > &data ){
+bool ofxGrtTimeseriesPlot::setData( const vector< VectorDouble > &data ){
     
     const unsigned int M = (unsigned int)data.size();
     dataBuffer.reset();
@@ -117,7 +117,7 @@ bool ofxGrtTimeseriesGraph::setData( const vector< VectorDouble > &data ){
     return true;
 }
     
-bool ofxGrtTimeseriesGraph::setData( const MatrixDouble &data ){
+bool ofxGrtTimeseriesPlot::setData( const MatrixDouble &data ){
     
     const unsigned int M = data.getNumRows();
     const unsigned int N = data.getNumCols();
@@ -136,18 +136,18 @@ bool ofxGrtTimeseriesGraph::setData( const MatrixDouble &data ){
     return true;
 }
 
-bool ofxGrtTimeseriesGraph::update(){
+bool ofxGrtTimeseriesPlot::update(){
     
     //If the buffer has not been initialised then return false, otherwise update the buffer
     if( !initialized ) return false;
     
     //Repeat the previos value
-    dataBuffer.push_back( dataBuffer[numPoints-1] );
+    dataBuffer.push_back( dataBuffer[timeseriesLength-1] );
     
     return true;
 }
 
-bool ofxGrtTimeseriesGraph::update( const VectorDouble &data ){
+bool ofxGrtTimeseriesPlot::update( const VectorDouble &data ){
     
     //If the buffer has not been initialised then return false, otherwise update the buffer
     if( !initialized || data.size() != numDimensions ) return false;
@@ -182,7 +182,7 @@ bool ofxGrtTimeseriesGraph::update( const VectorDouble &data ){
     
 }
     
-bool ofxGrtTimeseriesGraph::draw(unsigned int x,unsigned int y,unsigned int w,unsigned int h){
+bool ofxGrtTimeseriesPlot::draw(unsigned int x,unsigned int y,unsigned int w,unsigned int h){
     
     if( !initialized ) return false;
     
@@ -227,19 +227,19 @@ bool ofxGrtTimeseriesGraph::draw(unsigned int x,unsigned int y,unsigned int w,un
    
     //Draw the timeseries
     unsigned int xPos = 0;
-    unsigned int drawStartIndex = w < numPoints ? numPoints-w : 0;
+    unsigned int drawStartIndex = w < timeseriesLength ? timeseriesLength-w : 0;
     ofNoFill();
     for(unsigned int n=0; n<numDimensions; n++){
         xPos = 0;
         if( channelVisible[n] && rangesComputed ){
             ofBeginShape();
-            for(unsigned int i=drawStartIndex; i<numPoints; i++){
+            for(unsigned int i=drawStartIndex; i<timeseriesLength; i++){
                 ofSetColor( colors[n][0],colors[n][1],colors[n][2] );
                 double v = dataBuffer[i][n];
                 if( minRanges[n] != maxRanges[n] ){
                     v = ofMap(v, minRanges[n], maxRanges[n], h, 0, constrainValuesToGraph);
                     ofVertex(xPos++,v);
-                }else cout << " WARNING: ofxGrtTimeseriesGraph::draw(). MIN RANGE == MAX RANGE!\n";
+                }else cout << " WARNING: ofxGrtTimeseriesPlot::draw(). MIN RANGE == MAX RANGE!\n";
             }
             ofEndShape(false);
         }
@@ -252,7 +252,7 @@ bool ofxGrtTimeseriesGraph::draw(unsigned int x,unsigned int y,unsigned int w,un
                 ofSetColor(colors[n][0],colors[n][1],colors[n][2]);
                 info.str("");
                 info << "[" << n+1 << "]: " << channelNames[n] << " ";
-                info << dataBuffer[numPoints-1][n] << " [" << minRanges[n] << " " << maxRanges[n] << "]" << endl;
+                info << dataBuffer[timeseriesLength-1][n] << " [" << minRanges[n] << " " << maxRanges[n] << "]" << endl;
                 ofDrawBitmapString(info.str(),0,h + 25 + (25*n));
             }
         }
