@@ -22,4 +22,4 @@
 #include "ofMain.h"
 #include "GRT/GRT.h"
 #include "ofxGrtMatrixPlot.h"
-#include "ofxGrtTimeseriesGraph.h"
+#include "ofxGrtTimeseriesPlot.h"

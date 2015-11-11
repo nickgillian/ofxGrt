@@ -46,10 +46,15 @@ public:
     bool update();
     
     /**
-     @brief updates the plot using the last input data, this is useful if you have no data but still want to update the graph.
+     @brief updates the plot pushing the input data into the plots internal buffer. The size of the input vector must match the number of dimensions in the plot.
      @return returns true if the plot was updated successfully, false otherwise
     */
     bool update( const VectorDouble &data );
+
+    /**
+     @brief draws the plot.     
+     @return returns true if the plot was drawn successfully, false otherwise
+    */
     bool draw(unsigned int x,unsigned int y,unsigned int w,unsigned int h);
     
     bool reset();
@@ -57,6 +62,7 @@ public:
     bool setData( const MatrixDouble &data );
     bool setRanges(double newMin,double newMax,bool lockRanges = false);
     bool setRanges(VectorDouble newMin,VectorDouble newMax,bool lockRanges = false);
+    bool setDrawGrid( bool drawGrid ){ this->drawGrid = drawGrid; return true; }
     void lockRanges(bool rangesLocked){ this->rangesLocked = rangesLocked; }
     
     unsigned int numDimensions;
