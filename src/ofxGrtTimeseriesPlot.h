@@ -35,9 +35,10 @@ public:
      @note you must call this before updating or drawing the plot
      @param timeseriesLength: sets the size of the timeseries buffer
      @param numDimensions: sets the number of dimensions in the input data
+     @param title: sets the title of the plot, an empty string will stop the title from being drawn
      @return returns true if the plot was setup successfully, false otherwise
     */
-    bool setup(unsigned int timeseriesLength,unsigned int numDimensions);
+    bool setup(unsigned int timeseriesLength,unsigned int numDimensions,string title="");
 
     /**
      @brief updates the plot using the last input data, this is useful if you have no data but still want to update the graph.
@@ -60,30 +61,33 @@ public:
     bool reset();
     bool setData( const vector< VectorDouble > &data );
     bool setData( const MatrixDouble &data );
-    bool setRanges(double newMin,double newMax,bool lockRanges = false);
-    bool setRanges(VectorDouble newMin,VectorDouble newMax,bool lockRanges = false);
+    bool setRanges(float minY,float maxY,bool lockRanges = false);
     bool setDrawGrid( bool drawGrid ){ this->drawGrid = drawGrid; return true; }
-    void lockRanges(bool rangesLocked){ this->rangesLocked = rangesLocked; }
+    bool setFont( std::shared_ptr< ofTrueTypeFont > font ){ this->font = font; return this->font->isLoaded(); }
+    bool setLockRanges(bool lockRanges){ this->lockRanges = lockRanges; return true; }
+    bool setDrawInfoText(bool drawInfoText){ this->drawInfoText = drawInfoText; return true; }
     
     unsigned int numDimensions;
     unsigned int timeseriesLength;
-    VectorDouble minRanges;
-    VectorDouble maxRanges;
+    float minY;
+    float maxY;
+    string plotTitle;
     vector< string > channelNames;
     vector< bool > channelVisible;
     CircularBuffer< VectorDouble > dataBuffer;
     
     bool initialized;
-    bool rangesComputed;
-    bool rangesLocked;
+    bool lockRanges;
     bool constrainValuesToGraph;
     bool drawInfoText;
     bool drawGrid;
     
+    ofColor textColor;
     ofColor gridColor;
     ofColor backgroundColor;
     vector< ofColor > colors;
     ErrorLog errorLog;
+    std::shared_ptr< ofTrueTypeFont > font;
     
 };
 

@@ -1,6 +1,6 @@
 /**
 * @file
-* @brief ofxGrt Timeseries Plot Example
+* @brief ofxGrtTimeseriesPlot Example: this example demonstrates how to use the TimeseriesPlot class to plot mouse data over time
 */
 
 #pragma once
@@ -29,5 +29,6 @@ public:
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);
 
-	ofxGrtTimeseriesPlot plot;
+	ofxGrtTimeseriesPlot plot1;
+	ofxGrtTimeseriesPlot plot2;
 };
