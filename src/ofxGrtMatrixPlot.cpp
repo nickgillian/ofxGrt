@@ -4,6 +4,7 @@
 using namespace GRT;
 
 ofxGrtMatrixPlot::ofxGrtMatrixPlot(){
+    rows = cols = 0;
 }
 
 void ofxGrtMatrixPlot::update( const MatrixDouble &data ){
@@ -12,7 +13,9 @@ void ofxGrtMatrixPlot::update( const MatrixDouble &data ){
     const unsigned int cols = data.getNumCols();
     const size_t size = rows*cols;
 
-    if( pixelData.size() != size ){
+    if( this->rows != rows || this->cols != cols ){
+        this->rows = rows;
+        this->cols = cols;
         pixelData.resize( size );
     }
     
@@ -62,3 +65,10 @@ bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h) const{
         return true;
 }
 
+unsigned int ofxGrtMatrixPlot::getRows() const{
+    this->rows;
+}
+
+unsigned int ofxGrtMatrixPlot::getCols() const{
+    this->cols;
+}

@@ -34,7 +34,11 @@ public:
     bool draw(float x, float y) const;
     bool draw(float x, float y, float w, float h) const;
 
-private:
+    unsigned int getRows() const;
+    unsigned int getCols() const;
+protected:
+    unsigned int rows;
+    unsigned int cols;
     std::vector<float> pixelData;
     ofFloatPixels pixels;
     ofTexture texture;
