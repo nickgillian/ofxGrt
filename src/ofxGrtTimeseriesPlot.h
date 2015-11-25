@@ -63,10 +63,11 @@ public:
     bool setData( const MatrixDouble &data );
     bool setRanges(float minY,float maxY,bool lockRanges = false);
     bool setDrawGrid( bool drawGrid ){ this->drawGrid = drawGrid; return true; }
-    bool setFont( std::shared_ptr< ofTrueTypeFont > font ){ this->font = font; return this->font->isLoaded(); }
+    bool setFont( const ofTrueTypeFont &font ){ this->font = &font; return this->font->isLoaded(); }
     bool setLockRanges(bool lockRanges){ this->lockRanges = lockRanges; return true; }
     bool setDrawInfoText(bool drawInfoText){ this->drawInfoText = drawInfoText; return true; }
     
+protected:
     unsigned int numDimensions;
     unsigned int timeseriesLength;
     float minY;
@@ -87,7 +88,7 @@ public:
     ofColor backgroundColor;
     vector< ofColor > colors;
     ErrorLog errorLog;
-    std::shared_ptr< ofTrueTypeFont > font;
+    const ofTrueTypeFont *font;
     
 };
 

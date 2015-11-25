@@ -4,6 +4,7 @@ namespace GRT{
     
 ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     plotTitle = "";
+    font = NULL;
     initialized = false;
     lockRanges = false;
     minY = 0;
