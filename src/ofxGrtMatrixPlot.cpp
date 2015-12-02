@@ -89,9 +89,9 @@ bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h) const{
 }
 
 unsigned int ofxGrtMatrixPlot::getRows() const{
-    this->rows;
+    return this->rows;
 }
 
 unsigned int ofxGrtMatrixPlot::getCols() const{
-    this->cols;
+    return this->cols;
 }
