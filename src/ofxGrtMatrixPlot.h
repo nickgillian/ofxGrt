@@ -25,12 +25,14 @@
 #include "ofTexture.h"
 #include "ofConstants.h"
 
-namespace GRT {
+GRT_BEGIN_NAMESPACE
+
 class ofxGrtMatrixPlot {
 public:
     ofxGrtMatrixPlot();
     void update( const Matrix<double> &data );
     void update( const Matrix<float> &data );
+    void update( const MatrixFloat &data );
     void update( float *data, const unsigned int rows, const unsigned int cols );
     bool draw(float x, float y) const;
     bool draw(float x, float y, float w, float h) const;
@@ -40,8 +42,9 @@ public:
 protected:
     unsigned int rows;
     unsigned int cols;
-    std::vector<float> pixelData;
+    Vector<float> pixelData;
     ofFloatPixels pixels;
     ofTexture texture;
 };
-}
+
+GRT_END_NAMESPACE

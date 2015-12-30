@@ -1,6 +1,6 @@
 #include "ofxGrtTimeseriesPlot.h"
 
-namespace GRT{
+GRT_BEGIN_NAMESPACE
     
 ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     plotTitle = "";
@@ -29,7 +29,7 @@ ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
 ofxGrtTimeseriesPlot::~ofxGrtTimeseriesPlot(){
 }
 
-bool ofxGrtTimeseriesPlot::setup(unsigned int timeseriesLength,unsigned int numDimensions,string title){
+bool ofxGrtTimeseriesPlot::setup(unsigned int timeseriesLength,unsigned int numDimensions,std::string title){
     
     initialized = false;
     
@@ -42,11 +42,11 @@ bool ofxGrtTimeseriesPlot::setup(unsigned int timeseriesLength,unsigned int numD
     this->timeseriesLength = timeseriesLength;
     this->numDimensions = numDimensions;
     this->plotTitle = title;
-    dataBuffer.resize(timeseriesLength, VectorDouble(numDimensions,0));
+    dataBuffer.resize(timeseriesLength, VectorFloat(numDimensions,0));
     
     //Fill the buffer with empty values
     for(unsigned int i=0; i<timeseriesLength; i++)
-        dataBuffer.push_back(VectorDouble(numDimensions,0));
+        dataBuffer.push_back(VectorFloat(numDimensions,0));
     
     lockRanges = false;
     minY = 0;
@@ -81,7 +81,7 @@ bool ofxGrtTimeseriesPlot::reset(){
     }
 
     //Clear the buffer
-    dataBuffer.setAllValues(VectorDouble(numDimensions,0));
+    dataBuffer.setAllValues(VectorFloat(numDimensions,0));
     
     return true;
 }
@@ -96,7 +96,7 @@ bool ofxGrtTimeseriesPlot::setRanges(float minY,float maxY,bool lockRanges){
     return true;
 }
     
-bool ofxGrtTimeseriesPlot::setData( const vector< VectorDouble > &data ){
+bool ofxGrtTimeseriesPlot::setData( const Vector< VectorFloat > &data ){
     
     const unsigned int M = (unsigned int)data.size();
     dataBuffer.reset();
@@ -111,20 +111,20 @@ bool ofxGrtTimeseriesPlot::setData( const vector< VectorDouble > &data ){
     return true;
 }
     
-bool ofxGrtTimeseriesPlot::setData( const MatrixDouble &data ){
+bool ofxGrtTimeseriesPlot::setData( const MatrixFloat &data ){
     
     const unsigned int M = data.getNumRows();
     const unsigned int N = data.getNumCols();
     
     if( N != numDimensions ){
-        errorLog << "setData( const MatrixDouble &data ) - The number of dimensions in the data does not match the number of dimensions in the graph!" << endl;
+        errorLog << "setData( const MatrixFloat &data ) - The number of dimensions in the data does not match the number of dimensions in the graph!" << endl;
         return false;
     }
     
     dataBuffer.reset();
     
     for(unsigned int i=0; i<M; i++){
-        update( data.getRowVector(i) );
+        update( data.getRow(i) );
     }
     
     return true;
@@ -141,9 +141,9 @@ bool ofxGrtTimeseriesPlot::update(){
     return true;
 }
 
-bool ofxGrtTimeseriesPlot::update( const VectorDouble &data ){
+bool ofxGrtTimeseriesPlot::update( const VectorFloat &data ){
 
-    const unsigned int N = (unsigned int)data.size();
+    const unsigned int N = data.getSize();
     
     //If the buffer has not been initialised then return false, otherwise update the buffer
     if( !initialized || N != numDimensions ) return false;
@@ -247,7 +247,7 @@ bool ofxGrtTimeseriesPlot::draw(unsigned int x,unsigned int y,unsigned int w,uns
         }
         
         if( drawInfoText ){
-            stringstream info;
+            std::stringstream info;
             for(unsigned int n=0; n<numDimensions; n++){
                 if( channelVisible[n] ){
                     ofSetColor(colors[n][0],colors[n][1],colors[n][2]);
@@ -267,4 +267,5 @@ bool ofxGrtTimeseriesPlot::draw(unsigned int x,unsigned int y,unsigned int w,uns
     return true;
 }
 
-}//End of namespace GRT
+GRT_END_NAMESPACE
+

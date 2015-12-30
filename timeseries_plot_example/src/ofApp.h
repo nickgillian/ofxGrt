@@ -29,6 +29,7 @@ public:
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);
 
+	ofTrueTypeFont font;
 	ofxGrtTimeseriesPlot plot1;
 	ofxGrtTimeseriesPlot plot2;
 };

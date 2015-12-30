@@ -22,7 +22,7 @@
 #include "ofMain.h"
 #include "GRT/GRT.h"
 
-namespace GRT{
+GRT_BEGIN_NAMESPACE
 
 class ofxGrtTimeseriesPlot{
 public:
@@ -35,10 +35,10 @@ public:
      @note you must call this before updating or drawing the plot
      @param timeseriesLength: sets the size of the timeseries buffer
      @param numDimensions: sets the number of dimensions in the input data
-     @param title: sets the title of the plot, an empty string will stop the title from being drawn
+     @param title: sets the title of the plot, an empty std::string will stop the title from being drawn
      @return returns true if the plot was setup successfully, false otherwise
     */
-    bool setup(unsigned int timeseriesLength,unsigned int numDimensions,string title="");
+    bool setup(unsigned int timeseriesLength,unsigned int numDimensions,std::string title="");
 
     /**
      @brief updates the plot using the last input data, this is useful if you have no data but still want to update the graph.
@@ -47,10 +47,10 @@ public:
     bool update();
     
     /**
-     @brief updates the plot pushing the input data into the plots internal buffer. The size of the input vector must match the number of dimensions in the plot.
+     @brief updates the plot pushing the input data into the plots internal buffer. The size of the input Vector must match the number of dimensions in the plot.
      @return returns true if the plot was updated successfully, false otherwise
     */
-    bool update( const VectorDouble &data );
+    bool update( const VectorFloat &data );
 
     /**
      @brief draws the plot.     
@@ -59,8 +59,8 @@ public:
     bool draw(unsigned int x,unsigned int y,unsigned int w,unsigned int h);
     
     bool reset();
-    bool setData( const vector< VectorDouble > &data );
-    bool setData( const MatrixDouble &data );
+    bool setData( const Vector< VectorFloat > &data );
+    bool setData( const MatrixFloat &data );
     bool setRanges(float minY,float maxY,bool lockRanges = false);
     bool setDrawGrid( bool drawGrid ){ this->drawGrid = drawGrid; return true; }
     bool setFont( const ofTrueTypeFont &font ){ this->font = &font; return this->font->isLoaded(); }
@@ -72,10 +72,10 @@ protected:
     unsigned int timeseriesLength;
     float minY;
     float maxY;
-    string plotTitle;
-    vector< string > channelNames;
-    vector< bool > channelVisible;
-    CircularBuffer< VectorDouble > dataBuffer;
+    std::string plotTitle;
+    Vector< std::string > channelNames;
+    Vector< bool > channelVisible;
+    CircularBuffer< VectorFloat > dataBuffer;
     
     bool initialized;
     bool lockRanges;
@@ -86,10 +86,10 @@ protected:
     ofColor textColor;
     ofColor gridColor;
     ofColor backgroundColor;
-    vector< ofColor > colors;
+    Vector< ofColor > colors;
     ErrorLog errorLog;
     const ofTrueTypeFont *font;
     
 };
 
-}//End of namespace GRT
+GRT_END_NAMESPACE

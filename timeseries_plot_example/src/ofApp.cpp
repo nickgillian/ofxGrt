@@ -11,11 +11,9 @@ float lastTic = 0;
 void ofApp::setup(){
     ofSetBackgroundColor(255);
 
-    //Load the font for the graph, we do this via a shared pointer as there seems to be an issue
-    //with coping fonts
-    std::shared_ptr< ofTrueTypeFont > font = std::make_shared< ofTrueTypeFont >();
-    font->load("verdana.ttf", 12, true, true);
-    font->setLineHeight(14.0f);
+    //Load the font for the graph
+    font.load("verdana.ttf", 12, true, true);
+    font.setLineHeight(14.0f);
 
     //Setup the first plot
     plot1.setup( TIMESERIES_LENGTH, NUM_DIMENSIONS, "Mouse Data" );
