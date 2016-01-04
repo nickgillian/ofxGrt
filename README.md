@@ -22,7 +22,7 @@ To use ofxGrt:
     git clone https://github.com/nickgillian/ofxGrt
 ```
 
-- cd to one of the examples folders and run **make**
+- to build and run any of the ofxGRT examples, cd to an example folder and run:
 ```
     cd ofxGRT/example_timeseries_plot
     make
