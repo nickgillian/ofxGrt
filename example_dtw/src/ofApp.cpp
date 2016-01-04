@@ -11,7 +11,13 @@
  This example uses the 2-dimensional [x y] coordinates from your mouse as input, but you can easily change this to whatever sensor input
  you have access to.
  
- To compile this example:
+ To compile this example (on OSX or Linux):
+ - open terminal and cd to the directory for this example and type the following in terminal:
+ - make -j4
+ - make run
+ - this should build and launch the example for you
+
+ To compile this example using an IDE (such as Xcode):
  - use the Openframeworks project builder to create a new project
  - when you have created the new project, override the default ofApp.h, ofApp.cpp, and main.cpp files with the files from this example
  - open the project in your favorite IDE (XCode, Visual Studio, Code Blocks, etc.) and add the main GRT source folder to the project. You
