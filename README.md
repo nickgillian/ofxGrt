@@ -29,3 +29,5 @@ To use ofxGrt:
     make run
 ```
 
+##License
+The ofxGRT is available under a MIT license.
