@@ -38,7 +38,7 @@ void ofApp::update(){
     float tic = ofGetElapsedTimeMillis();
     float delta = tic-lastTic;
 
-    VectorDouble data(2);
+    vector<float> data(2);
 
     //Update the 1st plot
     data[0] = mouseX;

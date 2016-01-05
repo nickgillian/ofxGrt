@@ -1,6 +1,6 @@
 #include "ofxGrtTimeseriesPlot.h"
 
-GRT_BEGIN_NAMESPACE
+using namespace GRT;
     
 ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     plotTitle = "";
@@ -42,11 +42,11 @@ bool ofxGrtTimeseriesPlot::setup(unsigned int timeseriesLength,unsigned int numD
     this->timeseriesLength = timeseriesLength;
     this->numDimensions = numDimensions;
     this->plotTitle = title;
-    dataBuffer.resize(timeseriesLength, VectorFloat(numDimensions,0));
+    dataBuffer.resize(timeseriesLength, vector<float>(numDimensions,0));
     
     //Fill the buffer with empty values
     for(unsigned int i=0; i<timeseriesLength; i++)
-        dataBuffer.push_back(VectorFloat(numDimensions,0));
+        dataBuffer.push_back(vector<float>(numDimensions,0));
     
     lockRanges = false;
     minY = 0;
@@ -81,7 +81,7 @@ bool ofxGrtTimeseriesPlot::reset(){
     }
 
     //Clear the buffer
-    dataBuffer.setAllValues(VectorFloat(numDimensions,0));
+    dataBuffer.setAllValues(vector<float>(numDimensions,0));
     
     return true;
 }
@@ -96,7 +96,7 @@ bool ofxGrtTimeseriesPlot::setRanges(float minY,float maxY,bool lockRanges){
     return true;
 }
     
-bool ofxGrtTimeseriesPlot::setData( const Vector< VectorFloat > &data ){
+bool ofxGrtTimeseriesPlot::setData( const vector< vector<float> > &data ){
     
     const unsigned int M = (unsigned int)data.size();
     dataBuffer.reset();
@@ -111,7 +111,7 @@ bool ofxGrtTimeseriesPlot::setData( const Vector< VectorFloat > &data ){
     return true;
 }
     
-bool ofxGrtTimeseriesPlot::setData( const MatrixFloat &data ){
+bool ofxGrtTimeseriesPlot::setData( const Matrix<float> &data ){
     
     const unsigned int M = data.getNumRows();
     const unsigned int N = data.getNumCols();
@@ -124,7 +124,7 @@ bool ofxGrtTimeseriesPlot::setData( const MatrixFloat &data ){
     dataBuffer.reset();
     
     for(unsigned int i=0; i<M; i++){
-        update( data.getRow(i) );
+        update( data.getRowVector(i) );
     }
     
     return true;
@@ -141,9 +141,9 @@ bool ofxGrtTimeseriesPlot::update(){
     return true;
 }
 
-bool ofxGrtTimeseriesPlot::update( const VectorFloat &data ){
+bool ofxGrtTimeseriesPlot::update( const vector<float> &data ){
 
-    const unsigned int N = data.getSize();
+    const unsigned int N = data.size();
     
     //If the buffer has not been initialised then return false, otherwise update the buffer
     if( !initialized || N != numDimensions ) return false;
@@ -162,6 +162,8 @@ bool ofxGrtTimeseriesPlot::update( const VectorFloat &data ){
     return true;
     
 }
+
+
     
 bool ofxGrtTimeseriesPlot::draw(unsigned int x,unsigned int y,unsigned int w,unsigned int h){
     
@@ -267,5 +269,5 @@ bool ofxGrtTimeseriesPlot::draw(unsigned int x,unsigned int y,unsigned int w,uns
     return true;
 }
 
-GRT_END_NAMESPACE
+
 

@@ -22,7 +22,7 @@
 #include "ofMain.h"
 #include "GRT/GRT.h"
 
-GRT_BEGIN_NAMESPACE
+using namespace GRT;
 
 class ofxGrtTimeseriesPlot{
 public:
@@ -50,7 +50,8 @@ public:
      @brief updates the plot pushing the input data into the plots internal buffer. The size of the input Vector must match the number of dimensions in the plot.
      @return returns true if the plot was updated successfully, false otherwise
     */
-    bool update( const VectorFloat &data );
+    bool update( const vector<float> &data );
+    //bool update( const vector<double> &data );
 
     /**
      @brief draws the plot.     
@@ -59,8 +60,8 @@ public:
     bool draw(unsigned int x,unsigned int y,unsigned int w,unsigned int h);
     
     bool reset();
-    bool setData( const Vector< VectorFloat > &data );
-    bool setData( const MatrixFloat &data );
+    bool setData( const vector< vector<float> > &data );
+    bool setData( const Matrix<float> &data );
     bool setRanges(float minY,float maxY,bool lockRanges = false);
     bool setDrawGrid( bool drawGrid ){ this->drawGrid = drawGrid; return true; }
     bool setFont( const ofTrueTypeFont &font ){ this->font = &font; return this->font->isLoaded(); }
@@ -73,9 +74,9 @@ protected:
     float minY;
     float maxY;
     std::string plotTitle;
-    Vector< std::string > channelNames;
-    Vector< bool > channelVisible;
-    CircularBuffer< VectorFloat > dataBuffer;
+    vector< std::string > channelNames;
+    vector< bool > channelVisible;
+    CircularBuffer< vector<float> > dataBuffer;
     
     bool initialized;
     bool lockRanges;
@@ -86,10 +87,10 @@ protected:
     ofColor textColor;
     ofColor gridColor;
     ofColor backgroundColor;
-    Vector< ofColor > colors;
+    vector< ofColor > colors;
     ErrorLog errorLog;
     const ofTrueTypeFont *font;
     
 };
 
-GRT_END_NAMESPACE
+
