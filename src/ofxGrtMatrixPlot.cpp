@@ -8,8 +8,8 @@ ofxGrtMatrixPlot::ofxGrtMatrixPlot(){
     font = NULL;
     rows = cols = 0;
     textColor[0] = 255;
-    textColor[1] = 255;
-    textColor[2] = 255;
+    textColor[1] = 0;
+    textColor[2] = 0;
 }
 
 void ofxGrtMatrixPlot::update( const Matrix<double> &data ){
@@ -156,10 +156,9 @@ bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h,ofShader &shader)
 
         if( !font->isLoaded() ) return false;
         
-        ofRectangle bounds = font->getStringBoundingBox(plotTitle, 0, 0);
-        int textX = 10;
-        int textY = bounds.height + 5;
-        int textSpacer = bounds.height + 5;
+        float textX = x + 5;
+        float textY = y + 5 + (font->getLineHeight()*0.5);
+        float textSpacer = font->getLineHeight() + 5;
 
         ofSetColor(textColor[0],textColor[1],textColor[2]);
         font->drawString( plotTitle, textX, textY );
