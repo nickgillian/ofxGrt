@@ -34,6 +34,7 @@ public:
     void update( float *data, const unsigned int rows, const unsigned int cols );
     bool draw(float x, float y) const;
     bool draw(float x, float y, float w, float h) const;
+    bool draw(float x, float y, float w, float h,ofShader &shader) const;
     bool setFont( const ofTrueTypeFont &font ){ this->font = &font; return this->font->isLoaded(); }
     bool setTitle( const std::string &plotTitle ){ this->plotTitle = plotTitle; return true; }
 

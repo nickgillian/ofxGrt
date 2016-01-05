@@ -133,6 +133,42 @@ bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h) const{
     return true;
 }
 
+bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h,ofShader &shader) const{
+
+    if( pixels.size() == 0 ) return false;
+    auto & tex = texture;
+    auto ratio = w/h;
+    auto texRatio = tex.getWidth()/tex.getHeight();
+    shader.begin();
+    if(ratio > texRatio){
+        auto drawW = h*texRatio;
+        auto drawX = x+(w-drawW)/2;
+        tex.draw(drawX,y,drawW,h);
+    }else{
+        auto drawH = w/texRatio;
+        auto drawY = y+(h-drawH)/2;
+        tex.draw(x,drawY,w,drawH);
+    }
+    shader.end();
+
+    //Only draw the text if the font has been loaded
+    if( font && plotTitle != "" ){
+
+        if( !font->isLoaded() ) return false;
+        
+        ofRectangle bounds = font->getStringBoundingBox(plotTitle, 0, 0);
+        int textX = 10;
+        int textY = bounds.height + 5;
+        int textSpacer = bounds.height + 5;
+
+        ofSetColor(textColor[0],textColor[1],textColor[2]);
+        font->drawString( plotTitle, textX, textY );
+        textY += textSpacer;
+    }
+
+    return true;
+}
+
 unsigned int ofxGrtMatrixPlot::getRows() const{
     return this->rows;
 }
