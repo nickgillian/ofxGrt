@@ -1,7 +1,7 @@
 
 #include "ofxGrtMatrixPlot.h"
 
-GRT_BEGIN_NAMESPACE
+using namespace GRT;
 
 ofxGrtMatrixPlot::ofxGrtMatrixPlot(){
     plotTitle = "";
@@ -58,28 +58,6 @@ void ofxGrtMatrixPlot::update( const Matrix<float> &data ){
     update( pixelPointer, rows, cols );
 }
 
-void ofxGrtMatrixPlot::update( const MatrixFloat &data ){
- 
-    const unsigned int rows = data.getNumRows(); 
-    const unsigned int cols = data.getNumCols();
-    const size_t size = rows*cols;
-
-    if( this->rows != rows || this->cols != cols ){
-        this->rows = rows;
-        this->cols = cols;
-        pixelData.resize( size );
-    }
-    
-    unsigned int index = 0;
-    for(unsigned int j=0; j<cols; j++){
-        for(unsigned int i=0; i<rows; i++){
-            pixelData[ index++ ] = data[i][j];
-        }
-    }
-    float *pixelPointer = &pixelData[0];
-
-    update( pixelPointer, rows, cols );
-}
 
 void ofxGrtMatrixPlot::update( float *data, const unsigned int rows, const unsigned int cols ){
     
@@ -176,5 +154,5 @@ unsigned int ofxGrtMatrixPlot::getCols() const{
     return this->cols;
 }
 
-GRT_END_NAMESPACE
+
 
