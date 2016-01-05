@@ -95,7 +95,8 @@ bool ofxGrtMatrixPlot::draw(float x, float y) const{
 }
 
 bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h) const{
-        if( pixels.size() == 0 ) return false;
+
+    if( pixels.size() == 0 ) return false;
 	auto & tex = texture;
 	auto ratio = w/h;
 	auto texRatio = tex.getWidth()/tex.getHeight();
@@ -108,7 +109,25 @@ bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h) const{
 		auto drawY = y+(h-drawH)/2;
 		tex.draw(x,drawY,w,drawH);
 	}
-        return true;
+
+    //Only draw the text if the font has been loaded
+    if( font ){
+
+        if( !font->isLoaded() ) return false;
+        
+        ofRectangle bounds = font->getStringBoundingBox(plotTitle, 0, 0);
+        int textX = 10;
+        int textY = bounds.height + 5;
+        int textSpacer = bounds.height + 5;
+
+        if( plotTitle != "" ){
+            ofSetColor(textColor[0],textColor[1],textColor[2]);
+            font->drawString( plotTitle, textX, textY );
+            textY += textSpacer;
+        }
+    }
+
+    return true;
 }
 
 unsigned int ofxGrtMatrixPlot::getRows() const{

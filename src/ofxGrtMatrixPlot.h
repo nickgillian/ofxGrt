@@ -36,15 +36,19 @@ public:
     void update( float *data, const unsigned int rows, const unsigned int cols );
     bool draw(float x, float y) const;
     bool draw(float x, float y, float w, float h) const;
+    bool setFont( const ofTrueTypeFont &font ){ this->font = &font; return this->font->isLoaded(); }
+    bool setTitle( const std::string &plotTitle ){ this->plotTitle = plotTitle; return true; }
 
     unsigned int getRows() const;
     unsigned int getCols() const;
 protected:
     unsigned int rows;
     unsigned int cols;
+    std::string plotTitle;
     Vector<float> pixelData;
     ofFloatPixels pixels;
     ofTexture texture;
+    const ofTrueTypeFont *font;
 };
 
 GRT_END_NAMESPACE
