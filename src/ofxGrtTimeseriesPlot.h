@@ -51,7 +51,12 @@ public:
      @return returns true if the plot was updated successfully, false otherwise
     */
     bool update( const vector<float> &data );
-    //bool update( const vector<double> &data );
+    
+    /**
+     @brief updates the plot pushing the input data into the plots internal buffer. The size of the input Vector must match the number of dimensions in the plot.
+     @return returns true if the plot was updated successfully, false otherwise
+    */
+    bool update( const vector<double> &data );
 
     /**
      @brief draws the plot.     

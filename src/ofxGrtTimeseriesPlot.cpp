@@ -163,7 +163,15 @@ bool ofxGrtTimeseriesPlot::update( const vector<float> &data ){
     
 }
 
+bool ofxGrtTimeseriesPlot::update( const vector<double> &data ){
 
+    const size_t N = data.size();
+    vector<float> tmp(N);
+    for(size_t i=0; i<N; i++){
+        tmp[i] = data[i];
+    }
+    return update( tmp );
+}
     
 bool ofxGrtTimeseriesPlot::draw(unsigned int x,unsigned int y,unsigned int w,unsigned int h){
     
