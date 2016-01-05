@@ -4,7 +4,12 @@
 GRT_BEGIN_NAMESPACE
 
 ofxGrtMatrixPlot::ofxGrtMatrixPlot(){
+    plotTitle = "";
+    font = NULL;
     rows = cols = 0;
+    textColor[0] = 255;
+    textColor[1] = 255;
+    textColor[2] = 255;
 }
 
 void ofxGrtMatrixPlot::update( const Matrix<double> &data ){
@@ -111,7 +116,7 @@ bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h) const{
 	}
 
     //Only draw the text if the font has been loaded
-    if( font ){
+    if( font && plotTitle != "" ){
 
         if( !font->isLoaded() ) return false;
         
@@ -120,11 +125,9 @@ bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h) const{
         int textY = bounds.height + 5;
         int textSpacer = bounds.height + 5;
 
-        if( plotTitle != "" ){
-            ofSetColor(textColor[0],textColor[1],textColor[2]);
-            font->drawString( plotTitle, textX, textY );
-            textY += textSpacer;
-        }
+        ofSetColor(textColor[0],textColor[1],textColor[2]);
+        font->drawString( plotTitle, textX, textY );
+        textY += textSpacer;
     }
 
     return true;

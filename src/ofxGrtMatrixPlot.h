@@ -21,9 +21,7 @@
 
 #include <GRT/GRT.h>
 
-#include "ofPixels.h"
-#include "ofTexture.h"
-#include "ofConstants.h"
+#include "ofMain.h"
 
 GRT_BEGIN_NAMESPACE
 
@@ -45,6 +43,7 @@ protected:
     unsigned int rows;
     unsigned int cols;
     std::string plotTitle;
+    ofColor textColor;
     Vector<float> pixelData;
     ofFloatPixels pixels;
     ofTexture texture;
