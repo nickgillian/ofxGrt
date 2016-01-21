@@ -65,6 +65,8 @@ public:
     bool draw(unsigned int x,unsigned int y,unsigned int w,unsigned int h);
     
     bool reset();
+    bool setData( const vector<float> &data );
+    bool setData( const vector<double> &data );
     bool setData( const vector< vector<float> > &data );
     bool setData( const Matrix<float> &data );
     bool setRanges(float minY,float maxY,bool lockRanges = false);

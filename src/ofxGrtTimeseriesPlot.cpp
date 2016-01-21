@@ -95,10 +95,58 @@ bool ofxGrtTimeseriesPlot::setRanges(float minY,float maxY,bool lockRanges){
     this->lockRanges = lockRanges;
     return true;
 }
+
+bool ofxGrtTimeseriesPlot::setData( const vector<float> &data ){
+
+    const unsigned int M = (unsigned int)data.size();
+
+    if( numDimensions != 1 ) return false;
+    if( M != timeseriesLength ) return false;
+
+    dataBuffer.reset();
+    
+    for(unsigned int i=0; i<M; i++){
+        dataBuffer(i)[0] = data[i];
+
+        //Check the min and max values
+        if( !lockRanges ){
+            if( data[i] < minY ){ minY = data[i]; }
+            else if( data[i] > maxY ){ maxY = data[i]; }
+        }
+    }
+
+    return true;
+}
+
+bool ofxGrtTimeseriesPlot::setData( const vector<double> &data ){
+
+    const unsigned int M = (unsigned int)data.size();
+
+    if( numDimensions != 1 ) return false;
+    if( M != timeseriesLength ) return false;
+
+    dataBuffer.reset();
+    
+    for(unsigned int i=0; i<M; i++){
+        dataBuffer(i)[0] = data[i];
+
+        //Check the min and max values
+        if( !lockRanges ){
+            if( data[i] < minY ){ minY = data[i]; }
+            else if( data[i] > maxY ){ maxY = data[i]; }
+        }
+    }
+
+    return true;
+}
     
 bool ofxGrtTimeseriesPlot::setData( const vector< vector<float> > &data ){
     
     const unsigned int M = (unsigned int)data.size();
+
+    if( numDimensions != 1 ) return false;
+    if( M != timeseriesLength ) return false;
+
     dataBuffer.reset();
     
     for(unsigned int i=0; i<M; i++){
