@@ -92,9 +92,15 @@ void ofApp::setup(){
     
     //Offset the timeseries data by the first sample, this makes your gestures (more) invariant to the location the gesture is performed
     dtw.setOffsetTimeseriesUsingFirstSample(true);
+
+    //Allow the DTW algorithm to search the entire cost matrix
+    dtw.setContrainWarpingPath( false );
     
     //Add the classifier to the pipeline (after we do this, we don't need the DTW classifier anymore)
     pipeline.setClassifier( dtw );
+
+    //Load the shader
+    shader.load("shaders/noise.vert", "shaders/noise.frag");
 }
 
 //--------------------------------------------------------------
@@ -194,16 +200,35 @@ void ofApp::draw(){
         DTW *dtw = pipeline.getClassifier< DTW >();
         
         if( dtw != NULL ){
-            vector< VectorDouble > inputData = dtw->getInputDataBuffer();
-            for(UINT i=0; i<inputData.size(); i++){
-                double x = inputData[i][0];
-                double y = inputData[i][1];
-                double r = ofMap(i,0,inputData.size(),0,255);
-                double g = 0;
-                double b = 255-r;
+            float x,y,w,h,r,g,b;
+            float zoom = 5;
+
+            Vector< VectorFloat > inputData = dtw->getInputDataBuffer();
+            for(UINT i=0; i<inputData.getSize(); i++){
+                x = inputData[i][0];
+                y = inputData[i][1];
+                r = ofMap(i,0,inputData.getSize(),0,255);
+                g = 0;
+                b = 255-r;
                 
                 ofSetColor(r,g,b);
                 ofDrawEllipse(x,y,5,5);
+            }
+
+            const Vector< MatrixFloat > &distanceMatrix = dtw->getDistanceMatrices();
+            if( distanceMatrixPlots.getSize() != distanceMatrix.getSize() ){
+                distanceMatrixPlots.resize( distanceMatrix.getSize() );
+            }
+            y = 10;
+            for(UINT i=0; i<distanceMatrix.getSize(); i++){
+                distanceMatrixPlots[i].update( distanceMatrix[i], distanceMatrix[i].getMinValue(), distanceMatrix[i].getMaxValue() );
+                w = distanceMatrixPlots[i].getWidth() * zoom;
+                h = distanceMatrixPlots[i].getHeight() * zoom;
+                x = ofGetWidth() - w - 10;
+                shader.begin();
+                distanceMatrixPlots[i].draw( x, y, w, h );
+                shader.end();
+                y += h + 10;
             }
         }
     }

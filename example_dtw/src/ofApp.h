@@ -34,4 +34,6 @@ public:
     bool record;                                            //This is a flag that keeps track of when we should record training data
     UINT trainingClassLabel;                                //This will hold the current label for when we are training the classifier
     string infoText;                                        //This string will be used to draw some info messages to the main app window
+    Vector< ofxGrtMatrixPlot > distanceMatrixPlots;
+    ofShader shader;
 };

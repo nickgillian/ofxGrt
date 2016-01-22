@@ -25,8 +25,8 @@ void ofxGrtMatrixPlot::update( const Matrix<double> &data ){
     }
     
     unsigned int index = 0;
-    for(unsigned int j=0; j<cols; j++){
-        for(unsigned int i=0; i<rows; i++){
+    for(unsigned int i=0; i<rows; i++){
+        for(unsigned int j=0; j<cols; j++){
             pixelData[ index++ ] = data[i][j];
         }
     }
@@ -58,6 +58,28 @@ void ofxGrtMatrixPlot::update( const Matrix<float> &data ){
     update( pixelPointer, rows, cols );
 }
 
+void ofxGrtMatrixPlot::update( const MatrixFloat &data, float minValue, float maxValue ){
+
+    const unsigned int rows = data.getNumRows(); 
+    const unsigned int cols = data.getNumCols();
+    const size_t size = rows*cols;
+
+    if( this->rows != rows || this->cols != cols ){
+        this->rows = rows;
+        this->cols = cols;
+        pixelData.resize( size );
+    }
+    
+    unsigned int index = 0;
+    for(unsigned int i=0; i<rows; i++){
+        for(unsigned int j=0; j<cols; j++){
+            pixelData[ index++ ] = Util::scale(data[i][j],minValue,maxValue,0.0,1.0);
+        }
+    }
+    float *pixelPointer = &pixelData[0];
+
+    update( pixelPointer, rows, cols );
+}
 
 void ofxGrtMatrixPlot::update( float *data, const unsigned int rows, const unsigned int cols ){
     

@@ -30,6 +30,7 @@ public:
     ofxGrtMatrixPlot();
     void update( const Matrix<double> &data );
     void update( const Matrix<float> &data );
+    void update( const MatrixFloat &data, float minValue, float maxValue );
     void update( float *data, const unsigned int rows, const unsigned int cols );
     bool draw(float x, float y) const;
     bool draw(float x, float y, float w, float h) const;
