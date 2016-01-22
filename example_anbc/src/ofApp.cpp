@@ -1,5 +1,5 @@
 /*
-
+ See the README file for more info.
  */
 
 
@@ -50,6 +50,7 @@ void ofApp::update(){
     
     //If we are recording training data, then add the current sample to the training data set
     if( record ){
+        record = false;
         trainingData.addSample( trainingClassLabel, sample );
     }
     
@@ -93,7 +94,7 @@ void ofApp::keyPressed(int key){
     
     switch ( key) {
         case 'r':
-            record = !record;
+            record = true;
             break;
         case '1':
             trainingClassLabel = 1;

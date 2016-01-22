@@ -1,5 +1,5 @@
 /*
-  This example demonstrates how to use the GRT ANBC algorithm in openFrameworks
+  This example demonstrates how to use the GRT ANBC algorithm in openFrameworks. See the README file for more info.
  */
 
 #pragma once
