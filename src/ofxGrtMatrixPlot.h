@@ -39,6 +39,8 @@ public:
 
     unsigned int getRows() const;
     unsigned int getCols() const;
+    unsigned int getWidth() const;
+    unsigned int getHeight() const;
 protected:
     unsigned int rows;
     unsigned int cols;

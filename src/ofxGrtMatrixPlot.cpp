@@ -48,8 +48,8 @@ void ofxGrtMatrixPlot::update( const Matrix<float> &data ){
     }
     
     unsigned int index = 0;
-    for(unsigned int j=0; j<cols; j++){
-        for(unsigned int i=0; i<rows; i++){
+    for(unsigned int i=0; i<rows; i++){
+        for(unsigned int j=0; j<cols; j++){
             pixelData[ index++ ] = data[i][j];
         }
     }
@@ -61,7 +61,9 @@ void ofxGrtMatrixPlot::update( const Matrix<float> &data ){
 
 void ofxGrtMatrixPlot::update( float *data, const unsigned int rows, const unsigned int cols ){
     
-    pixels.setFromExternalPixels(data,rows,cols,OF_PIXELS_GRAY);
+    const unsigned int width = cols;
+    const unsigned int height = rows;
+    pixels.setFromExternalPixels(data,width,height,OF_PIXELS_GRAY);
 
     if(!texture.isAllocated()){
         texture.allocate( pixels, false );
@@ -154,5 +156,12 @@ unsigned int ofxGrtMatrixPlot::getCols() const{
     return this->cols;
 }
 
+unsigned int ofxGrtMatrixPlot::getWidth() const{
+    return this->cols;
+}
+
+unsigned int ofxGrtMatrixPlot::getHeight() const{
+    return this->rows;
+}
 
 
