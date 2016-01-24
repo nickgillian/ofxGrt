@@ -10,7 +10,6 @@ Note that this extensions contains a local, pre compiled version of the GRT, so 
 
 To use ofxGrt:
 
-```
 - download openFrameworks (you will need an OF version that supports C++11, you can find the latest version on the openFrameworks github page)
 
 - clone this repo to the openFrameworks addons folder
