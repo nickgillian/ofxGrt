@@ -69,6 +69,7 @@ public:
     bool setData( const vector<double> &data );
     bool setData( const vector< vector<float> > &data );
     bool setData( const Matrix<float> &data );
+    bool setData( const Matrix<double> &data );
     bool setRanges(float minY,float maxY,bool lockRanges = false);
     bool setDrawGrid( bool drawGrid ){ this->drawGrid = drawGrid; return true; }
     bool setFont( const ofTrueTypeFont &font ){ this->font = &font; return this->font->isLoaded(); }

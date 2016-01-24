@@ -7,11 +7,11 @@ ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     font = NULL;
     initialized = false;
     lockRanges = false;
-    minY = 0;
-    maxY = 0;
+    minY =  std::numeric_limits<float>::max();
+    maxY =  -std::numeric_limits<float>::max();
     constrainValuesToGraph = true;
     drawInfoText = false;
-    drawGrid = false;    
+    drawGrid = true;    
     textColor[0] = 225;
     textColor[1] = 225;
     textColor[2] = 225;
@@ -49,8 +49,8 @@ bool ofxGrtTimeseriesPlot::setup(unsigned int timeseriesLength,unsigned int numD
         dataBuffer.push_back(vector<float>(numDimensions,0));
     
     lockRanges = false;
-    minY = 0;
-    maxY = 0;
+    minY =  std::numeric_limits<float>::max();
+    maxY =  -std::numeric_limits<float>::max();
     channelNames.resize(numDimensions,"");
     
     colors.resize(numDimensions);
@@ -76,8 +76,8 @@ bool ofxGrtTimeseriesPlot::reset(){
     if( !initialized ) return false;
     
     if( !lockRanges ){
-        minY = 0;
-        maxY = 0;
+        minY =  std::numeric_limits<float>::max();
+        maxY =  -std::numeric_limits<float>::max();
     }
 
     //Clear the buffer
@@ -104,6 +104,11 @@ bool ofxGrtTimeseriesPlot::setData( const vector<float> &data ){
     if( M != timeseriesLength ) return false;
 
     dataBuffer.reset();
+
+    if( !lockRanges ){
+        minY =  std::numeric_limits<float>::max();
+        maxY =  -std::numeric_limits<float>::max();
+    }
     
     for(unsigned int i=0; i<M; i++){
         dataBuffer(i)[0] = data[i];
@@ -126,6 +131,11 @@ bool ofxGrtTimeseriesPlot::setData( const vector<double> &data ){
     if( M != timeseriesLength ) return false;
 
     dataBuffer.reset();
+
+    if( !lockRanges ){
+        minY =  std::numeric_limits<double>::max();
+        maxY =  -std::numeric_limits<double>::max();
+    }
     
     for(unsigned int i=0; i<M; i++){
         dataBuffer(i)[0] = data[i];
@@ -148,12 +158,25 @@ bool ofxGrtTimeseriesPlot::setData( const vector< vector<float> > &data ){
     if( M != timeseriesLength ) return false;
 
     dataBuffer.reset();
+
+    if( !lockRanges ){
+        minY =  std::numeric_limits<float>::max();
+        maxY =  -std::numeric_limits<float>::max();
+    }
     
     for(unsigned int i=0; i<M; i++){
         if( data[i].size() != numDimensions ){
             return false;
         }
-        update( data[i] );
+        for(unsigned int j=0; j<numDimensions; j++){
+            dataBuffer(i)[j] = data[i][j];
+
+            //Check the min and max values
+            if( !lockRanges ){
+                if( data[i][j] < minY ){ minY = data[i][j]; }
+                else if( data[i][j] > maxY ){ maxY = data[i][j]; }
+            }
+        }
     }
     
     return true;
@@ -170,9 +193,54 @@ bool ofxGrtTimeseriesPlot::setData( const Matrix<float> &data ){
     }
     
     dataBuffer.reset();
+
+    if( !lockRanges ){
+        minY =  std::numeric_limits<float>::max();
+        maxY =  -std::numeric_limits<float>::max();
+    }
+
+    for(unsigned int i=0; i<M; i++){
+        for(unsigned int j=0; j<numDimensions; j++){
+            dataBuffer(i)[j] = data[i][j];
+
+            //Check the min and max values
+            if( !lockRanges ){
+                if( data[i][j] < minY ){ minY = data[i][j]; }
+                else if( data[i][j] > maxY ){ maxY = data[i][j]; }
+            }
+        }
+    }
+    
+    return true;
+}
+
+bool ofxGrtTimeseriesPlot::setData( const Matrix<double> &data ){
+
+    const unsigned int M = data.getNumRows();
+    const unsigned int N = data.getNumCols();
+    
+    if( N != numDimensions ){
+        errorLog << "setData( const MatrixDouble &data ) - The number of dimensions in the data does not match the number of dimensions in the graph!" << endl;
+        return false;
+    }
+    
+    dataBuffer.reset();
+
+    if( !lockRanges ){
+        minY =  std::numeric_limits<double>::max();
+        maxY =  -std::numeric_limits<double>::max();
+    }
     
     for(unsigned int i=0; i<M; i++){
-        update( data.getRowVector(i) );
+        for(unsigned int j=0; j<numDimensions; j++){
+            dataBuffer(i)[j] = data[i][j];
+
+            //Check the min and max values
+            if( !lockRanges ){
+                if( data[i][j] < minY ){ minY = data[i][j]; }
+                else if( data[i][j] > maxY ){ maxY = data[i][j]; }
+            }
+        }
     }
     
     return true;

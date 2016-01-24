@@ -62,11 +62,17 @@
 
 
 #include "ofApp.h"
+#define FRAME_RATE 60
 
 //--------------------------------------------------------------
 void ofApp::setup(){
     
-    ofSetFrameRate(30);
+    ofSetFrameRate( FRAME_RATE );
+
+    //Load the resources
+    font.load("verdana.ttf", 12, true, true);
+    font.setLineHeight(14.0f);
+    shader.load("shaders/noise.vert", "shaders/noise.frag");
     
     //Initialize the training and info variables
     infoText = "";
@@ -94,13 +100,10 @@ void ofApp::setup(){
     dtw.setOffsetTimeseriesUsingFirstSample(true);
 
     //Allow the DTW algorithm to search the entire cost matrix
-    dtw.setContrainWarpingPath( false );
+    dtw.setContrainWarpingPath( true );
     
     //Add the classifier to the pipeline (after we do this, we don't need the DTW classifier anymore)
     pipeline.setClassifier( dtw );
-
-    //Load the shader
-    shader.load("shaders/noise.vert", "shaders/noise.frag");
 }
 
 //--------------------------------------------------------------
@@ -118,7 +121,13 @@ void ofApp::update(){
     
     //If the pipeline has been trained, then run the prediction
     if( pipeline.getTrained() ){
+
+        //Run the prediction
         pipeline.predict( sample );
+
+        //Update the plots
+        predictedClassPlot.update( VectorFloat(1,pipeline.getPredictedClassLabel()) );
+        classLikelihoodsPlot.update( pipeline.getClassLikelihoods() );
     }
 }
 
@@ -128,8 +137,10 @@ void ofApp::draw(){
     ofBackground(0, 0, 0);
     
     string text;
-    int textX = 20;
-    int textY = 20;
+    const int MARGIN = 20;
+    const int graphSpacer = 15;
+    int textX = MARGIN;
+    int textY = MARGIN;
     
     //Draw the training info
     ofSetColor(255, 255, 255);
@@ -179,21 +190,6 @@ void ofApp::draw(){
     text = "InfoText: " + infoText;
     ofDrawBitmapString(text, textX,textY);
     
-    //Draw the timeseries data
-    if( record ){
-        ofFill();
-        for(UINT i=0; i<timeseries.getNumRows(); i++){
-            double x = timeseries[i][0];
-            double y = timeseries[i][1];
-            double r = ofMap(i,0,timeseries.getNumRows(),0,255);
-            double g = 0;
-            double b = 255-r;
-            
-            ofSetColor(r,g,b);
-            ofDrawEllipse(x,y,5,5);
-        }
-    }
-    
     if( pipeline.getTrained() ){
         
         //Draw the data in the DTW input buffer
@@ -215,22 +211,31 @@ void ofApp::draw(){
                 ofDrawEllipse(x,y,5,5);
             }
 
-            const Vector< MatrixFloat > &distanceMatrix = dtw->getDistanceMatrices();
-            if( distanceMatrixPlots.getSize() != distanceMatrix.getSize() ){
-                distanceMatrixPlots.resize( distanceMatrix.getSize() );
-            }
-            y = 10;
-            for(UINT i=0; i<distanceMatrix.getSize(); i++){
-                distanceMatrixPlots[i].update( distanceMatrix[i], distanceMatrix[i].getMinValue(), distanceMatrix[i].getMaxValue() );
-                w = distanceMatrixPlots[i].getWidth() * zoom;
-                h = distanceMatrixPlots[i].getHeight() * zoom;
-                x = ofGetWidth() - w - 10;
-                shader.begin();
-                distanceMatrixPlots[i].draw( x, y, w, h );
-                shader.end();
-                y += h + 10;
-            }
+            //Draw the distance matrix for each class
+            drawDistanceMatrix();
+
+            //Draw the predicted class label plot
+            w = ofGetWidth() * 0.5;
+            h = 100;
+            x = MARGIN;
+            y = ofGetHeight() - (h + graphSpacer)*2;
+            predictedClassPlot.draw( x, y, w, h );
+
+            //Draw the class likelihoods plot
+            y += h + graphSpacer;
+            classLikelihoodsPlot.draw( x, y, w, h );
         }
+    }else{
+
+        //If we get here, then we are in training mode
+
+        //Draw the timeseries data
+        if( record ){
+            drawTimeseries();
+        }
+
+        //Draw any exisiting training samples
+        drawTrainingData();
     }
     
 }
@@ -238,6 +243,7 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     
+    string labelName = "";
     infoText = "";
     
     switch ( key) {
@@ -245,7 +251,14 @@ void ofApp::keyPressed(int key){
             record = !record;
             if( !record ){
                 trainingData.addSample(trainingClassLabel, timeseries);
-                
+
+                //Update the training data plot
+                labelName = string("Class: ") + grt_to_str<unsigned int>( trainingClassLabel );
+                trainingDataPlot.push_back( ofxGrtTimeseriesPlot() );
+                trainingDataPlot.back().setup( timeseries.getNumRows(), timeseries.getNumCols(), labelName );
+                trainingDataPlot.back().setFont( font );
+                trainingDataPlot.back().setData( timeseries );
+
                 //Clear the timeseries for the next recording
                 timeseries.clear();
             }
@@ -257,9 +270,52 @@ void ofApp::keyPressed(int key){
         case ']':
             trainingClassLabel++;
             break;
+        case '1':
+            trainingClassLabel = 1;
+        break;
+        case '2':
+            trainingClassLabel = 2;
+        break;
+        case '3':
+            trainingClassLabel = 3;
+        break;
+        case '4':
+            trainingClassLabel = 4;
+        break;
+        case '5':
+            trainingClassLabel = 4;
+        break;
+        case '6':
+            trainingClassLabel = 6;
+        break;
+        case '7':
+            trainingClassLabel = 7;
+        break;
+        case '8':
+            trainingClassLabel = 8;
+        break;
+        case '9':
+            trainingClassLabel = 9;
+        break;
+        case '0':
+            trainingClassLabel = 0;
+        break;
         case 't':
             if( pipeline.train( trainingData ) ){
                 infoText = "Pipeline Trained";
+
+                //Setup the distance matrix
+                distanceMatrixPlots.resize( pipeline.getNumClasses() );
+
+                //Setup the plots for prediction
+                predictedClassPlot.setup( FRAME_RATE * 5, 1, "predicted label" );
+                predictedClassPlot.setFont( font );
+                predictedClassPlot.setRanges( 0, pipeline.getNumClasses() );
+                classLikelihoodsPlot.setup( FRAME_RATE * 5, pipeline.getNumClasses(), "class likelihoods" );
+                classLikelihoodsPlot.setFont( font );
+                classLikelihoodsPlot.setRanges( 0, 1 );
+
+
             }else infoText = "WARNING: Failed to train pipeline";
             break;
         case 's':
@@ -278,6 +334,75 @@ void ofApp::keyPressed(int key){
             break;
         default:
             break;
+    }
+
+}
+
+void ofApp::drawTimeseries(){
+    ofFill();
+    for(UINT i=0; i<timeseries.getNumRows(); i++){
+        double x = timeseries[i][0];
+        double y = timeseries[i][1];
+        double r = ofMap(i,0,timeseries.getNumRows(),0,255);
+        double g = 0;
+        double b = 255-r;
+        
+        ofSetColor(r,g,b);
+        ofDrawEllipse(x,y,5,5);
+    }
+}
+
+void ofApp::drawTrainingData(){
+
+    if( trainingDataPlot.getSize() == 0 ) return;
+
+    ofSetColor(255,255,255);
+    ofFill();
+    ofRectangle bounds = font.getStringBoundingBox("Training Examples",0,0);
+    float w = 250;
+    float h = 50;
+    float x = ofGetWidth() - w - 10;
+    float y = 10 + bounds.height;
+    font.drawString( "Training Examples", x, y );
+    y += 15;
+    for(UINT i=0; i<trainingDataPlot.getSize(); i++){
+        trainingDataPlot[i].draw( x, y, w, h );
+        y += h+5;
+    }
+
+}
+
+void ofApp::drawDistanceMatrix(){
+
+    //Get a pointer to the DTW classifier
+    DTW *dtw = pipeline.getClassifier< DTW >();
+
+    if( dtw == NULL ) return;
+
+    ofSetColor(255,255,255);
+    ofFill();
+
+    ofRectangle bounds = font.getStringBoundingBox("Distance Matrix",0,0);
+    float w = bounds.width;
+    float h = 100;
+    float x = ofGetWidth() - bounds.width - 10;
+    float y = 10 + bounds.height;
+    font.drawString( "Distance Matrix", x, y );
+    
+     //Draw the DTW cost matrix for each class
+    const Vector< MatrixFloat > &distanceMatrix = dtw->getDistanceMatrices();
+
+    if( distanceMatrixPlots.getSize() != distanceMatrix.getSize() ){
+        distanceMatrixPlots.resize( distanceMatrix.getSize() );
+    }
+
+    y += 15;
+    for(UINT i=0; i<distanceMatrix.getSize(); i++){
+        distanceMatrixPlots[i].update( distanceMatrix[i], distanceMatrix[i].getMinValue(), distanceMatrix[i].getMaxValue() );
+        shader.begin();
+        distanceMatrixPlots[i].draw( x, y, w, h );
+        shader.end();
+        y += h + 10;
     }
 
 }
