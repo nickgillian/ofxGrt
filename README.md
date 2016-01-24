@@ -1,6 +1,6 @@
 #ofxGrt
 
-This repo contains a GRT ([Gesture Recognition Toolkit](https://github.com/nickgillian/grt)) extension for openFrameworks.  
+This repo contains an [openFrameworks](http://openframeworks.cc) extension for the [Gesture Recognition Toolkit](https://github.com/nickgillian/grt) (GRT).
 
 The GRT is a cross-platform, open-source, C++ machine learning library designed for real-time gesture recognition.
 
