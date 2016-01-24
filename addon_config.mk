@@ -19,7 +19,7 @@ meta:
 	ADDON_DESCRIPTION = Addon for Gesture Recognition Toolkit
 	ADDON_AUTHOR = Nick Gillian
 	ADDON_TAGS = "GRT"
-	ADDON_URL = 
+	ADDON_URL = https://github.com/nickgillian/ofxGrt
 
 common:
 	# dependencies with other addons, a list of them separated by spaces 
@@ -29,7 +29,7 @@ common:
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be
 	# specified here separated by spaces or one per line using +=
-	ADDON_INCLUDES += /usr/local/include
+	ADDON_INCLUDES += libs/include
 	
 	# any special flag that should be passed to the compiler when using this
 	# addon
@@ -37,7 +37,7 @@ common:
 	
 	# any special flag that should be passed to the linker when using this
 	# addon, also used for system libraries with -lname
-	ADDON_LDFLAGS = -L/usr/local/lib -lgrt
+	ADDON_LDFLAGS = -L./libs/lib -lgrt
 	
 	# linux only, any library that should be included in the project using
 	# pkg-config
