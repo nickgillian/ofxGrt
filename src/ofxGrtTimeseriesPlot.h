@@ -75,7 +75,13 @@ public:
     bool setFont( const ofTrueTypeFont &font ){ this->font = &font; return this->font->isLoaded(); }
     bool setLockRanges(bool lockRanges){ this->lockRanges = lockRanges; return true; }
     bool setDrawInfoText(bool drawInfoText){ this->drawInfoText = drawInfoText; return true; }
-    
+
+    /**
+     @brief gets the range information.
+     @returns returns the range information (minimum to maximum) in std::pair.
+    */
+    std::pair<float, float> getRanges() { return std::make_pair(minY, maxY); }
+
 protected:
     unsigned int numDimensions;
     unsigned int timeseriesLength;
