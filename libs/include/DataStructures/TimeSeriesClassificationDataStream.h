@@ -139,6 +139,17 @@ public:
 	 @return true if the sample was correctly added to the dataset, false otherwise
      */
 	bool addSample(const UINT classLabel,const VectorFloat &trainingSample);
+
+    /**
+     Adds a new labelled sample to the dataset.  
+     The dimensionality of the sample should match the number of dimensions in the TimeSeriesClassificationDataStream.
+     The class label can be zero (this should represent a null class).
+     
+     @param classLabel: the class label of the corresponding sample
+     @param sample: the new sample you want to add to the dataset.  The number of rows of this sample should match the number of dimensions in the TimeSeriesClassificationDataStream
+     @return true if the sample was correctly added to the dataset, false otherwise
+     */
+    bool addSample(const UINT classLabel,const MatrixFloat &trainingSample);
     
     /**
      Removes the last training sample added to the dataset.

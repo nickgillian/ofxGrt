@@ -43,7 +43,7 @@
 #include "Clusterer.h"
 #include "PostProcessing.h"
 #include "Context.h"
-#include "../DataStructures/TimeSeriesClassificationDataStream.h"
+#include "../DataStructures/ClassificationDataStream.h"
 #include "../Util/ClassificationResult.h"
 #include "../Util/TestResult.h"
 
@@ -54,6 +54,8 @@ GRT_BEGIN_NAMESPACE
 class GestureRecognitionPipeline : public GRTBase
 {
 public:
+    enum ContextLevels{START_OF_PIPELINE=0,AFTER_PREPROCESSING,AFTER_FEATURE_EXTRACTION,AFTER_CLASSIFIER,END_OF_PIPELINE,NUM_CONTEXT_LEVELS};
+
 	/**
      Default Constructor
 	*/
@@ -121,6 +123,17 @@ public:
      */
     bool train(const TimeSeriesClassificationData &trainingData,const UINT kFoldValue,const bool useStratifiedSampling = false);
 
+    /**
+     This is the main training interface for training a Classifier with ClassificationDataStream.  This function will pass
+     the trainingData through any PreProcessing or FeatureExtraction modules that have been added to the GestureRecognitionPipeline, and then calls the 
+     training function of the Classification module that has been added to the GestureRecognitionPipeline.  
+     The function will return true if the classifier was trained successfully, false otherwise.
+
+    @param trainingData: the time-series classification training data that will be used to train the classifier at the core of the pipeline
+    @return bool returns true if the classifier was trained successfully, false otherwise
+    */
+    bool train(const ClassificationDataStream &trainingData);
+
 	/**
      This is the main training interface for training a regression module with RegressionData.  This function will pass
      the trainingData through any PreProcessing or FeatureExtraction modules that have been added to the GestureRecognitionPipeline, and then calls the 
@@ -178,7 +191,7 @@ public:
     bool test(const TimeSeriesClassificationData &testData);
 
     /**
-     This function is the main interface for testing the accuracy of a pipeline with TimeSeriesClassificationDataStream.  This function will pass
+     This function is the main interface for testing the accuracy of a pipeline with ClassificationDataStream.  This function will pass
      the testData through any PreProcessing or FeatureExtraction modules that have been added to the GestureRecognitionPipeline, and then calls the 
      predict function of the classification module that has been added to the GestureRecognitionPipeline.  
      The function will return true if the pipeline was tested successfully, false otherwise.
@@ -186,7 +199,7 @@ public:
      @param testData: the timeseries classification data stream that will be used to test the accuracy of the pipeline
      @return bool returns true if the pipeline was tested successfully, false otherwise
 	*/
-    bool test(const TimeSeriesClassificationDataStream &testData);
+    bool test(const ClassificationDataStream &testData);
 
     /**
      This function is the main interface for testing the accuracy of a pipeline with RegressionData.  This function will pass
@@ -1104,6 +1117,8 @@ public:
 
 protected:
     bool predict_classifier(const VectorFloat &inputVector);
+    bool predict_timeseries( const MatrixFloat &input );
+    bool predict_frame( const MatrixFloat &input );
     bool predict_regressifier(const VectorFloat &inputVector);
     bool predict_clusterer(const VectorFloat &inputVector);
     void deleteAllPreProcessingModules();
@@ -1151,10 +1166,6 @@ protected:
     Vector< Vector< Context* > > contextModules;
     
     enum PipelineModes{PIPELINE_MODE_NOT_SET=0,CLASSIFICATION_MODE,REGRESSION_MODE,CLUSTER_MODE};
-    
-public:
-    enum ContextLevels{START_OF_PIPELINE=0,AFTER_PREPROCESSING,AFTER_FEATURE_EXTRACTION,AFTER_CLASSIFIER,END_OF_PIPELINE,NUM_CONTEXT_LEVELS};
-    
 };
 
 GRT_END_NAMESPACE

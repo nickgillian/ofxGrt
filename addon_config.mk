@@ -29,7 +29,10 @@ common:
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be
 	# specified here separated by spaces or one per line using +=
+	#Uncomment the line below to use the local GRT headers
 	ADDON_INCLUDES += libs/include
+	#Uncomment the line below to use the system installed GRT headers
+	#ADDON_INCLUDES += /usr/local/include/GRT
 	
 	# any special flag that should be passed to the compiler when using this
 	# addon
@@ -37,7 +40,10 @@ common:
 	
 	# any special flag that should be passed to the linker when using this
 	# addon, also used for system libraries with -lname
+	#Uncomment the line below to use the local GRT static library
 	ADDON_LDFLAGS = -L./libs/lib -lgrt
+	#Uncomment the line below to use the system installed GRT library
+	#ADDON_LDFLAGS = -L/usr/local/lib -lgrt
 	
 	# linux only, any library that should be included in the project using
 	# pkg-config
