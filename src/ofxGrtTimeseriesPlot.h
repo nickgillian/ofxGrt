@@ -86,13 +86,13 @@ public:
      @brief gets the range information.
      @returns returns the range information (minimum to maximum) in std::pair.
     */
-    std::pair<float, float> getRanges() { return std::make_pair(minY, maxY); }
+    std::pair<float, float> getRanges() const { return std::make_pair(minY, maxY); }
 
     /**
      @brief gets a vector containing the colors used to plot each channel (a.k.a. dimension) in the data
      @returns returns a vector containing the colors used to plot each channel (a.k.a. dimension) in the data
     */
-    vector< ofxColor > getChannelColors() { return colors; }
+    vector< ofColor > getChannelColors() const { return colors; }
 
 protected:
     unsigned int numDimensions;
