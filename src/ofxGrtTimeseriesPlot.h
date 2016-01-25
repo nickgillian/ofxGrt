@@ -76,7 +76,7 @@ public:
     bool setLockRanges(bool lockRanges){ this->lockRanges = lockRanges; return true; }
     bool setDrawInfoText(bool drawInfoText){ this->drawInfoText = drawInfoText; return true; }
 
-    bool setChannelColors( vector< ofxColor > &colors ){
+    bool setChannelColors( const vector< ofColor > &colors ){
         if( colors.size() != numDimensions ) return false;
         this->colors = colors;
         return true;
