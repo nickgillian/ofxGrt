@@ -76,11 +76,23 @@ public:
     bool setLockRanges(bool lockRanges){ this->lockRanges = lockRanges; return true; }
     bool setDrawInfoText(bool drawInfoText){ this->drawInfoText = drawInfoText; return true; }
 
+    bool setChannelColors( vector< ofxColor > &colors ){
+        if( colors.size() != numDimensions ) return false;
+        this->colors = colors;
+        return true;
+    }
+
     /**
      @brief gets the range information.
      @returns returns the range information (minimum to maximum) in std::pair.
     */
     std::pair<float, float> getRanges() { return std::make_pair(minY, maxY); }
+
+    /**
+     @brief gets a vector containing the colors used to plot each channel (a.k.a. dimension) in the data
+     @returns returns a vector containing the colors used to plot each channel (a.k.a. dimension) in the data
+    */
+    vector< ofxColor > getChannelColors() { return colors; }
 
 protected:
     unsigned int numDimensions;
