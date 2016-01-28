@@ -64,9 +64,9 @@ rootDir = os.getcwd()
 #Set the main directories
 grtSourceDir = grtDir + '/GRT'
 grtBuildDir = grtDir + '/build'
-grtInstallDir = rootDir + '/../libs'
-installIncludeDir = rootDir + '/../libs/include'
-installLibDir = rootDir + '/../libs/lib'
+grtInstallDir = rootDir + '/../libs/grt'
+installIncludeDir = grtInstallDir + '/include/GRT'
+installLibDir = grtInstallDir + '/lib'
 grtLibPath = grtBuildDir + '/build'
 grtLibName = 'libgrt.a'
 
