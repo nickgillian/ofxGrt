@@ -64,16 +64,57 @@ public:
     */
     bool draw(unsigned int x,unsigned int y,unsigned int w,unsigned int h);
     
+    /**
+     @brief resets the plot, this resets the axis min/max values and sets all the values in the plot buffer to zero
+     @return returns true if the plot was reset successfully, false otherwise
+    */
     bool reset();
+
+    /**
+     @brief directly fills the plot buffer with the data, this differs from update as instead of update(...) pushing data into the plot buffer, the setData function directly fills
+     the entire plot buffer.  This function should only be called if the plot has been setup with a dimensionality of 1 and the size of the input data matches the length of the plot.
+     @param data: the data that will be used to fill the plot buffer, the length of this vector should match the timeseries length of the plot
+     @return returns true if the data was set successfully, false otherwise
+    */
     bool setData( const vector<float> &data );
+
+    /**
+     @brief directly fills the plot buffer with the data, this differs from update as instead of update(...) pushing data into the plot buffer, the setData function directly fills
+     the entire plot buffer.  This function should only be called if the plot has been setup with a dimensionality of 1 and the size of the input data matches the length of the plot.
+     @param data: the data that will be used to fill the plot buffer, the length of this vector should match the timeseries length of the plot
+     @return returns true if the data was set successfully, false otherwise
+    */
     bool setData( const vector<double> &data );
+
+    /**
+     @brief directly fills the plot buffer with the data, this differs from update as instead of update(...) pushing data into the plot buffer, the setData function directly fills
+     the entire plot buffer.  This function should only be called if the plot has been setup with a dimensionality of N (where N is the size of the inner vector) and the size of the outter data vector
+     matches the length of the plot.
+     @param data: the data that will be used to fill the plot buffer, the size of this outer vector should match the timeseries length of the plot, the size of the inner vector should match the number of dimensions
+     @return returns true if the data was set successfully, false otherwise
+    */
     bool setData( const vector< vector<float> > &data );
+
+    /**
+     @brief directly fills the plot buffer with the data, this differs from update as instead of update(...) pushing data into the plot buffer, the setData function directly fills
+     the entire plot buffer.  This function should only be called if the plot has been setup with a dimensionality of N (where N is the number of columns in the matrix) with a timeseries length of M (where M is the number of rows in the matrix)
+     @param data: the data that will be used to fill the plot buffer, the number of rows in the matrix should match the timeseries length of the plot, the number of columns in the matrix should match the number of dimensions in the plot
+     @return returns true if the data was set successfully, false otherwise
+    */
     bool setData( const Matrix<float> &data );
+
+    /**
+     @brief directly fills the plot buffer with the data, this differs from update as instead of update(...) pushing data into the plot buffer, the setData function directly fills
+     the entire plot buffer.  This function should only be called if the plot has been setup with a dimensionality of N (where N is the number of columns in the matrix) with a timeseries length of M (where M is the number of rows in the matrix)
+     @param data: the data that will be used to fill the plot buffer, the number of rows in the matrix should match the timeseries length of the plot, the number of columns in the matrix should match the number of dimensions in the plot
+     @return returns true if the data was set successfully, false otherwise
+    */
     bool setData( const Matrix<double> &data );
-    bool setRanges(float minY,float maxY,bool lockRanges = false);
+    bool setRanges(float minY,float maxY,bool lockRanges = false, bool linkRanges = false);
     bool setDrawGrid( bool drawGrid ){ this->drawGrid = drawGrid; return true; }
     bool setFont( const ofTrueTypeFont &font ){ this->font = &font; return this->font->isLoaded(); }
     bool setLockRanges(bool lockRanges){ this->lockRanges = lockRanges; return true; }
+    bool setLinkRanges(bool linkRanges){ this->linkRanges = linkRanges; return true; }
     bool setDrawInfoText(bool drawInfoText){ this->drawInfoText = drawInfoText; return true; }
 
     bool setChannelColors( const vector< ofColor > &colors ){
@@ -83,10 +124,10 @@ public:
     }
 
     /**
-     @brief gets the range information.
+     @brief gets the global min and max range information.
      @returns returns the range information (minimum to maximum) in std::pair.
     */
-    std::pair<float, float> getRanges() const { return std::make_pair(minY, maxY); }
+    std::pair<float, float> getRanges() const { return std::make_pair(globalMin, globalMax); }
 
     /**
      @brief gets a vector containing the colors used to plot each channel (a.k.a. dimension) in the data
@@ -97,15 +138,17 @@ public:
 protected:
     unsigned int numDimensions;
     unsigned int timeseriesLength;
-    float minY;
-    float maxY;
+    float globalMin;
+    float globalMax;
     std::string plotTitle;
     vector< std::string > channelNames;
     vector< bool > channelVisible;
+    vector< std::pair<float,float> > channelRanges;
     CircularBuffer< vector<float> > dataBuffer;
     
     bool initialized;
     bool lockRanges;
+    bool linkRanges;
     bool constrainValuesToGraph;
     bool drawInfoText;
     bool drawGrid;

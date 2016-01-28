@@ -7,8 +7,9 @@ ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     font = NULL;
     initialized = false;
     lockRanges = false;
-    minY =  std::numeric_limits<float>::max();
-    maxY =  -std::numeric_limits<float>::max();
+    linkRanges = false;
+    globalMin =  std::numeric_limits<float>::max();
+    globalMax =  -std::numeric_limits<float>::max();
     constrainValuesToGraph = true;
     drawInfoText = false;
     drawGrid = true;    
@@ -49,8 +50,10 @@ bool ofxGrtTimeseriesPlot::setup(unsigned int timeseriesLength,unsigned int numD
         dataBuffer.push_back(vector<float>(numDimensions,0));
     
     lockRanges = false;
-    minY =  std::numeric_limits<float>::max();
-    maxY =  -std::numeric_limits<float>::max();
+    linkRanges = false;
+    globalMin =  std::numeric_limits<float>::max();
+    globalMax =  -std::numeric_limits<float>::max();
+    channelRanges.resize( numDimensions, std::pair<float,float>(globalMin,globalMax) );
     channelNames.resize(numDimensions,"");
     
     colors.resize(numDimensions);
@@ -76,8 +79,12 @@ bool ofxGrtTimeseriesPlot::reset(){
     if( !initialized ) return false;
     
     if( !lockRanges ){
-        minY =  std::numeric_limits<float>::max();
-        maxY =  -std::numeric_limits<float>::max();
+        globalMin =  std::numeric_limits<float>::max();
+        globalMax =  -std::numeric_limits<float>::max();
+        for(size_t i=0; i<channelRanges.size(); i++){
+            channelRanges[i].first = globalMin;
+            channelRanges[i].second = globalMax;
+        }
     }
 
     //Clear the buffer
@@ -86,13 +93,18 @@ bool ofxGrtTimeseriesPlot::reset(){
     return true;
 }
     
-bool ofxGrtTimeseriesPlot::setRanges(float minY,float maxY,bool lockRanges){
-    if( minY == maxY ){
+bool ofxGrtTimeseriesPlot::setRanges(float globalMin,float globalMax,bool lockRanges,bool linkRanges){
+    if( globalMin == globalMax ){
         return false;
     }
-    this->minY = minY;
-    this->maxY = maxY;
+    this->globalMin = globalMin;
+    this->globalMax = globalMax;
     this->lockRanges = lockRanges;
+    this->linkRanges = linkRanges;
+    for(size_t i=0; i<channelRanges.size(); i++){
+        channelRanges[i].first = globalMin;
+        channelRanges[i].second = globalMax;
+    }
     return true;
 }
 
@@ -106,17 +118,28 @@ bool ofxGrtTimeseriesPlot::setData( const vector<float> &data ){
     dataBuffer.reset();
 
     if( !lockRanges ){
-        minY =  std::numeric_limits<float>::max();
-        maxY =  -std::numeric_limits<float>::max();
+        globalMin =  std::numeric_limits<float>::max();
+        globalMax =  -std::numeric_limits<float>::max();
+        for(size_t i=0; i<channelRanges.size(); i++){
+            channelRanges[i].first = globalMin;
+            channelRanges[i].second = globalMax;
+        }
     }
     
-    for(unsigned int i=0; i<M; i++){
+    for(size_t i=0; i<M; i++){
         dataBuffer(i)[0] = data[i];
 
         //Check the min and max values
         if( !lockRanges ){
-            if( data[i] < minY ){ minY = data[i]; }
-            else if( data[i] > maxY ){ maxY = data[i]; }
+            //Update the global min/max
+            if( data[i] < globalMin ){ globalMin = data[i]; }
+            else if( data[i] > globalMax ){ globalMax = data[i]; }
+
+            //Update the channel min/max
+            for(size_t j=0; j<channelRanges.size(); j++){
+                if( data[i] < channelRanges[j].first ){ channelRanges[j].first = data[i]; }
+                else if( data[i] > channelRanges[j].second ){ channelRanges[j].second = data[i]; }
+            }
         }
     }
 
@@ -133,8 +156,12 @@ bool ofxGrtTimeseriesPlot::setData( const vector<double> &data ){
     dataBuffer.reset();
 
     if( !lockRanges ){
-        minY =  std::numeric_limits<double>::max();
-        maxY =  -std::numeric_limits<double>::max();
+        globalMin =  std::numeric_limits<double>::max();
+        globalMax =  -std::numeric_limits<double>::max();
+        for(size_t i=0; i<channelRanges.size(); i++){
+            channelRanges[i].first = globalMin;
+            channelRanges[i].second = globalMax;
+        }
     }
     
     for(unsigned int i=0; i<M; i++){
@@ -142,8 +169,15 @@ bool ofxGrtTimeseriesPlot::setData( const vector<double> &data ){
 
         //Check the min and max values
         if( !lockRanges ){
-            if( data[i] < minY ){ minY = data[i]; }
-            else if( data[i] > maxY ){ maxY = data[i]; }
+            //Update the global min/max
+            if( data[i] < globalMin ){ globalMin = data[i]; }
+            else if( data[i] > globalMax ){ globalMax = data[i]; }
+
+            //Update the channel min/max
+            for(size_t j=0; j<channelRanges.size(); j++){
+                if( data[i] < channelRanges[j].first ){ channelRanges[j].first = data[i]; }
+                else if( data[i] > channelRanges[j].second ){ channelRanges[j].second = data[i]; }
+            }
         }
     }
 
@@ -160,21 +194,30 @@ bool ofxGrtTimeseriesPlot::setData( const vector< vector<float> > &data ){
     dataBuffer.reset();
 
     if( !lockRanges ){
-        minY =  std::numeric_limits<float>::max();
-        maxY =  -std::numeric_limits<float>::max();
+        globalMin =  std::numeric_limits<float>::max();
+        globalMax =  -std::numeric_limits<float>::max();
+        for(size_t i=0; i<channelRanges.size(); i++){
+            channelRanges[i].first = globalMin;
+            channelRanges[i].second = globalMax;
+        }
     }
     
-    for(unsigned int i=0; i<M; i++){
+    for(size_t i=0; i<M; i++){
         if( data[i].size() != numDimensions ){
             return false;
         }
-        for(unsigned int j=0; j<numDimensions; j++){
+        for(size_t j=0; j<numDimensions; j++){
             dataBuffer(i)[j] = data[i][j];
 
             //Check the min and max values
             if( !lockRanges ){
-                if( data[i][j] < minY ){ minY = data[i][j]; }
-                else if( data[i][j] > maxY ){ maxY = data[i][j]; }
+                //Update the global min/max
+                if( data[i][j] < globalMin ){ globalMin = data[i][j]; }
+                else if( data[i][j] > globalMax ){ globalMax = data[i][j]; }
+
+                //Update the channel min/max
+                if( data[i][j] < channelRanges[j].first ){ channelRanges[j].first = data[i][j]; }
+                else if( data[i][j] > channelRanges[j].second ){ channelRanges[j].second = data[i][j]; }
             }
         }
     }
@@ -195,8 +238,12 @@ bool ofxGrtTimeseriesPlot::setData( const Matrix<float> &data ){
     dataBuffer.reset();
 
     if( !lockRanges ){
-        minY =  std::numeric_limits<float>::max();
-        maxY =  -std::numeric_limits<float>::max();
+        globalMin =  std::numeric_limits<float>::max();
+        globalMax =  -std::numeric_limits<float>::max();
+        for(size_t i=0; i<channelRanges.size(); i++){
+            channelRanges[i].first = globalMin;
+            channelRanges[i].second = globalMax;
+        }
     }
 
     for(unsigned int i=0; i<M; i++){
@@ -205,8 +252,13 @@ bool ofxGrtTimeseriesPlot::setData( const Matrix<float> &data ){
 
             //Check the min and max values
             if( !lockRanges ){
-                if( data[i][j] < minY ){ minY = data[i][j]; }
-                else if( data[i][j] > maxY ){ maxY = data[i][j]; }
+                //Update the global min/max
+                if( data[i][j] < globalMin ){ globalMin = data[i][j]; }
+                else if( data[i][j] > globalMax ){ globalMax = data[i][j]; }
+
+                //Update the channel min/max
+                if( data[i][j] < channelRanges[j].first ){ channelRanges[j].first = data[i][j]; }
+                else if( data[i][j] > channelRanges[j].second ){ channelRanges[j].second = data[i][j]; }
             }
         }
     }
@@ -227,8 +279,12 @@ bool ofxGrtTimeseriesPlot::setData( const Matrix<double> &data ){
     dataBuffer.reset();
 
     if( !lockRanges ){
-        minY =  std::numeric_limits<double>::max();
-        maxY =  -std::numeric_limits<double>::max();
+        globalMin =  std::numeric_limits<double>::max();
+        globalMax =  -std::numeric_limits<double>::max();
+        for(size_t i=0; i<channelRanges.size(); i++){
+            channelRanges[i].first = globalMin;
+            channelRanges[i].second = globalMax;
+        }
     }
     
     for(unsigned int i=0; i<M; i++){
@@ -237,8 +293,13 @@ bool ofxGrtTimeseriesPlot::setData( const Matrix<double> &data ){
 
             //Check the min and max values
             if( !lockRanges ){
-                if( data[i][j] < minY ){ minY = data[i][j]; }
-                else if( data[i][j] > maxY ){ maxY = data[i][j]; }
+                //Update the global min/max
+                if( data[i][j] < globalMin ){ globalMin = data[i][j]; }
+                else if( data[i][j] > globalMax ){ globalMax = data[i][j]; }
+
+                //Update the channel min/max
+                if( data[i][j] < channelRanges[j].first ){ channelRanges[j].first = data[i][j]; }
+                else if( data[i][j] > channelRanges[j].second ){ channelRanges[j].second = data[i][j]; }
             }
         }
     }
@@ -269,9 +330,15 @@ bool ofxGrtTimeseriesPlot::update( const vector<float> &data ){
     
     //Check the min and max values
     if( !lockRanges ){
-        for(unsigned int n=0; n<numDimensions; n++){
-            if( data[n] < minY ){ minY = data[n]; }
-            else if( data[n] > maxY ){ maxY = data[n]; }
+        for(unsigned int j=0; j<channelRanges.size(); j++){
+            //Update the global min/max
+            if( data[j] < globalMin ){ globalMin = data[j]; }
+            else if( data[j] > globalMax ){ globalMax = data[j]; }
+
+            //Update the channel min/max
+            
+            if( data[j] < channelRanges[j].first ){ channelRanges[j].first = data[j]; }
+            else if( data[j] > channelRanges[j].second ){ channelRanges[j].second = data[j]; }
         }
     }
     
@@ -292,6 +359,9 @@ bool ofxGrtTimeseriesPlot::update( const vector<double> &data ){
 bool ofxGrtTimeseriesPlot::draw(unsigned int x,unsigned int y,unsigned int w,unsigned int h){
     
     if( !initialized ) return false;
+
+    float minY = 0;
+    float maxY = 0;
     
     ofPushMatrix();
     ofEnableAlphaBlending();
@@ -333,7 +403,7 @@ bool ofxGrtTimeseriesPlot::draw(unsigned int x,unsigned int y,unsigned int w,uns
     ofDrawLine(0,-5,0,h+5); //Y Axis
    
     //Draw the timeseries
-    if( minY != maxY ){
+    if( globalMin != globalMax ){
         float xPos = 0;
         float xStep = w / (float)timeseriesLength;
         unsigned int index = 0;
@@ -342,6 +412,8 @@ bool ofxGrtTimeseriesPlot::draw(unsigned int x,unsigned int y,unsigned int w,uns
             xPos = 0;
             index = 0;
             if( channelVisible[n] ){
+                minY = linkRanges ? channelRanges[n].first : globalMin;
+                maxY = linkRanges ? channelRanges[n].second : globalMax;
                 ofSetColor( colors[n][0],colors[n][1],colors[n][2] );
                 ofBeginShape();
                 for(unsigned int i=0; i<timeseriesLength; i++){
@@ -376,6 +448,8 @@ bool ofxGrtTimeseriesPlot::draw(unsigned int x,unsigned int y,unsigned int w,uns
             std::stringstream info;
             for(unsigned int n=0; n<numDimensions; n++){
                 if( channelVisible[n] ){
+                    minY = linkRanges ? channelRanges[n].first : globalMin;
+                    maxY = linkRanges ? channelRanges[n].second : globalMax;
                     ofSetColor(colors[n][0],colors[n][1],colors[n][2]);
                     info.str("");
                     info << "[" << n+1 << "]: " << channelNames[n] << " ";
