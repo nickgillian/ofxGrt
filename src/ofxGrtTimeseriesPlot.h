@@ -110,12 +110,13 @@ public:
      @return returns true if the data was set successfully, false otherwise
     */
     bool setData( const Matrix<double> &data );
-    bool setRanges(float minY,float maxY,bool lockRanges = false, bool linkRanges = false);
+    bool setRanges(float minY,float maxY,bool lockRanges = false, bool linkRanges = false, bool dynamicScale = false);
     bool setDrawGrid( bool drawGrid ){ this->drawGrid = drawGrid; return true; }
     bool setFont( const ofTrueTypeFont &font ){ this->font = &font; return this->font->isLoaded(); }
-    bool setLockRanges(bool lockRanges){ this->lockRanges = lockRanges; return true; }
-    bool setLinkRanges(bool linkRanges){ this->linkRanges = linkRanges; return true; }
-    bool setDrawInfoText(bool drawInfoText){ this->drawInfoText = drawInfoText; return true; }
+    bool setLockRanges(const bool lockRanges){ this->lockRanges = lockRanges; return true; }
+    bool setLinkRanges(const bool linkRanges){ this->linkRanges = linkRanges; return true; }
+    bool setDynamicScale(const bool dynamicScale){ this->dynamicScale = dynamicScale; return true; }
+    bool setDrawInfoText(const bool drawInfoText){ this->drawInfoText = drawInfoText; return true; }
 
     bool setChannelColors( const vector< ofColor > &colors ){
         if( colors.size() != numDimensions ) return false;
@@ -147,8 +148,9 @@ protected:
     CircularBuffer< vector<float> > dataBuffer;
     
     bool initialized;
-    bool lockRanges;
-    bool linkRanges;
+    bool lockRanges; ///< If true, then the min/max values for the plots will not be updated
+    bool linkRanges; ///< If true, then the min/max values for the plots will be based on the global min/max values across all channels, if false then the min/max values will be based per channel
+    bool dynamicScale; ///< If true, then the min/max values for the plots will be based on the current min/max values in the buffer, if false then the min/max values will be based over all values seen (not just the values in the current buffer)
     bool constrainValuesToGraph;
     bool drawInfoText;
     bool drawGrid;

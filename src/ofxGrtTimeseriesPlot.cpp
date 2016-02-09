@@ -8,6 +8,7 @@ ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     initialized = false;
     lockRanges = false;
     linkRanges = false;
+    dynamicScale = false;
     globalMin =  std::numeric_limits<float>::max();
     globalMax =  -std::numeric_limits<float>::max();
     constrainValuesToGraph = true;
@@ -51,6 +52,7 @@ bool ofxGrtTimeseriesPlot::setup(unsigned int timeseriesLength,unsigned int numD
     
     lockRanges = false;
     linkRanges = false;
+    dynamicScale = false;
     globalMin =  std::numeric_limits<float>::max();
     globalMax =  -std::numeric_limits<float>::max();
     channelRanges.resize( numDimensions, std::pair<float,float>(globalMin,globalMax) );
@@ -93,7 +95,7 @@ bool ofxGrtTimeseriesPlot::reset(){
     return true;
 }
     
-bool ofxGrtTimeseriesPlot::setRanges(float globalMin,float globalMax,bool lockRanges,bool linkRanges){
+bool ofxGrtTimeseriesPlot::setRanges(float globalMin,float globalMax,bool lockRanges,bool linkRanges,bool dynamicScale){
     if( globalMin == globalMax ){
         return false;
     }
@@ -101,6 +103,7 @@ bool ofxGrtTimeseriesPlot::setRanges(float globalMin,float globalMax,bool lockRa
     this->globalMax = globalMax;
     this->lockRanges = lockRanges;
     this->linkRanges = linkRanges;
+    this->dynamicScale = dynamicScale;
     for(size_t i=0; i<channelRanges.size(); i++){
         channelRanges[i].first = globalMin;
         channelRanges[i].second = globalMax;
@@ -336,7 +339,6 @@ bool ofxGrtTimeseriesPlot::update( const vector<float> &data ){
             else if( data[j] > globalMax ){ globalMax = data[j]; }
 
             //Update the channel min/max
-            
             if( data[j] < channelRanges[j].first ){ channelRanges[j].first = data[j]; }
             else if( data[j] > channelRanges[j].second ){ channelRanges[j].second = data[j]; }
         }
@@ -362,6 +364,62 @@ bool ofxGrtTimeseriesPlot::draw(unsigned int x,unsigned int y,unsigned int w,uns
 
     float minY = 0;
     float maxY = 0;
+
+    if( dynamicScale ){
+        globalMin =  std::numeric_limits<double>::max();
+        globalMax =  -std::numeric_limits<double>::max();
+        for(size_t i=0; i<channelRanges.size(); i++){
+            channelRanges[i].first = globalMin;
+            channelRanges[i].second = globalMax;
+        }
+        for(unsigned int i=0; i<timeseriesLength; i++){
+            for(unsigned int j=0; j<numDimensions; j++){
+                //Update the global min/max
+                if( dataBuffer[i][j] < globalMin ){ globalMin = dataBuffer[i][j]; }
+                else if( dataBuffer[i][j] > globalMax ){ globalMax = dataBuffer[i][j]; }
+
+                //Update the channel min/max
+                if( dataBuffer[i][j] < channelRanges[j].first ){ channelRanges[j].first = dataBuffer[i][j]; }
+                else if( dataBuffer[i][j] > channelRanges[j].second ){ channelRanges[j].second = dataBuffer[i][j]; }
+            }
+        }
+
+        //Add a small percentage to the min/max values so the plot sits nicely in the graph
+        for(unsigned int j=0; j<numDimensions; j++){
+            float range = channelRanges[j].first - channelRanges[j].second;
+            if( range != 0 ){
+                range = range * 0.1;
+                channelRanges[j].first -= range;
+                channelRanges[j].second += range;
+            }
+            
+        }
+    }
+
+    //Bad things happen if the min and max values are the NAN or the same (as we can't scale the plots correctly)
+    //So add a small value to the max if needed
+    if( grt_isnan(globalMin) || grt_isinf(globalMin) ){
+        globalMin = 0;
+    }
+    if( grt_isnan(globalMax) || grt_isinf(globalMax) ){
+        globalMax = 1;
+    }
+    if( globalMin == globalMax ){
+        globalMax += 1.0e-10;
+    }
+    if( !linkRanges ){
+        for(size_t i=0; i<channelRanges.size(); i++){
+            if( grt_isnan(channelRanges[i].first) || grt_isinf(channelRanges[i].first) ){
+                channelRanges[i].first = 0;
+            }
+            if( grt_isnan(channelRanges[i].second) || grt_isinf(channelRanges[i].second) ){
+                channelRanges[i].second = 0;
+            }
+            if( channelRanges[i].first == channelRanges[i].second ){
+                channelRanges[i].second += 1.0e-10;
+            }
+        }
+    }
     
     ofPushMatrix();
     ofEnableAlphaBlending();
@@ -412,8 +470,8 @@ bool ofxGrtTimeseriesPlot::draw(unsigned int x,unsigned int y,unsigned int w,uns
             xPos = 0;
             index = 0;
             if( channelVisible[n] ){
-                minY = linkRanges ? channelRanges[n].first : globalMin;
-                maxY = linkRanges ? channelRanges[n].second : globalMax;
+                minY = linkRanges ? globalMin : channelRanges[n].first;
+                maxY = linkRanges ? globalMax : channelRanges[n].second;
                 ofSetColor( colors[n][0],colors[n][1],colors[n][2] );
                 ofBeginShape();
                 for(unsigned int i=0; i<timeseriesLength; i++){
@@ -448,8 +506,8 @@ bool ofxGrtTimeseriesPlot::draw(unsigned int x,unsigned int y,unsigned int w,uns
             std::stringstream info;
             for(unsigned int n=0; n<numDimensions; n++){
                 if( channelVisible[n] ){
-                    minY = linkRanges ? channelRanges[n].first : globalMin;
-                    maxY = linkRanges ? channelRanges[n].second : globalMax;
+                    minY = linkRanges ? globalMin : channelRanges[n].first;
+                    maxY = linkRanges ? globalMax : channelRanges[n].second;
                     ofSetColor(colors[n][0],colors[n][1],colors[n][2]);
                     info.str("");
                     info << "[" << n+1 << "]: " << channelNames[n] << " ";
