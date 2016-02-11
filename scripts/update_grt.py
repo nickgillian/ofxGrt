@@ -7,6 +7,7 @@ from os import walk
 
 #Define the known build platforms
 OS_X = "osx"
+OS_LINUX_64 = "linux64"
 
 def run( cmd ):
 	if( os.system( cmd ) != 0 ):
@@ -78,9 +79,12 @@ if( os.path.exists( grtSourceDir ) == False ):
 buildPlatform = "Unknown"
 if (platform.system() == "Darwin"):
     buildPlatform = OS_X
+if (platform.system() == "Linux"):
+    buildPlatform = OS_LINUX_64
 
 #Throw an error if we do not know what this OS is
 if( buildPlatform == "Unknown" ):
+    print "build system OS: " + platform.system()
     raise AssertionError( "Unkown OS. The OS you are building for is not configured yet, please add a configuration option for your OS to this script" ) 
 
 print "Building for " + buildPlatform
