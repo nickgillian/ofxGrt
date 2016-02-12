@@ -12,7 +12,7 @@ ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     globalMin =  std::numeric_limits<float>::max();
     globalMax =  -std::numeric_limits<float>::max();
     constrainValuesToGraph = true;
-    drawInfoText = false;
+    drawInfoText = true;
     drawPlotTitle = true;
     drawPlotValues = true;
     drawGrid = true;    
@@ -508,6 +508,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
             
             if( drawPlotValues ){
                 std::stringstream info;
+                info.precision( 2 );
                 for(unsigned int n=0; n<numChannels; n++){
                     if( channelVisible[n] ){
                         minY = linkRanges ? globalMin : channelRanges[n].first;
