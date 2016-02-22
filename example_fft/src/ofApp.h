@@ -5,7 +5,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxGRT.h"
+#include "ofxGrt.h"
 
 //State that we want to use the GRT namespace
 using namespace GRT;
