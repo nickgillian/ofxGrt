@@ -9,6 +9,7 @@ ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     lockRanges = false;
     linkRanges = false;
     dynamicScale = false;
+    drawOrderInverted = false;
     globalMin =  std::numeric_limits<float>::max();
     globalMax =  -std::numeric_limits<float>::max();
     constrainValuesToGraph = true;
@@ -34,6 +35,8 @@ ofxGrtTimeseriesPlot::~ofxGrtTimeseriesPlot(){
 }
 
 bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const unsigned int numChannels, const std::string title ){
+
+    std::unique_lock<std::mutex> lock( mtx );
     
     initialized = false;
     
@@ -65,12 +68,15 @@ bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const uns
     if( numChannels >= 1 ) colors[0] = ofColor(255,0,0); //red
     if( numChannels >= 2 ) colors[1] = ofColor(0,255,0); //green
     if( numChannels >= 3 ) colors[2] = ofColor(0,0,255); //blue
+    if( numChannels >= 4 ) colors[3] = ofColor(255,255,0); //yellow
+    if( numChannels >= 5 ) colors[4] = ofColor(255,0,255); //purple
+    if( numChannels >= 6 ) colors[5] = ofColor(255,255,255); //white
 
     //Randomize the remaining colors
-    for(unsigned int n=3; n<numChannels; n++){
-        colors[n][0] = ofRandom(50,255);
-        colors[n][1] = ofRandom(50,255);
-        colors[n][2] = ofRandom(50,255);
+    for(unsigned int n=6; n<numChannels; n++){
+        colors[n][0] = ofRandom(100,255);
+        colors[n][1] = ofRandom(100,255);
+        colors[n][2] = ofRandom(100,255);
     }
 
     channelVisible.resize(numChannels,true);
@@ -80,6 +86,8 @@ bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const uns
 }
 
 bool ofxGrtTimeseriesPlot::reset(){
+
+    std::unique_lock<std::mutex> lock( mtx );
         
     if( !initialized ) return false;
     
@@ -99,6 +107,9 @@ bool ofxGrtTimeseriesPlot::reset(){
 }
     
 bool ofxGrtTimeseriesPlot::setRanges( const float globalMin, const float globalMax, const bool lockRanges, const bool linkRanges, const bool dynamicScale ){
+
+    std::unique_lock<std::mutex> lock( mtx );
+
     if( globalMin == globalMax ){
         return false;
     }
@@ -114,7 +125,35 @@ bool ofxGrtTimeseriesPlot::setRanges( const float globalMin, const float globalM
     return true;
 }
 
+bool ofxGrtTimeseriesPlot::setRanges( const vector< GRT::MinMax > &ranges, const bool lockRanges, const bool linkRanges, const bool dynamicScale ){
+
+    std::unique_lock<std::mutex> lock( mtx );
+
+    if( ranges.size() != channelRanges.size() ){
+        return false;
+    }
+
+    this->lockRanges = lockRanges;
+    this->linkRanges = linkRanges;
+    this->dynamicScale = dynamicScale;
+
+    globalMin =  std::numeric_limits<float>::max();
+    globalMax =  -std::numeric_limits<float>::max();
+    
+    for(size_t i=0; i<channelRanges.size(); i++){
+        channelRanges[i].first = ranges[i].minValue;
+        channelRanges[i].second = ranges[i].maxValue;
+
+        if( channelRanges[i].first < globalMin ){ globalMin = channelRanges[i].first; }
+        else if( channelRanges[i].second > globalMax ){ globalMax = channelRanges[i].second; }
+    }
+
+    return true;
+}
+
 bool ofxGrtTimeseriesPlot::setData( const vector<float> &data ){
+
+    std::unique_lock<std::mutex> lock( mtx );
 
     const unsigned int M = (unsigned int)data.size();
 
@@ -154,6 +193,8 @@ bool ofxGrtTimeseriesPlot::setData( const vector<float> &data ){
 
 bool ofxGrtTimeseriesPlot::setData( const vector<double> &data ){
 
+    std::unique_lock<std::mutex> lock( mtx );
+
     const unsigned int M = (unsigned int)data.size();
 
     if( numChannels != 1 ) return false;
@@ -191,6 +232,8 @@ bool ofxGrtTimeseriesPlot::setData( const vector<double> &data ){
 }
     
 bool ofxGrtTimeseriesPlot::setData( const vector< vector<float> > &data ){
+
+    std::unique_lock<std::mutex> lock( mtx );
     
     const unsigned int M = (unsigned int)data.size();
 
@@ -232,6 +275,8 @@ bool ofxGrtTimeseriesPlot::setData( const vector< vector<float> > &data ){
 }
     
 bool ofxGrtTimeseriesPlot::setData( const Matrix<float> &data ){
+
+    std::unique_lock<std::mutex> lock( mtx );
     
     const unsigned int M = data.getNumRows();
     const unsigned int N = data.getNumCols();
@@ -274,6 +319,8 @@ bool ofxGrtTimeseriesPlot::setData( const Matrix<float> &data ){
 
 bool ofxGrtTimeseriesPlot::setData( const Matrix<double> &data ){
 
+    std::unique_lock<std::mutex> lock( mtx );
+
     const unsigned int M = data.getNumRows();
     const unsigned int N = data.getNumCols();
     
@@ -314,6 +361,8 @@ bool ofxGrtTimeseriesPlot::setData( const Matrix<double> &data ){
 }
 
 bool ofxGrtTimeseriesPlot::update(){
+
+    std::unique_lock<std::mutex> lock( mtx );
     
     //If the buffer has not been initialised then return false, otherwise update the buffer
     if( !initialized ) return false;
@@ -325,6 +374,8 @@ bool ofxGrtTimeseriesPlot::update(){
 }
 
 bool ofxGrtTimeseriesPlot::update( const vector<float> &data ){
+
+    std::unique_lock<std::mutex> lock( mtx );
 
     const unsigned int N = data.size();
     
@@ -362,6 +413,8 @@ bool ofxGrtTimeseriesPlot::update( const vector<double> &data ){
 }
     
 bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, const unsigned int w, const unsigned int h ){
+
+    std::unique_lock<std::mutex> lock( mtx );
     
     if( !initialized ) return false;
 
@@ -468,17 +521,19 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         float xPos = 0;
         float xStep = w / (float)timeseriesLength;
         unsigned int index = 0;
+        unsigned int channelIndex = 0;
         ofNoFill();
         for(unsigned int n=0; n<numChannels; n++){
             xPos = 0;
             index = 0;
-            if( channelVisible[n] ){
-                minY = linkRanges ? globalMin : channelRanges[n].first;
-                maxY = linkRanges ? globalMax : channelRanges[n].second;
-                ofSetColor( colors[n][0],colors[n][1],colors[n][2] );
+            channelIndex = drawOrderInverted ? numChannels-1-n : n;
+            if( channelVisible[ channelIndex ] ){
+                minY = linkRanges ? globalMin : channelRanges[ channelIndex ].first;
+                maxY = linkRanges ? globalMax : channelRanges[ channelIndex ].second;
+                ofSetColor( colors[ channelIndex ][0],colors[ channelIndex ][1],colors[ channelIndex ][2] );
                 ofBeginShape();
                 for(unsigned int i=0; i<timeseriesLength; i++){
-                    ofVertex( xPos, ofMap(dataBuffer[i][n], minY, maxY, h, 0, constrainValuesToGraph) );
+                    ofVertex( xPos, ofMap(dataBuffer[i][ channelIndex ], minY, maxY, h, 0, constrainValuesToGraph) );
                     xPos += xStep;
                 }
                 ofEndShape(false);

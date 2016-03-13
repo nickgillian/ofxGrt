@@ -28,6 +28,7 @@ using namespace GRT;
 class ofxGrtMatrixPlot {
 public:
     ofxGrtMatrixPlot();
+    bool resize( const unsigned int rows, const unsigned int cols );
     void update( const Matrix<double> &data );
     void update( const Matrix<float> &data );
     void update( const MatrixFloat &data, float minValue, float maxValue );

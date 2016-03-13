@@ -12,6 +12,32 @@ ofxGrtMatrixPlot::ofxGrtMatrixPlot(){
     textColor[2] = 0;
 }
 
+bool ofxGrtMatrixPlot::resize( const unsigned int rows, const unsigned int cols ){
+
+    const size_t size = rows*cols;
+    this->rows = rows;
+    this->cols = cols;
+    pixelData.resize( size );
+    
+    for(unsigned int i=0; i<size; i++){
+        pixelData[ i++ ] = 0.0;
+    }
+    float *data = &pixelData[0];
+
+    const unsigned int width = cols;
+    const unsigned int height = rows;
+    pixels.setFromExternalPixels(data,width,height,OF_PIXELS_GRAY);
+
+    if(!texture.isAllocated()){
+        texture.allocate( pixels, false );
+        texture.setRGToRGBASwizzles(true);
+    }
+    texture.loadData( pixels );
+    texture.setTextureMinMagFilter( GL_LINEAR, GL_LINEAR );
+
+    return true;
+}
+
 void ofxGrtMatrixPlot::update( const Matrix<double> &data ){
  
     const unsigned int rows = data.getNumRows(); 
@@ -104,6 +130,7 @@ bool ofxGrtMatrixPlot::draw(float x, float y) const{
 bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h) const{
 
     if( pixels.size() == 0 ) return false;
+
 	auto & tex = texture;
 	auto ratio = w/h;
 	auto texRatio = tex.getWidth()/tex.getHeight();
