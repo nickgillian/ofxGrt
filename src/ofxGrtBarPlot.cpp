@@ -26,6 +26,8 @@ ofxGrtBarPlot::~ofxGrtBarPlot(){
 
 bool ofxGrtBarPlot::setup(unsigned int numDimensions,const std::string title){
 
+    std::unique_lock<std::mutex> lock( mtx );
+
     initialized = true;
     this->numDimensions = numDimensions;
     this->title = title;
@@ -39,6 +41,9 @@ bool ofxGrtBarPlot::setup(unsigned int numDimensions,const std::string title){
 }
 
 bool ofxGrtBarPlot::resetAxisRanges(){
+
+    std::unique_lock<std::mutex> lock( mtx );
+
     if( !lockRanges ){
         rangesComputed = false;
         return true;
@@ -46,20 +51,9 @@ bool ofxGrtBarPlot::resetAxisRanges(){
     return false;
 }
 
-bool ofxGrtBarPlot::setAxisRanges( const vector<float> &minRanges, const vector<float> &maxRanges, const bool lockRanges ){
-    if( initialized && minRanges.size() == numDimensions && maxRanges.size() == numDimensions ){
-        this->minRanges = minRanges;
-        this->maxRanges = maxRanges;
-        this->lockRanges = lockRanges;
-        this->rangesComputed = true;
-        return true;
-    }
-    
-    warningLog << "setAxisRanges(...) - numDimensions size (" << numDimensions << ") does not match minRanges size (" << minRanges.size() << ") or maxRanges size (" << maxRanges.size() << ")!" << endl;
-    return false;
-}
-
 bool ofxGrtBarPlot::setRanges( const float minY, const float maxY, const bool lockRanges, const bool linkRanges, const bool dynamicScale ){
+
+    std::unique_lock<std::mutex> lock( mtx );
 
     for(unsigned int i=0; i<numDimensions; i++){
         minRanges[i] = minY;
@@ -69,7 +63,23 @@ bool ofxGrtBarPlot::setRanges( const float minY, const float maxY, const bool lo
     return true;
 }
 
+bool ofxGrtBarPlot::setRanges( const vector< GRT::MinMax > &ranges, const bool lockRanges, const bool linkRanges, const bool dynamicScale ){
+
+    std::unique_lock<std::mutex> lock( mtx );
+
+    for(unsigned int i=0; i<numDimensions; i++){
+        minRanges[i] = ranges[i].minValue;
+        maxRanges[i] = ranges[i].maxValue;
+    }
+    this->lockRanges = lockRanges;
+    this->linkRanges = linkRanges;
+    this->dynamicScale = dynamicScale;
+    return true;
+}
+
 bool ofxGrtBarPlot::update( const vector< double > &data ){
+
+    std::unique_lock<std::mutex> lock( mtx );
     
     if( !initialized ){
         warningLog << "update( const vector< double > &data ) the plot has not been initialized!" << endl;
@@ -94,6 +104,8 @@ bool ofxGrtBarPlot::update( const vector< double > &data ){
 }
 
 bool ofxGrtBarPlot::update( const vector< float > &data ){
+
+    std::unique_lock<std::mutex> lock( mtx );
     
     if( !initialized ){
         warningLog << "update( const vector< float > &data ) the plot has not been initialized!" << endl;
@@ -119,6 +131,8 @@ bool ofxGrtBarPlot::update( const vector< float > &data ){
 
 
 bool ofxGrtBarPlot::draw(unsigned int x,unsigned int y,unsigned int w,unsigned int h){
+
+    std::unique_lock<std::mutex> lock( mtx );
     
     if( !initialized ) return false;
     

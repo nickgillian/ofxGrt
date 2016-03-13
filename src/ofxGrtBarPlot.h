@@ -13,8 +13,14 @@ public:
     ofxGrtBarPlot();
     ~ofxGrtBarPlot();
     
+    /**
+     @brief sets up a plot, setting the number of dimensions (bars) in the bar plot
+     @note you must call this before updating or drawing the plot
+     @param numDimensions: sets the number of dimensions in the input data
+     @param title: sets the title of the plot, an empty std::string will stop the title from being drawn
+     @return returns true if the plot was setup successfully, false otherwise
+    */
     bool setup(unsigned int numDimensions,const std::string title="");
-
 
     /**
      @brief updates the plot pushing the input data into the plots internal buffer. The size of the input Vector must match the number of dimensions in the plot.
@@ -36,8 +42,6 @@ public:
 
     bool resetAxisRanges();
 
-    bool setAxisRanges( const vector<float> &minRanges, const vector<float> &maxRanges, const bool lockRanges );
-
     /**
      @brief sets the Y axis ranges used to scale the data for plotting.  The minY and maxY values set the min/max range of the plot
      @param minY: the minimum range for the Y axis
@@ -48,6 +52,16 @@ public:
      @return returns true if the parameters were update successfully, false otherwise
     */
     bool setRanges( const float minY, const float maxY, const bool lockRanges = false, const bool linkRanges = false, const bool dynamicScale = false );
+
+    /**
+     @brief sets the Y axis ranges used to scale the data for plotting.  The minY and maxY values set the min/max range of the plot
+     @param ranges: a vector containing the min/max values for each channel
+     @param lockRanges: if true, then the ranges of the plot will be fixed to minY/maxY, if false then the min/max ranges of the plot will be updated based on the min/max values observed in the data
+     @param linkRanges: if true, then the channels of the plot will all be scaled using a global min/max value (updated across all ranges). If false, then each channel will have it's own min/max value and be updated independently from the other channels
+     @param dynamicScale: if true, then the contents of the plot will be scaled by on the current min/max values found in the timeseries buffer
+     @return returns true if the parameters were update successfully, false otherwise
+    */
+    bool setRanges( const vector< GRT::MinMax > &ranges, const bool lockRanges = false, const bool linkRanges = false, const bool dynamicScale = false );
 
     /**
      @brief sets the font used to draw text on the plot, note that the timeseries plot instance stores a pointer to the font, you must therefore ensure the font instance remains valid until the timeseries plot instance is destroyed
