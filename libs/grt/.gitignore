@@ -1,0 +1,11 @@
+objs
+libgrt.a
+*.out
+*.DS_Store
+*.o
+moc*
+build/examples/*.txt
+build/examples/*.csv
+build/examples/*.grt
+obj/
+libs/
