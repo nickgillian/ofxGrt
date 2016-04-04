@@ -6,7 +6,7 @@ The GRT is a cross-platform, open-source, C++ machine learning library designed 
 
 This extension is designed to make it as easy as possible to use the GRT in openFrameworks.
 
-Note that this extensions contains a local, pre compiled version of the GRT, so you do not need to download and install the main GRT library to use the ofxGRT addon.
+Note that this extensions contains a local version of the GRT as a git submodule, which will be compiled from source when you build any of the ofxGrt examples.
 
 To use ofxGrt:
 
@@ -16,6 +16,9 @@ To use ofxGrt:
 ```
     cd openFrameworks/addons
     git clone https://github.com/nickgillian/ofxGrt
+    cd ofxGrt
+    git submodule init
+    git submodule update
 ```
 
 - to build and run any of the ofxGRT examples, cd to an example folder and run:
