@@ -20,7 +20,7 @@ To use ofxGrt:
 
 - to build and run any of the ofxGRT examples, cd to an example folder and run:
 ```
-    cd ofxGRT/example_timeseries_plot
+    cd ofxGrt/example_timeseries_plot
     make
     make run
 ```
