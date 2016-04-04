@@ -44,7 +44,7 @@ void ofApp::setup(){
 void ofApp::update(){
     
     //Grab the current mouse x and y position
-    VectorDouble sample(2);
+    VectorFloat sample(2);
     sample[0] = mouseX / double(ofGetWidth());
     sample[1] = mouseY / double(ofGetHeight());
     
@@ -139,8 +139,8 @@ void ofApp::keyPressed(int key){
 
         unsigned int index = 0;
         unsigned int classLabel = 0;
-        GRT::VectorDouble featureVector(2);
-        GRT::VectorDouble likelihoods;
+        VectorFloat featureVector(2);
+        VectorFloat likelihoods;
         float r,g,b,a;
         float maximumLikelihood;
         for(unsigned int j=0; j<cols; j++){

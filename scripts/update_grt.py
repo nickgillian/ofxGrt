@@ -102,8 +102,8 @@ os.system( 'mkdir build' )
 #Build the GRT library
 print "Building GRT static library..."
 os.chdir( 'build' )
-run( 'cmake .. -DBUILD_SHARED_LIB=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TOOLS=OFF' )
-run( 'make -j4' )
+run( 'cmake .. -DBUILD_SHARED_LIB=OFF -DBUILD_EXAMPLES=ON -DBUILD_TOOLS=OFF -DBUILD_TESTS=OFF' )
+run( 'make' )
 print "Static library built"
 
 #Copy the header files and static library to the ofxGRT directory

@@ -26,9 +26,9 @@ common:
 	ADDON_INCLUDES += libs/grt/include
 
 	# Uncomment the lines below to use the system installed GRT headers and libs
-	# ADDON_INCLUDES += /usr/local/include/GRT
-	# ADDON_LDFLAGS = -L/usr/local/lib -lgrt
-	# ADDON_LIBS_EXCLUDE = libs/grt/%
-	# ADDON_INCLUDES_EXCLUDE = libs/grt/%
+	#ADDON_INCLUDES += /usr/local/include/GRT
+	#ADDON_LDFLAGS = -L/usr/local/lib -lgrt
+	#ADDON_LIBS_EXCLUDE = libs/grt/%
+	#ADDON_INCLUDES_EXCLUDE = libs/grt/%
 
 	
