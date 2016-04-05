@@ -3,17 +3,23 @@
  */
 
 #include "ofApp.h"
-#define TEXTURE_RESOLUTION 512
+#define TEXTURE_RESOLUTION 1024
 
 //--------------------------------------------------------------
 void ofApp::setup(){
     
     ofSetFrameRate(60);
+
+    largeFont.load("verdana.ttf", 12, true, true);
+    largeFont.setLineHeight(14.0f);
+    smallFont.load("verdana.ttf", 10, true, true);
+    smallFont.setLineHeight(12.0f);
     
     //Initialize the training and info variables
     infoText = "";
     trainingClassLabel = 1;
     record = false;
+    drawInfo = true;
     
     //The input to the training data will be the [x y] from the mouse, so we set the number of dimensions to 2
     trainingData.setNumDimensions( 2 );
@@ -51,13 +57,15 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-    ofBackground(0, 0, 0);
+    ofBackground(225, 225, 225);
 
     //If the model has been trained, then draw the texture
     if( pipeline.getTrained() ){
         ofSetColor(255,255,255);
         ofFill();
+        ofEnableAlphaBlending();
         texture.draw( 0, 0, ofGetWidth(), ofGetHeight() );
+        ofDisableAlphaBlending();
     }
     
     //Draw the training data
@@ -71,6 +79,32 @@ void ofApp::draw(){
         ofNoFill();
         ofDrawEllipse(x,y,5+1,5+1);
     }
+
+    //Draw the info text
+    if( drawInfo ){
+        float textX = 10;
+        float textY = 25;
+        float textSpacer = smallFont.getLineHeight() * 1.5;
+
+        ofFill();
+        ofSetColor(100,100,100);
+        ofDrawRectangle( 5, 5, 250, 200 );
+        ofSetColor( 255, 255, 255 );
+
+        largeFont.drawString( "Classifier Example", textX, textY ); textY += textSpacer*2;
+
+        smallFont.drawString( "[i]: Toogle Info", textX, textY ); textY += textSpacer;
+        smallFont.drawString( "[r]: Record Sample", textX, textY ); textY += textSpacer;
+        smallFont.drawString( "[t]: Train Model", textX, textY ); textY += textSpacer;
+        smallFont.drawString( "[1,2,3]: Set Class Label", textX, textY ); textY += textSpacer;
+        smallFont.drawString( "[tab]: Select Classifier", textX, textY ); textY += textSpacer;
+
+        textY += textSpacer;
+        smallFont.drawString( "Class Label: " + ofToString( trainingClassLabel ), textX, textY ); textY += textSpacer;
+        smallFont.drawString( "Classifier: " + classifierTypeToString( classifierType ), textX, textY ); textY += textSpacer;
+        smallFont.drawString( infoText, textX, textY ); textY += textSpacer;
+    }
+    
     
 }
 
@@ -113,6 +147,12 @@ void ofApp::keyPressed(int key){
             trainingData.clear();
             infoText = "Training data cleared";
             break;
+        case 'i':
+            drawInfo = !drawInfo;
+        break;
+        case OF_KEY_TAB:
+            setClassifier( ++this->classifierType % NUM_CLASSIFIERS );
+        break;
         default:
             break;
     }
@@ -185,9 +225,8 @@ void ofApp::keyPressed(int key){
 }
 
 
-bool ofApp::setClassifier( const ClassifierType type ){
+bool ofApp::setClassifier( const int type ){
 
-/*
     AdaBoost adaboost;
     DecisionTree dtree;
     KNN knn;
@@ -197,6 +236,8 @@ bool ofApp::setClassifier( const ClassifierType type ){
     RandomForests randomForest;
     Softmax softmax;
     SVM svm;
+
+    this->classifierType = type;
 
     switch( classifierType ){
         case ADABOOST:
@@ -253,7 +294,7 @@ bool ofApp::setClassifier( const ClassifierType type ){
             return false;
         break;
     }
-*/
+
     return true;
 }
 

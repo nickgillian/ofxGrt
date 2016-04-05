@@ -13,7 +13,7 @@ using namespace GRT;
 class ofApp : public ofBaseApp{
 
 public:
-    enum ClassifierType{ ADABOOST=0, DECISION_TREE, KKN, GAUSSIAN_MIXTURE_MODEL, NAIVE_BAYES, MINDIST, RANDOM_FOREST, SOFTMAX, SVM_LINEAR, SVM_RBF };
+    enum ClassifierType{ ADABOOST=0, DECISION_TREE, KKN, GAUSSIAN_MIXTURE_MODEL, NAIVE_BAYES, MINDIST, RANDOM_FOREST, SOFTMAX, SVM_LINEAR, SVM_RBF, NUM_CLASSIFIERS };
 
     void setup();
     void update();
@@ -29,21 +29,23 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
 
-    bool setClassifier( const ClassifierType type );
+    bool setClassifier( const int type );
     
     //Create some variables for the demo
     ClassificationData trainingData;      		//This will store our training data
     GestureRecognitionPipeline pipeline;        //This is a wrapper for our classifier and any pre/post processing modules 
     bool record;                                //This is a flag that keeps track of when we should record training data
+    bool drawInfo;
     UINT trainingClassLabel;                    //This will hold the current label for when we are training the classifier
     string infoText;                            //This string will be used to draw some info messages to the main app window
     Vector< ofColor > classColors;
     ofTexture texture;
-    ClassifierType classifierType;
+    int classifierType;
+    ofTrueTypeFont largeFont;
+    ofTrueTypeFont smallFont;
 
-/*
-    string classifierTypeToString( ClassifierType classifierType ){
-        switch( classifierType ){
+    string classifierTypeToString( const int type ){
+        switch( type ){
             case ADABOOST:
                 return "ADABOOST";
             break;
@@ -77,6 +79,5 @@ public:
         }
         return "UNKOWN_CLASSIFIER";
     }
-*/
 
 };
