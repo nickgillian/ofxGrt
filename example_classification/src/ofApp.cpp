@@ -88,10 +88,10 @@ void ofApp::draw(){
 
         ofFill();
         ofSetColor(100,100,100);
-        ofDrawRectangle( 5, 5, 250, 200 );
+        ofDrawRectangle( 5, 5, 250, 225 );
         ofSetColor( 255, 255, 255 );
 
-        largeFont.drawString( "Classifier Example", textX, textY ); textY += textSpacer*2;
+        largeFont.drawString( "GRT Classifier Example", textX, textY ); textY += textSpacer*2;
 
         smallFont.drawString( "[i]: Toogle Info", textX, textY ); textY += textSpacer;
         smallFont.drawString( "[r]: Record Sample", textX, textY ); textY += textSpacer;
@@ -134,12 +134,12 @@ void ofApp::keyPressed(int key){
             }else infoText = "WARNING: Failed to train pipeline";
             break;
         case 's':
-            if( trainingData.save("TrainingData.grt") ){
+            if( trainingData.save( ofToDataPath("TrainingData.grt") ) ){
                 infoText = "Training data saved to file";
             }else infoText = "WARNING: Failed to save training data to file";
             break;
         case 'l':
-            if( trainingData.load("TrainingData.grt") ){
+            if( trainingData.load( ofToDataPath("TrainingData.grt") ) ){
                 infoText = "Training data saved to file";
             }else infoText = "WARNING: Failed to load training data from file";
             break;
@@ -248,6 +248,9 @@ bool ofApp::setClassifier( const int type ){
         case DECISION_TREE:
             dtree.enableNullRejection( false );
             dtree.setNullRejectionCoeff( 3 );
+            dtree.setMaxDepth( 10 );
+            dtree.setMinNumSamplesPerNode( 3 );
+            dtree.setRemoveFeaturesAtEachSpilt( false );
             pipeline.setClassifier( dtree );
         break;
         case KKN:
@@ -270,9 +273,34 @@ bool ofApp::setClassifier( const int type ){
             minDist.setNullRejectionCoeff( 3 );
             pipeline.setClassifier( minDist );
         break;
-        case RANDOM_FOREST:
+        case RANDOM_FOREST_10:
             randomForest.enableNullRejection( false );
             randomForest.setNullRejectionCoeff( 3 );
+            randomForest.setForestSize( 10 );
+            randomForest.setNumRandomSplits( 2 );
+            randomForest.setMaxDepth( 10 );
+            randomForest.setMinNumSamplesPerNode( 3 );
+            randomForest.setRemoveFeaturesAtEachSpilt( false );
+            pipeline.setClassifier( randomForest );
+        break;
+        case RANDOM_FOREST_100:
+            randomForest.enableNullRejection( false );
+            randomForest.setNullRejectionCoeff( 3 );
+            randomForest.setForestSize( 100 );
+            randomForest.setNumRandomSplits( 2 );
+            randomForest.setMaxDepth( 10 );
+            randomForest.setMinNumSamplesPerNode( 3 );
+            randomForest.setRemoveFeaturesAtEachSpilt( false );
+            pipeline.setClassifier( randomForest );
+        break;
+        case RANDOM_FOREST_200:
+            randomForest.enableNullRejection( false );
+            randomForest.setNullRejectionCoeff( 3 );
+            randomForest.setForestSize( 200 );
+            randomForest.setNumRandomSplits( 2 );
+            randomForest.setMaxDepth( 10 );
+            randomForest.setMinNumSamplesPerNode( 3 );
+            randomForest.setRemoveFeaturesAtEachSpilt( false );
             pipeline.setClassifier( randomForest );
         break;
         case SOFTMAX:

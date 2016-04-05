@@ -13,7 +13,7 @@ using namespace GRT;
 class ofApp : public ofBaseApp{
 
 public:
-    enum ClassifierType{ ADABOOST=0, DECISION_TREE, KKN, GAUSSIAN_MIXTURE_MODEL, NAIVE_BAYES, MINDIST, RANDOM_FOREST, SOFTMAX, SVM_LINEAR, SVM_RBF, NUM_CLASSIFIERS };
+    enum ClassifierType{ ADABOOST=0, DECISION_TREE, KKN, GAUSSIAN_MIXTURE_MODEL, NAIVE_BAYES, MINDIST, RANDOM_FOREST_10, RANDOM_FOREST_100, RANDOM_FOREST_200, SOFTMAX, SVM_LINEAR, SVM_RBF, NUM_CLASSIFIERS };
 
     void setup();
     void update();
@@ -64,8 +64,14 @@ public:
             case MINDIST:
                 return "MINDIST";
             break;
-            case RANDOM_FOREST:
-                return "RANDOM_FOREST";
+            case RANDOM_FOREST_10:
+                return "RANDOM_FOREST_10";
+            break;
+            case RANDOM_FOREST_100:
+                return "RANDOM_FOREST_100";
+            break;
+            case RANDOM_FOREST_200:
+                return "RANDOM_FOREST_200";
             break;
             case SOFTMAX:
                 return "SOFTMAX";
