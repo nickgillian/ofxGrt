@@ -253,6 +253,16 @@ public:
     }
 
     /**
+     @brief sets the background color of the plot
+     @return returns true if the parameter was update successfully, false otherwise
+    */
+    bool setBackgroundColor( const ofColor &backgroundColor ){
+        std::unique_lock<std::mutex> lock( mtx );
+        this->backgroundColor = backgroundColor;
+        return true;
+    }
+
+    /**
      @brief gets the global min and max range information.
      @returns returns the range information (minimum to maximum) in std::pair.
     */
