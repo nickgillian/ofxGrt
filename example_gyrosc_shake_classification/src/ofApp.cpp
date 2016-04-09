@@ -27,6 +27,7 @@ void ofApp::setup(){
     trainingData.setNumDimensions( 3 );
 
     //Build the pipeline, adding first the feature extraction, then the classifier
+    pipeline << MovingAverageFilter( 5, trainingData.getNumDimensions() );
     pipeline << EnvelopeExtractor( 15, trainingData.getNumDimensions() );
     pipeline << ANBC();
 

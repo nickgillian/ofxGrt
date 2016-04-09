@@ -42,6 +42,6 @@ public:
     ofShader shader;
     ofxGrtTimeseriesPlot predictedClassPlot;
     ofxGrtTimeseriesPlot classLikelihoodsPlot;
-    Vector< ofxGrtTimeseriesPlot > trainingDataPlot;
+    Vector< std::shared_ptr< ofxGrtTimeseriesPlot > > trainingDataPlot;
     Vector< ofxGrtMatrixPlot > distanceMatrixPlots;
 };

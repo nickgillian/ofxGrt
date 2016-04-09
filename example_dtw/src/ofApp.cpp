@@ -254,10 +254,10 @@ void ofApp::keyPressed(int key){
 
                 //Update the training data plot
                 labelName = string("Class: ") + grt_to_str<unsigned int>( trainingClassLabel );
-                trainingDataPlot.push_back( ofxGrtTimeseriesPlot() );
-                trainingDataPlot.back().setup( timeseries.getNumRows(), timeseries.getNumCols(), labelName );
-                trainingDataPlot.back().setFont( font );
-                trainingDataPlot.back().setData( timeseries );
+                trainingDataPlot.push_back( std::make_shared<ofxGrtTimeseriesPlot>() );
+                trainingDataPlot.back()->setup( timeseries.getNumRows(), timeseries.getNumCols(), labelName );
+                trainingDataPlot.back()->setFont( font );
+                trainingDataPlot.back()->setData( timeseries );
 
                 //Clear the timeseries for the next recording
                 timeseries.clear();
@@ -366,7 +366,7 @@ void ofApp::drawTrainingData(){
     font.drawString( "Training Examples", x, y );
     y += 15;
     for(UINT i=0; i<trainingDataPlot.getSize(); i++){
-        trainingDataPlot[i].draw( x, y, w, h );
+        trainingDataPlot[i]->draw( x, y, w, h );
         y += h+5;
     }
 
