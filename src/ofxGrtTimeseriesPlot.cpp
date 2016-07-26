@@ -87,7 +87,7 @@ bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const uns
         colors[n][2] = ofRandom(100,255);
     }
 
-    channelVisible.resize(numChannels,true);
+    channelVisible.resize(numChannels,false);
     initialized = true;
     
     return true;    
