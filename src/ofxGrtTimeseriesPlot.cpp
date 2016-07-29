@@ -1,5 +1,7 @@
 #include "ofxGrtTimeseriesPlot.h"
 
+#define INFO_MARGIN 20
+
 using namespace GRT;
     
 ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
@@ -20,13 +22,13 @@ ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     textColor[0] = 225;
     textColor[1] = 225;
     textColor[2] = 225;
-    backgroundColor[0] = 0;
-    backgroundColor[1] = 0;
-    backgroundColor[2] = 0;
-    gridColor[0] = 255;
-    gridColor[1] = 255;
-    gridColor[2] = 255;
-    gridColor[3] = 100;
+    backgroundColor[0] = 255;
+    backgroundColor[1] = 255;
+    backgroundColor[2] = 255;
+    gridColor[0] = 0;
+    gridColor[1] = 0;
+    gridColor[2] = 0;
+    gridColor[3] = 255;
     
     errorLog.setProceedingText("[ERROR ofxGrtTimeseriesPlot]");
 }
@@ -87,7 +89,8 @@ bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const uns
         colors[n][2] = ofRandom(100,255);
     }
 
-    channelVisible.resize(numChannels,false);
+    channelVisible.resize(numChannels,true);
+    
     initialized = true;
     
     return true;    
@@ -372,6 +375,36 @@ bool ofxGrtTimeseriesPlot::setData( const Matrix<double> &data ){
     return true;
 }
 
+bool ofxGrtTimeseriesPlot::setChannelVisible(const int idx, bool visible)
+{
+    try{
+        channelVisible.at(idx) = visible;
+        return true;
+    }catch(const std::exception& e)
+    {
+        std::cout << " a standard exception was caught, with message '"
+        << e.what() << "'\n";
+        return false;
+    }
+    
+}
+
+bool ofxGrtTimeseriesPlot::setNamesForChannels(const vector<std::string> names)
+{
+    if(names.size()==channelNames.size())
+    {
+        channelNames=names;
+        return true;
+    }
+    return false;
+    
+}
+
+vector< std::string > ofxGrtTimeseriesPlot::getChannelNames()
+{
+    return channelNames;
+}
+
 bool ofxGrtTimeseriesPlot::update(){
 
     std::unique_lock<std::mutex> lock( mtx );
@@ -500,7 +533,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
     //Draw the background
     ofFill();
     ofSetColor(backgroundColor[0],backgroundColor[1],backgroundColor[2]);
-    ofDrawRectangle(0,0,w,h);
+    ofDrawRectangle(INFO_MARGIN,INFO_MARGIN,w-INFO_MARGIN,h-INFO_MARGIN*2);
     
     //Draw the grid if required
     if( drawGrid ){
@@ -509,33 +542,82 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         unsigned int numHLines = 10;
         
         //Draw the horizontal lines
-        for(unsigned int i=0; i<numHLines; i++){
-            float xStart = 0;
+        for(unsigned int i=0; i<=numHLines; i++){
+            float xStart = INFO_MARGIN;
             float xEnd = w;
-            float yStart = ofMap(i,0,numHLines,0,h);
+            float yStart = ofMap(i,0,numHLines,INFO_MARGIN,h-INFO_MARGIN);
             float yEnd = yStart;
             ofDrawLine(xStart,yStart,xEnd,yEnd);
         }
         
         //Draw the vertical lines
-        for(unsigned int i=0; i<numVLines; i++){
-            float xStart = ofMap(i,0,numVLines,0,w);
-            float xEnd = xStart+1;
-            float yStart = 0;
-            float yEnd = h;
+        for(unsigned int i=0; i<=numVLines; i++){
+            float xStart = ofMap(i,0,numVLines,INFO_MARGIN,w);
+            float xEnd = xStart;
+            float yStart = INFO_MARGIN;
+            float yEnd = h-INFO_MARGIN;
             ofDrawLine(xStart,yStart,xEnd,yEnd);
         }
     }
     
     //Draw the axis lines
-    ofSetColor(255,255,255);
-    ofDrawLine(-5,h,w+5,h); //X Axis
-    ofDrawLine(0,-5,0,h+5); //Y Axis
+    ofSetColor(0,0,0);
+    ofDrawLine(-5+INFO_MARGIN,h-INFO_MARGIN,w+5,h-INFO_MARGIN); //X Axis
+    ofDrawLine(0+INFO_MARGIN,-5+INFO_MARGIN,0+INFO_MARGIN,h+5-INFO_MARGIN); //Y Axis
+    
+    ofSetColor(textColor[0],textColor[1],textColor[2]);
+    //Draw axis info
+    if(font)
+    {
+        const string xAxisInfo = "Frame";
+        const float posX = -5+INFO_MARGIN;
+        const float posY = h;
+        
+        font->drawString(xAxisInfo, posX, posY);
+        
+        ofPushMatrix();
+        {
+            ofRotateDeg(-90.0f);
+
+            const string yAxisInfo = "Value";
+            const float posY = -float(h)+font->stringWidth(yAxisInfo)-INFO_MARGIN;
+            const float posX = font->stringHeight(yAxisInfo);
+            font->drawString(yAxisInfo, posY, posX);
+        }
+        ofPopMatrix();
+        
+    }
+    
+    //draw axis ticks
+    {
+        ofSetColor(0,0,0);
+        unsigned int numVTicks = 20;
+        unsigned int numHTicks = 10;
+        
+        //Draw the horizontal lines
+        for(unsigned int i=0; i<=numHTicks; i++){
+            float xStart = -5+INFO_MARGIN;
+            float xEnd = 0+INFO_MARGIN;
+            float yStart = ofMap(i,0,numHTicks,INFO_MARGIN,h-INFO_MARGIN);
+            float yEnd = yStart;
+            ofDrawLine(xStart,yStart,xEnd,yEnd);
+
+        }
+        
+        //Draw the vertical lines
+        for(unsigned int i=0; i<=numVTicks; i++){
+            float xStart = ofMap(i,0,numVTicks,INFO_MARGIN,w);
+            float xEnd = xStart;
+            float yStart = h-INFO_MARGIN;
+            float yEnd = h+5-INFO_MARGIN;
+            ofDrawLine(xStart,yStart,xEnd,yEnd);
+        }
+    }
    
     //Draw the timeseries
     if( globalMin != globalMax ){
         float xPos = 0;
-        float xStep = w / (float)timeseriesLength;
+        float xStep = (w-INFO_MARGIN) / (float)timeseriesLength;
         ofSetColor(32);
         for(unsigned int i=0; i<highlightBuffer.getNumValuesInBuffer(); i++){
             if (highlightBuffer[i]) ofDrawRectangle( xPos, 0, xStep, h );
@@ -560,7 +642,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         unsigned int channelIndex = 0;
         ofNoFill();
         for(unsigned int n=0; n<numChannels; n++){
-            xPos = 0;
+            xPos = INFO_MARGIN;
             index = 0;
             channelIndex = drawOrderInverted ? numChannels-1-n : n;
             if( channelVisible[ channelIndex ] ){
@@ -569,7 +651,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
                 ofSetColor( colors[ channelIndex ][0],colors[ channelIndex ][1],colors[ channelIndex ][2] );
                 ofBeginShape();
                 for(unsigned int i=0; i<timeseriesLength; i++){
-                    ofVertex( xPos, ofMap(dataBuffer[i][ channelIndex ], minY, maxY, h, 0, constrainValuesToGraph) );
+                    ofVertex( xPos, ofMap(dataBuffer[i][ channelIndex ], minY, maxY, h-INFO_MARGIN, 0+INFO_MARGIN, constrainValuesToGraph) );
                     xPos += xStep;
                 }
                 ofEndShape(false);
@@ -587,8 +669,8 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
 
         if( drawInfoText ){
             ofRectangle bounds = font->getStringBoundingBox(plotTitle, 0, 0);
-            int textX = 10;
-            int textY = bounds.height + 5;
+            int textX = INFO_MARGIN;
+            int textY = bounds.height;
             int textSpacer = bounds.height + 5;
 
             if( plotTitle != "" && drawPlotTitle ){

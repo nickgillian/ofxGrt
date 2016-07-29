@@ -278,12 +278,28 @@ public:
     /**
      @brief gets a vector containing the colors used to plot each channel (a.k.a. dimension) in the data
      @returns returns a vector containing the colors used to plot each channel (a.k.a. dimension) in the data
-    */
-    vector< ofColor > getChannelColors() const { 
+     */
+    vector< ofColor > getChannelColors() const {
         std::unique_lock<std::mutex> lock( mtx );
-        return colors; 
+        return colors;
     }
-
+    
+    /**
+     @brief set the visibility to plot each channel
+     @return returns true if the parameter was update successfully, false otherwise
+     */
+    bool setChannelVisible(const int idx, bool visible);
+    
+    /**
+     @brief get the vector containing the name for each channel
+     @return returns the vector containing the name for each channel
+     */
+    vector< std::string > getChannelNames();
+    
+    
+    bool setNamesForChannels(const vector<std::string> names);
+    
+    
 protected:
     mutable std::mutex mtx;
     unsigned int numChannels;
@@ -292,7 +308,7 @@ protected:
     float globalMax;
     std::string plotTitle;
     vector< std::string > channelNames;
-    vector< bool > channelVisible;
+    std::vector< bool > channelVisible;
     vector< std::pair<float,float> > channelRanges;
     CircularBuffer< vector<float> > dataBuffer;
     CircularBuffer< int > highlightBuffer;
