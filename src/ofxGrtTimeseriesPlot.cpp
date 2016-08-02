@@ -73,6 +73,26 @@ bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const uns
     channelRanges.resize( numChannels, std::pair<float,float>(globalMin,globalMax) );
     channelNames.resize(numChannels,"");
     
+    
+    
+//    labelPlotcolors
+
+    channelVisible.resize(numChannels,true);
+    
+    initialized = true;
+    
+    labelPlotColors = { {{16, 16, 16, 40},{0, 0, 0, 255}},
+        {{255, 127, 0, 255},{255,255,255,255}},
+        {{31, 120, 180, 255},{255,255,255,255}},
+        {{210, 189, 26, 255},{255,255,255,255}},
+        {{227, 26, 28, 255},{255,255,255,255}},
+        {{80, 160, 44, 255},{255,255,255,255}},
+        {{106, 61, 154, 255},{255,255,255,255}},
+        {{177, 89, 40, 255},{255,255,255,255}},
+        {{9, 152, 146, 255},{255,255,255,255}},
+        {{227, 26, 150, 255},{255,255,255,255}}
+        };
+    
     colors.resize(numChannels);
     //Setup the default colors
     if( numChannels >= 1 ) colors[0] = ofColor(255,0,0); //red
@@ -81,17 +101,18 @@ bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const uns
     if( numChannels >= 4 ) colors[3] = ofColor(255,255,0); //yellow
     if( numChannels >= 5 ) colors[4] = ofColor(255,0,255); //purple
     if( numChannels >= 6 ) colors[5] = ofColor(255,255,255); //white
-
+    
     //Randomize the remaining colors
     for(unsigned int n=6; n<numChannels; n++){
         colors[n][0] = ofRandom(100,255);
         colors[n][1] = ofRandom(100,255);
         colors[n][2] = ofRandom(100,255);
     }
-
-    channelVisible.resize(numChannels,true);
     
-    initialized = true;
+    for(int i=0;i<labelPlotColors.size();i++)
+    {
+        colors[i]=labelPlotColors[i].background;
+    }
     
     return true;    
 }
@@ -119,7 +140,7 @@ bool ofxGrtTimeseriesPlot::reset(){
     return true;
 }
     
-bool ofxGrtTimeseriesPlot::setRanges( const float globalMin, const float globalMax, const bool lockRanges, const bool linkRanges, const bool dynamicScale ){
+bool ofxGrtTimeseriesPlot::setRanges( const float globalMin, const float globalMax, const vector<labelPlotColor> labelPlotColors, const bool lockRanges, const bool linkRanges, const bool dynamicScale ){
     std::unique_lock<std::mutex> lock( mtx );
 
     if( globalMin == globalMax ){
@@ -134,10 +155,14 @@ bool ofxGrtTimeseriesPlot::setRanges( const float globalMin, const float globalM
         channelRanges[i].first = globalMin;
         channelRanges[i].second = globalMax;
     }
+    
+    if(labelPlotColors.size()>0)
+        this->labelPlotColors = labelPlotColors;
+    
     return true;
 }
 
-bool ofxGrtTimeseriesPlot::setRanges( const vector< GRT::MinMax > &ranges, const bool lockRanges, const bool linkRanges, const bool dynamicScale ){
+bool ofxGrtTimeseriesPlot::setRanges( const vector< GRT::MinMax > &ranges, const vector<labelPlotColor> labelPlotColors, const bool lockRanges, const bool linkRanges, const bool dynamicScale ){
 
     std::unique_lock<std::mutex> lock( mtx );
 
@@ -159,6 +184,10 @@ bool ofxGrtTimeseriesPlot::setRanges( const vector< GRT::MinMax > &ranges, const
         if( channelRanges[i].first < globalMin ){ globalMin = channelRanges[i].first; }
         else if( channelRanges[i].second > globalMax ){ globalMax = channelRanges[i].second; }
     }
+    
+    if(labelPlotColors.size()>0)
+        this->labelPlotColors = labelPlotColors;
+
 
     return true;
 }
@@ -458,7 +487,50 @@ bool ofxGrtTimeseriesPlot::update( const vector<double> &data, bool highlight, s
     for(size_t i=0; i<N; i++){
         tmp[i] = data[i];
     }
+    
     return update( tmp, highlight, label );
+}
+
+bool ofxGrtTimeseriesPlot::update( const vector<float> &data, std::string label )
+{
+    std::unique_lock<std::mutex> lock( mtx );
+    
+    const unsigned int N = data.size();
+    
+    //If the buffer has not been initialised then return false, otherwise update the buffer
+    if( !initialized || N != numChannels ) return false;
+    
+    //Add the new value to the buffer
+    dataBuffer.push_back( data );
+    highlightBuffer.push_back( false );
+    labelBuffer.push_back( label );
+    
+    //Check the min and max values
+    if( !lockRanges ){
+        for(unsigned int j=0; j<channelRanges.size(); j++){
+            //Update the global min/max
+            if( data[j] < globalMin ){ globalMin = data[j]; }
+            else if( data[j] > globalMax ){ globalMax = data[j]; }
+            
+            //Update the channel min/max
+            if( data[j] < channelRanges[j].first ){ channelRanges[j].first = data[j]; }
+            else if( data[j] > channelRanges[j].second ){ channelRanges[j].second = data[j]; }
+        }
+    }
+    
+    return true;
+}
+
+bool ofxGrtTimeseriesPlot::update( const vector<double> &data, std::string label )
+{
+    const size_t N = data.size();
+    vector<float> tmp(N);
+    for(size_t i=0; i<N; i++){
+        tmp[i] = data[i];
+    }
+    
+    return update( tmp, label );
+    
 }
     
 bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, const unsigned int w, const unsigned int h ){
@@ -466,10 +538,10 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
     std::unique_lock<std::mutex> lock( mtx );
     
     if( !initialized ) return false;
-
+    
     float minY = 0;
     float maxY = 0;
-
+    
     if( dynamicScale ){
         globalMin =  std::numeric_limits<double>::max();
         globalMax =  -std::numeric_limits<double>::max();
@@ -482,13 +554,13 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
                 //Update the global min/max
                 if( dataBuffer[i][j] < globalMin ){ globalMin = dataBuffer[i][j]; }
                 else if( dataBuffer[i][j] > globalMax ){ globalMax = dataBuffer[i][j]; }
-
+                
                 //Update the channel min/max
                 if( dataBuffer[i][j] < channelRanges[j].first ){ channelRanges[j].first = dataBuffer[i][j]; }
                 else if( dataBuffer[i][j] > channelRanges[j].second ){ channelRanges[j].second = dataBuffer[i][j]; }
             }
         }
-
+        
         //Add a small percentage to the min/max values so the plot sits nicely in the graph
         for(unsigned int j=0; j<numChannels; j++){
             float range = channelRanges[j].first - channelRanges[j].second;
@@ -500,7 +572,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
             
         }
     }
-
+    
     //Bad things happen if the min and max values are the NAN or the same (as we can't scale the plots correctly)
     //So add a small value to the max if needed
     if( grt_isnan(globalMin) || grt_isinf(globalMin) ){
@@ -537,6 +609,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
     
     //Draw the grid if required
     if( drawGrid ){
+        
         ofSetColor(gridColor[0],gridColor[1],gridColor[2],gridColor[3]);
         unsigned int numVLines = 20;
         unsigned int numHLines = 10;
@@ -578,7 +651,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         ofPushMatrix();
         {
             ofRotateDeg(-90.0f);
-
+            
             const string yAxisInfo = "Value";
             const float posY = -float(h)+font->stringWidth(yAxisInfo)-INFO_MARGIN;
             const float posX = font->stringHeight(yAxisInfo);
@@ -601,7 +674,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
             float yStart = ofMap(i,0,numHTicks,INFO_MARGIN,h-INFO_MARGIN);
             float yEnd = yStart;
             ofDrawLine(xStart,yStart,xEnd,yEnd);
-
+            
         }
         
         //Draw the vertical lines
@@ -613,7 +686,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
             ofDrawLine(xStart,yStart,xEnd,yEnd);
         }
     }
-   
+    
     //Draw the timeseries
     if( globalMin != globalMax ){
         float xPos = 0;
@@ -658,21 +731,21 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
             }
         }
     }
-
+    
     //Disabled alpha blending before we draw any text
     ofDisableAlphaBlending();
-
+    
     //Only draw the text if the font has been loaded
     if( font ){
-
+        
         if( !font->isLoaded() ) return false;
-
+        
         if( drawInfoText ){
             ofRectangle bounds = font->getStringBoundingBox(plotTitle, 0, 0);
             int textX = INFO_MARGIN;
             int textY = bounds.height;
             int textSpacer = bounds.height + 5;
-
+            
             if( plotTitle != "" && drawPlotTitle ){
                 ofSetColor(textColor[0],textColor[1],textColor[2]);
                 font->drawString( plotTitle, textX, textY );
@@ -698,7 +771,241 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
             }
         }
     }
+    
+    ofPopMatrix();
+    
+    return true;
+}
 
+bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigned int y, const unsigned int w, const unsigned int h, const int chanNum){
+    
+    std::unique_lock<std::mutex> lock( mtx );
+    
+    if( !initialized ) return false;
+    
+    float minY = 0;
+    float maxY = 0;
+    
+    if( dynamicScale ){
+        globalMin =  std::numeric_limits<double>::max();
+        globalMax =  -std::numeric_limits<double>::max();
+        for(size_t i=0; i<channelRanges.size(); i++){
+            channelRanges[i].first = globalMin;
+            channelRanges[i].second = globalMax;
+        }
+        for(unsigned int i=0; i<timeseriesLength; i++){
+            for(unsigned int j=0; j<numChannels; j++){
+                //Update the global min/max
+                if( dataBuffer[i][j] < globalMin ){ globalMin = dataBuffer[i][j]; }
+                else if( dataBuffer[i][j] > globalMax ){ globalMax = dataBuffer[i][j]; }
+                
+                //Update the channel min/max
+                if( dataBuffer[i][j] < channelRanges[j].first ){ channelRanges[j].first = dataBuffer[i][j]; }
+                else if( dataBuffer[i][j] > channelRanges[j].second ){ channelRanges[j].second = dataBuffer[i][j]; }
+            }
+        }
+        
+        //Add a small percentage to the min/max values so the plot sits nicely in the graph
+        for(unsigned int j=0; j<numChannels; j++){
+            float range = channelRanges[j].first - channelRanges[j].second;
+            if( range != 0 ){
+                range = range * 0.1;
+                channelRanges[j].first -= range;
+                channelRanges[j].second += range;
+            }
+        }
+    }
+    
+    //Bad things happen if the min and max values are the NAN or the same (as we can't scale the plots correctly)
+    //So add a small value to the max if needed
+    if( grt_isnan(globalMin) || grt_isinf(globalMin) ){
+        globalMin = 0;
+    }
+    if( grt_isnan(globalMax) || grt_isinf(globalMax) ){
+        globalMax = 1;
+    }
+    if( globalMin == globalMax ){
+        globalMax += 1.0e-10;
+    }
+    if( !linkRanges ){
+        for(size_t i=0; i<channelRanges.size(); i++){
+            if( grt_isnan(channelRanges[i].first) || grt_isinf(channelRanges[i].first) ){
+                channelRanges[i].first = 0;
+            }
+            if( grt_isnan(channelRanges[i].second) || grt_isinf(channelRanges[i].second) ){
+                channelRanges[i].second = 0;
+            }
+            if( channelRanges[i].first == channelRanges[i].second ){
+                channelRanges[i].second += 1.0e-10;
+            }
+        }
+    }
+    
+    ofPushMatrix();
+    ofEnableAlphaBlending();
+    ofTranslate(x, y);
+    
+    //Draw the background
+    ofFill();
+    ofSetColor(backgroundColor[0],backgroundColor[1],backgroundColor[2]);
+    ofDrawRectangle(INFO_MARGIN,INFO_MARGIN,w-INFO_MARGIN,h-INFO_MARGIN*2);
+    
+    //Draw the grid if required
+    if( drawGrid ){
+        
+        ofSetColor(gridColor[0],gridColor[1],gridColor[2],gridColor[3]);
+        unsigned int numVLines = 20;
+        unsigned int numHLines = 10;
+        
+        //Draw the horizontal lines
+        for(unsigned int i=0; i<=numChannels; i++){
+            float xStart = INFO_MARGIN;
+            float xEnd = w;
+            float yStart = ofMap(i,0,numChannels,INFO_MARGIN,h-INFO_MARGIN);
+            float yEnd = yStart;
+            ofDrawLine(xStart,yStart,xEnd,yEnd);
+        }
+        
+        //Draw the vertical lines
+        for(unsigned int i=0; i<=numVLines; i++){
+            float xStart = ofMap(i,0,numVLines,INFO_MARGIN,w);
+            float xEnd = xStart;
+            float yStart = INFO_MARGIN;
+            float yEnd = h-INFO_MARGIN;
+            ofDrawLine(xStart,yStart,xEnd,yEnd);
+        }
+    }
+    
+    //Draw the axis lines
+    ofSetColor(0,0,0);
+    ofDrawLine(-5+INFO_MARGIN,h-INFO_MARGIN,w+5,h-INFO_MARGIN); //X Axis
+    ofDrawLine(0+INFO_MARGIN,-5+INFO_MARGIN,0+INFO_MARGIN,h+5-INFO_MARGIN); //Y Axis
+    
+    ofSetColor(textColor);
+    //Draw axis info
+    if(font)
+    {
+        const string xAxisInfo = "Frame";
+        const float posX = -5+INFO_MARGIN;
+        const float posY = h;
+        
+        font->drawString(xAxisInfo, posX, posY);
+        
+        ofPushMatrix();
+        {
+            ofRotateDeg(-90.0f);
+            
+            const string yAxisInfo = "Value";
+            const float posY = -float(h)+font->stringWidth(yAxisInfo)-INFO_MARGIN;
+            const float posX = font->stringHeight(yAxisInfo);
+            font->drawString(yAxisInfo, posY, posX);
+        }
+        ofPopMatrix();
+    }
+    
+    //draw axis ticks
+    {
+        ofSetColor(0,0,0);
+        unsigned int numVTicks = 20;
+        unsigned int numHTicks = 10;
+        
+        //Draw the horizontal lines
+        for(unsigned int i=0; i<=numHTicks; i++){
+            float xStart = -5+INFO_MARGIN;
+            float xEnd = 0+INFO_MARGIN;
+            float yStart = ofMap(i,0,numHTicks,INFO_MARGIN,h-INFO_MARGIN);
+            float yEnd = yStart;
+            ofDrawLine(xStart,yStart,xEnd,yEnd);
+            
+        }
+        
+        //Draw the vertical lines
+        for(unsigned int i=0; i<=numVTicks; i++){
+            float xStart = ofMap(i,0,numVTicks,INFO_MARGIN,w);
+            float xEnd = xStart;
+            float yStart = h-INFO_MARGIN;
+            float yEnd = h+5-INFO_MARGIN;
+            ofDrawLine(xStart,yStart,xEnd,yEnd);
+        }
+    }
+    
+    //Draw the timeseries
+    if( globalMin != globalMax ){
+        float xPos = INFO_MARGIN;
+        const float yPos = INFO_MARGIN;
+        const float xStep = (w-INFO_MARGIN) / (float)timeseriesLength;
+        ofSetColor(32);
+        
+        vector<string> labels;
+        vector<ofPoint> positions;
+        vector<ofColor> colors;
+        
+        for(unsigned int i=0; i<labelBuffer.getNumValuesInBuffer(); i++)
+        {
+        
+            ofSetColor(labelPlotColors[dataBuffer[i][chanNum]].background);
+            
+            ofDrawRectangle( xPos, yPos, xStep, h-INFO_MARGIN*2 );
+            
+            if(dataBuffer[i][chanNum]!=dataBuffer[i-1][chanNum])
+            {
+                labels.push_back(to_string((int)dataBuffer[i][chanNum]));
+                positions.push_back(ofPoint(xPos+2, INFO_MARGIN+(h-INFO_MARGIN*2+font->stringHeight(to_string((int)dataBuffer[i][chanNum])))*0.5));
+                colors.push_back(labelPlotColors[dataBuffer[i][chanNum]].label);
+            }
+            xPos += xStep;
+        }
+        
+        for(int i=0;i<labels.size();i++)
+        {
+            ofSetColor( colors[i] );
+            if(font)
+                font->drawString(labels[i], positions[i].x,positions[i].y);
+            else
+                ofDrawBitmapString(labels[i], positions[i].x,positions[i].y);
+        }
+        
+        
+        
+    }
+    
+    //Only draw the text if the font has been loaded
+    if( font ){
+        
+        if( !font->isLoaded() ) return false;
+        
+        if( drawInfoText ){
+            ofRectangle bounds = font->getStringBoundingBox(plotTitle, 0, 0);
+            int textX = INFO_MARGIN;
+            int textY = bounds.height;
+            int textSpacer = bounds.height + 5;
+            
+            if( plotTitle != "" && drawPlotTitle ){
+                ofSetColor(textColor[0],textColor[1],textColor[2]);
+                font->drawString( plotTitle, textX, textY );
+                textY += textSpacer;
+            }
+            
+            if( drawPlotValues ){
+                std::stringstream info;
+                info.precision( 2 );
+                for(unsigned int n=0; n<numChannels; n++){
+                    if( channelVisible[n] ){
+                        minY = linkRanges ? globalMin : channelRanges[n].first;
+                        maxY = linkRanges ? globalMax : channelRanges[n].second;
+                        ofSetColor(colors[n][0],colors[n][1],colors[n][2]);
+                        info.str("");
+                        info << "[" << n+1 << "]: " << channelNames[n] << " ";
+                        info << dataBuffer[timeseriesLength-1][n] << " [" << minY << " " << maxY << "]" << endl;
+                        bounds = font->getStringBoundingBox(info.str(), 0, 0);
+                        font->drawString(info.str(),textX,textY);
+                        textY += bounds.height + 5;
+                    }
+                }
+            }
+        }
+    }
+    
     ofPopMatrix();
     
     return true;
