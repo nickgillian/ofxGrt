@@ -31,6 +31,8 @@ ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     gridColor[3] = 255;
     
     errorLog.setProceedingText("[ERROR ofxGrtTimeseriesPlot]");
+    xAxisInfo = "X";
+    yAxisInfo = "   Y";
 }
 
 ofxGrtTimeseriesPlot::~ofxGrtTimeseriesPlot(){
@@ -115,6 +117,12 @@ bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const uns
     }
     
     return true;    
+}
+
+void ofxGrtTimeseriesPlot::setAxisTitle(const std::string x, const std::string y)
+{
+    xAxisInfo = x;
+    yAxisInfo = y;
 }
 
 bool ofxGrtTimeseriesPlot::reset(){
@@ -642,7 +650,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
     //Draw axis info
     if(font)
     {
-        const string xAxisInfo = "Frame";
+
         const float posX = -5+INFO_MARGIN;
         const float posY = h;
         
@@ -652,7 +660,6 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         {
             ofRotateDeg(-90.0f);
             
-            const string yAxisInfo = "Value";
             const float posY = -float(h)+font->stringWidth(yAxisInfo)-INFO_MARGIN;
             const float posX = font->stringHeight(yAxisInfo);
             font->drawString(yAxisInfo, posY, posX);
@@ -885,7 +892,7 @@ bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigne
     //Draw axis info
     if(font)
     {
-        const string xAxisInfo = "Frame";
+        
         const float posX = -5+INFO_MARGIN;
         const float posY = h;
         
@@ -895,8 +902,7 @@ bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigne
         {
             ofRotateDeg(-90.0f);
             
-            const string yAxisInfo = "Value";
-            const float posY = -float(h)+font->stringWidth(yAxisInfo)-INFO_MARGIN;
+            const float posY = -float(h)+font->stringWidth(yAxisInfo);
             const float posX = font->stringHeight(yAxisInfo);
             font->drawString(yAxisInfo, posY, posX);
         }

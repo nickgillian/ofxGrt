@@ -328,6 +328,7 @@ public:
     
     bool setNamesForChannels(const vector<std::string> names);
     
+    void setAxisTitle(const std::string x, const std::string y);
     
 protected:
     mutable std::mutex mtx;
@@ -342,7 +343,9 @@ protected:
     CircularBuffer< vector<float> > dataBuffer;
     CircularBuffer< int > highlightBuffer;
     CircularBuffer< std::string > labelBuffer;
-
+    
+    std::string xAxisInfo, yAxisInfo;
+    
     bool initialized;
     bool lockRanges; ///< If true, then the min/max values for the plots will not be updated
     bool linkRanges; ///< If true, then the min/max values for the plots will be based on the global min/max values across all channels, if false then the min/max values will be based per channel
