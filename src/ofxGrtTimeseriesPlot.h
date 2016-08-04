@@ -24,6 +24,8 @@
 #include <iostream>
 #include <vector>
 
+#define INFO_MARGIN 20
+
 using namespace GRT;
 
 struct labelPlotColor
@@ -359,6 +361,8 @@ protected:
     
     ofColor textColor;
     ofColor gridColor;
+    ofColor axisColor;
+    
     ofColor backgroundColor;
     vector< ofColor > colors;
     vector< labelPlotColor > labelPlotColors;

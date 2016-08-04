@@ -1,7 +1,5 @@
 #include "ofxGrtTimeseriesPlot.h"
 
-#define INFO_MARGIN 20
-
 using namespace GRT;
     
 ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
@@ -15,20 +13,16 @@ ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     globalMin =  std::numeric_limits<float>::max();
     globalMax =  -std::numeric_limits<float>::max();
     constrainValuesToGraph = true;
-    drawInfoText = true;
+    drawInfoText = false;
     drawPlotTitle = true;
-    drawPlotValues = true;
+    drawPlotValues = false;
     drawGrid = true;    
-    textColor[0] = 225;
-    textColor[1] = 225;
-    textColor[2] = 225;
+    textColor = {0,60,150,255};
     backgroundColor[0] = 255;
     backgroundColor[1] = 255;
     backgroundColor[2] = 255;
-    gridColor[0] = 0;
-    gridColor[1] = 0;
-    gridColor[2] = 0;
-    gridColor[3] = 255;
+    gridColor = {198,219,244,255};
+    axisColor = {128,153,184,255};
     
     errorLog.setProceedingText("[ERROR ofxGrtTimeseriesPlot]");
     xAxisInfo = "X";
@@ -75,15 +69,46 @@ bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const uns
     channelRanges.resize( numChannels, std::pair<float,float>(globalMin,globalMax) );
     channelNames.resize(numChannels,"");
     
-    
-    
 //    labelPlotcolors
 
     channelVisible.resize(numChannels,true);
     
     initialized = true;
     
-    labelPlotColors = { {{16, 16, 16, 40},{0, 0, 0, 255}},
+    labelPlotColors.resize(10);
+    
+    labelPlotColors[0].background = {16, 16, 16, 40};
+    labelPlotColors[0].label = {0, 0, 0, 255};
+    
+    labelPlotColors[1].background = {16, 16, 16, 40};
+    labelPlotColors[1].label = {0, 0, 0, 255};
+    
+    labelPlotColors[2].background = {16, 16, 16, 40};
+    labelPlotColors[2].label = {0, 0, 0, 255};
+    
+    labelPlotColors[3].background = {16, 16, 16, 40};
+    labelPlotColors[3].label = {0, 0, 0, 255};
+    
+    labelPlotColors[4].background = {16, 16, 16, 40};
+    labelPlotColors[4].label = {0, 0, 0, 255};
+    
+    labelPlotColors[5].background = {16, 16, 16, 40};
+    labelPlotColors[5].label = {0, 0, 0, 255};
+    
+    labelPlotColors[6].background = {16, 16, 16, 40};
+    labelPlotColors[6].label = {0, 0, 0, 255};
+    
+    labelPlotColors[7].background = {16, 16, 16, 40};
+    labelPlotColors[7].label = {0, 0, 0, 255};
+    
+    labelPlotColors[8].background = {16, 16, 16, 40};
+    labelPlotColors[8].label = {0, 0, 0, 255};
+    
+    labelPlotColors[9].background = {16, 16, 16, 40};
+    labelPlotColors[9].label = {0, 0, 0, 255};
+    
+    labelPlotColors = {
+        {{16, 16, 16, 40},{0, 0, 0, 255}},
         {{255, 127, 0, 255},{255,255,255,255}},
         {{31, 120, 180, 255},{255,255,255,255}},
         {{210, 189, 26, 255},{255,255,255,255}},
@@ -94,7 +119,7 @@ bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const uns
         {{9, 152, 146, 255},{255,255,255,255}},
         {{227, 26, 150, 255},{255,255,255,255}}
         };
-    
+
     colors.resize(numChannels);
     //Setup the default colors
     if( numChannels >= 1 ) colors[0] = ofColor(255,0,0); //red
@@ -104,16 +129,18 @@ bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const uns
     if( numChannels >= 5 ) colors[4] = ofColor(255,0,255); //purple
     if( numChannels >= 6 ) colors[5] = ofColor(255,255,255); //white
     
+    
     //Randomize the remaining colors
     for(unsigned int n=6; n<numChannels; n++){
         colors[n][0] = ofRandom(100,255);
         colors[n][1] = ofRandom(100,255);
         colors[n][2] = ofRandom(100,255);
     }
-    
-    for(int i=0;i<labelPlotColors.size();i++)
+    int i=0;
+    for(auto &c:colors)
     {
-        colors[i]=labelPlotColors[i].background;
+        c=labelPlotColors[i].background;
+        i++;
     }
     
     return true;    
@@ -557,6 +584,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
             channelRanges[i].first = globalMin;
             channelRanges[i].second = globalMax;
         }
+        
         for(unsigned int i=0; i<timeseriesLength; i++){
             for(unsigned int j=0; j<numChannels; j++){
                 //Update the global min/max
@@ -618,7 +646,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
     //Draw the grid if required
     if( drawGrid ){
         
-        ofSetColor(gridColor[0],gridColor[1],gridColor[2],gridColor[3]);
+        ofSetColor(gridColor);
         unsigned int numVLines = 20;
         unsigned int numHLines = 10;
         
@@ -642,7 +670,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
     }
     
     //Draw the axis lines
-    ofSetColor(0,0,0);
+    ofSetColor(axisColor);
     ofDrawLine(-5+INFO_MARGIN,h-INFO_MARGIN,w+5,h-INFO_MARGIN); //X Axis
     ofDrawLine(0+INFO_MARGIN,-5+INFO_MARGIN,0+INFO_MARGIN,h+5-INFO_MARGIN); //Y Axis
     
@@ -670,7 +698,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
     
     //draw axis ticks
     {
-        ofSetColor(0,0,0);
+        ofSetColor(axisColor);
         unsigned int numVTicks = 20;
         unsigned int numHTicks = 10;
         
@@ -884,7 +912,7 @@ bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigne
     }
     
     //Draw the axis lines
-    ofSetColor(0,0,0);
+    ofSetColor(axisColor);
     ofDrawLine(-5+INFO_MARGIN,h-INFO_MARGIN,w+5,h-INFO_MARGIN); //X Axis
     ofDrawLine(0+INFO_MARGIN,-5+INFO_MARGIN,0+INFO_MARGIN,h+5-INFO_MARGIN); //Y Axis
     
@@ -900,10 +928,11 @@ bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigne
         
         ofPushMatrix();
         {
-            ofRotateDeg(-90.0f);
             
-            const float posY = -float(h)+font->stringWidth(yAxisInfo);
+            
+            const float posY = -float(h)+font->stringWidth(yAxisInfo)+INFO_MARGIN/2;
             const float posX = font->stringHeight(yAxisInfo);
+            ofRotateDeg(-90.0f);
             font->drawString(yAxisInfo, posY, posX);
         }
         ofPopMatrix();
@@ -911,9 +940,9 @@ bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigne
     
     //draw axis ticks
     {
-        ofSetColor(0,0,0);
+        ofSetColor(gridColor);
         unsigned int numVTicks = 20;
-        unsigned int numHTicks = 10;
+        unsigned int numHTicks = 1;
         
         //Draw the horizontal lines
         for(unsigned int i=0; i<=numHTicks; i++){
