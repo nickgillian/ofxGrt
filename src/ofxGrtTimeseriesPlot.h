@@ -23,6 +23,7 @@
 #include "GRT/GRT.h"
 #include <iostream>
 #include <vector>
+#include "settings.h"
 
 #define INFO_MARGIN 20
 
@@ -368,7 +369,7 @@ protected:
     vector< labelPlotColor > labelPlotColors;
     ErrorLog errorLog;
     const ofTrueTypeFont *font;
-    
+    std::shared_ptr<settings::variables> config;
 };
 
 

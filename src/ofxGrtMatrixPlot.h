@@ -22,6 +22,7 @@
 #include <GRT/GRT.h>
 
 #include "ofMain.h"
+#include "settings.h"
 
 using namespace GRT;
 
@@ -48,11 +49,15 @@ protected:
     unsigned int cols;
 
     std::string plotTitle;
+    std::string xAxisInfo;
+    std::string yAxisInfo;
     ofColor textColor;
     vector<float> pixelData;
     ofFloatPixels pixels;
     ofTexture texture;
     const ofTrueTypeFont *font;
+    
+    std::shared_ptr<settings::variables> config;
 };
 
 

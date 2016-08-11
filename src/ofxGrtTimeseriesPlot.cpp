@@ -3,6 +3,7 @@
 using namespace GRT;
     
 ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
+    config = settings::GetInstance().get();
     plotTitle = "";
     font = NULL;
     initialized = false;
@@ -13,16 +14,14 @@ ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     globalMin =  std::numeric_limits<float>::max();
     globalMax =  -std::numeric_limits<float>::max();
     constrainValuesToGraph = true;
-    drawInfoText = false;
+    drawInfoText = true;
     drawPlotTitle = true;
     drawPlotValues = false;
     drawGrid = true;    
-    textColor = {0,60,150,255};
-    backgroundColor[0] = 255;
-    backgroundColor[1] = 255;
-    backgroundColor[2] = 255;
-    gridColor = {198,219,244,255};
-    axisColor = {128,153,184,255};
+    textColor = config->activeTextColor;
+    backgroundColor = config->backgroundColor;
+    gridColor = config->gridColor;
+    axisColor = config->axisColor;
     
     errorLog.setProceedingText("[ERROR ofxGrtTimeseriesPlot]");
     xAxisInfo = "X";
@@ -50,13 +49,13 @@ bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const uns
     this->numChannels = numChannels;
     this->plotTitle = title;
 
-    dataBuffer.resize(timeseriesLength, vector<float>(numChannels,0));
+    dataBuffer.resize(timeseriesLength, vector<float>(numChannels,-1));
     highlightBuffer.resize(timeseriesLength, 0);
     labelBuffer.resize(timeseriesLength, "");
 
     //Fill the buffer with empty values
     for(unsigned int i=0; i<timeseriesLength; i++) {
-        dataBuffer.push_back(vector<float>(numChannels,0));
+        dataBuffer.push_back(vector<float>(numChannels,-1));
         highlightBuffer.push_back(0);
         labelBuffer.push_back("");
     }
@@ -108,7 +107,7 @@ bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const uns
     labelPlotColors[9].label = {0, 0, 0, 255};
     
     labelPlotColors = {
-        {{16, 16, 16, 40},{0, 0, 0, 255}},
+        {{16, 16, 16, 40},{0, 0, 0, 255}},    
         {{255, 127, 0, 255},{255,255,255,255}},
         {{31, 120, 180, 255},{255,255,255,255}},
         {{210, 189, 26, 255},{255,255,255,255}},
@@ -168,7 +167,7 @@ bool ofxGrtTimeseriesPlot::reset(){
     }
 
     //Clear the buffer
-    dataBuffer.setAllValues(vector<float>(numChannels,0));
+    dataBuffer.setAllValues(vector<float>(numChannels,-1));
     highlightBuffer.setAllValues(0);
     labelBuffer.setAllValues("");
     
@@ -640,8 +639,8 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
     
     //Draw the background
     ofFill();
-    ofSetColor(backgroundColor[0],backgroundColor[1],backgroundColor[2]);
-    ofDrawRectangle(INFO_MARGIN,INFO_MARGIN,w-INFO_MARGIN,h-INFO_MARGIN*2);
+    ofSetColor(backgroundColor);
+    ofDrawRectangle(INFO_MARGIN,INFO_MARGIN,w-INFO_MARGIN,h-INFO_MARGIN);
     
     //Draw the grid if required
     if( drawGrid ){
@@ -654,7 +653,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         for(unsigned int i=0; i<=numHLines; i++){
             float xStart = INFO_MARGIN;
             float xEnd = w;
-            float yStart = ofMap(i,0,numHLines,INFO_MARGIN,h-INFO_MARGIN);
+            float yStart = ofMap(i,0,numHLines,0,h-INFO_MARGIN);
             float yEnd = yStart;
             ofDrawLine(xStart,yStart,xEnd,yEnd);
         }
@@ -663,7 +662,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         for(unsigned int i=0; i<=numVLines; i++){
             float xStart = ofMap(i,0,numVLines,INFO_MARGIN,w);
             float xEnd = xStart;
-            float yStart = INFO_MARGIN;
+            float yStart = 0;
             float yEnd = h-INFO_MARGIN;
             ofDrawLine(xStart,yStart,xEnd,yEnd);
         }
@@ -672,7 +671,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
     //Draw the axis lines
     ofSetColor(axisColor);
     ofDrawLine(-5+INFO_MARGIN,h-INFO_MARGIN,w+5,h-INFO_MARGIN); //X Axis
-    ofDrawLine(0+INFO_MARGIN,-5+INFO_MARGIN,0+INFO_MARGIN,h+5-INFO_MARGIN); //Y Axis
+    ofDrawLine(0+INFO_MARGIN,-5,0+INFO_MARGIN,h+5-INFO_MARGIN); //Y Axis
     
     ofSetColor(textColor[0],textColor[1],textColor[2]);
     //Draw axis info
@@ -704,9 +703,9 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         
         //Draw the horizontal lines
         for(unsigned int i=0; i<=numHTicks; i++){
-            float xStart = -5+INFO_MARGIN;
-            float xEnd = 0+INFO_MARGIN;
-            float yStart = ofMap(i,0,numHTicks,INFO_MARGIN,h-INFO_MARGIN);
+            float xStart = -config->axisTicksSize+INFO_MARGIN;
+            float xEnd = config->axisTicksSize+INFO_MARGIN;
+            float yStart = ofMap(i,0,numHTicks,0,h-INFO_MARGIN);
             float yEnd = yStart;
             ofDrawLine(xStart,yStart,xEnd,yEnd);
             
@@ -759,7 +758,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
                 ofSetColor( colors[ channelIndex ][0],colors[ channelIndex ][1],colors[ channelIndex ][2] );
                 ofBeginShape();
                 for(unsigned int i=0; i<timeseriesLength; i++){
-                    ofVertex( xPos, ofMap(dataBuffer[i][ channelIndex ], minY, maxY, h-INFO_MARGIN, 0+INFO_MARGIN, constrainValuesToGraph) );
+                    ofVertex( xPos, ofMap(dataBuffer[i][ channelIndex ], minY, maxY, h-INFO_MARGIN, 0, constrainValuesToGraph) );
                     xPos += xStep;
                 }
                 ofEndShape(false);
@@ -778,13 +777,14 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         if( drawInfoText ){
             ofRectangle bounds = font->getStringBoundingBox(plotTitle, 0, 0);
             int textX = INFO_MARGIN;
-            int textY = bounds.height;
-            int textSpacer = bounds.height + 5;
+            int textY = -config->titleTextSpacer;
+//            int textSpacer = bounds.height + 5;
             
             if( plotTitle != "" && drawPlotTitle ){
-                ofSetColor(textColor[0],textColor[1],textColor[2]);
+                ofSetColor(textColor);
                 font->drawString( plotTitle, textX, textY );
-                textY += textSpacer;
+                
+//                textY += textSpacer;
             }
             
             if( drawPlotValues ){
@@ -946,7 +946,7 @@ bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigne
         
         //Draw the horizontal lines
         for(unsigned int i=0; i<=numHTicks; i++){
-            float xStart = -5+INFO_MARGIN;
+            float xStart = -config->axisTicksSize+INFO_MARGIN;
             float xEnd = 0+INFO_MARGIN;
             float yStart = ofMap(i,0,numHTicks,INFO_MARGIN,h-INFO_MARGIN);
             float yEnd = yStart;
@@ -959,7 +959,7 @@ bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigne
             float xStart = ofMap(i,0,numVTicks,INFO_MARGIN,w);
             float xEnd = xStart;
             float yStart = h-INFO_MARGIN;
-            float yEnd = h+5-INFO_MARGIN;
+            float yEnd = h+config->axisTicksSize-INFO_MARGIN;
             ofDrawLine(xStart,yStart,xEnd,yEnd);
         }
     }
@@ -977,17 +977,24 @@ bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigne
         
         for(unsigned int i=0; i<labelBuffer.getNumValuesInBuffer(); i++)
         {
-        
-            ofSetColor(labelPlotColors[dataBuffer[i][chanNum]].background);
-            
-            ofDrawRectangle( xPos, yPos, xStep, h-INFO_MARGIN*2 );
-            
-            if(dataBuffer[i][chanNum]!=dataBuffer[i-1][chanNum])
+            const int colorIdx = dataBuffer[i][chanNum];
+            if(colorIdx<0)
             {
-                labels.push_back(to_string((int)dataBuffer[i][chanNum]));
-                positions.push_back(ofPoint(xPos+2, INFO_MARGIN+(h-INFO_MARGIN*2+font->stringHeight(to_string((int)dataBuffer[i][chanNum])))*0.5));
-                colors.push_back(labelPlotColors[dataBuffer[i][chanNum]].label);
+                ofSetColor(0,0,0,0);
+                ofDrawRectangle( xPos, yPos, xStep, h-INFO_MARGIN*2 );
             }
+            else
+            {
+                ofSetColor(labelPlotColors[colorIdx].background);
+                ofDrawRectangle( xPos, yPos, xStep, h-INFO_MARGIN*2 );
+                if(dataBuffer[i][chanNum]!=dataBuffer[i-1][chanNum])
+                {
+                    labels.push_back(to_string((int)dataBuffer[i][chanNum]));
+                    positions.push_back(ofPoint(xPos+2, INFO_MARGIN+(h-INFO_MARGIN*2+font->stringHeight(to_string((int)dataBuffer[i][chanNum])))*0.5));
+                    colors.push_back(labelPlotColors[dataBuffer[i][chanNum]].label);
+                }
+            }
+            
             xPos += xStep;
         }
         
