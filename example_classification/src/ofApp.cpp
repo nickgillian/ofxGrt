@@ -151,6 +151,7 @@ void ofApp::keyPressed(int key){
         case 'c':
             trainingData.clear();
             pipeline.clear();
+            setClassifier( this->classifierType );
             infoText = "Training data cleared";
             break;
         case 'i':
