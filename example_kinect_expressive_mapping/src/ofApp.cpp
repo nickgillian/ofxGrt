@@ -271,11 +271,19 @@ void ofApp::keyPressed(int key){
             std::cout << "mapping parameters: " << mappingParameter1 << mappingParameter2 << std::endl;
             break;
         case '1':
+            predictionModeActive = false;
+            trainingModeActive = true;
+            recordTrainingData = false;
+            trainingTimer.start( PRE_RECORDING_COUNTDOWN_TIME );
             mappingParameter1=1.0f;
             mappingParameter2=0.0f;
             std::cout << "mapping parameters: " << mappingParameter1 << mappingParameter2 << std::endl;
             break;
         case '2':
+            predictionModeActive = false;
+            trainingModeActive = true;
+            recordTrainingData = false;
+            trainingTimer.start( PRE_RECORDING_COUNTDOWN_TIME );
             mappingParameter1=0.0f;
             mappingParameter2=1.0f;
             std::cout << "mapping parameters: " << mappingParameter1 << mappingParameter2 << std::endl;

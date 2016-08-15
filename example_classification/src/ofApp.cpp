@@ -113,6 +113,7 @@ void ofApp::keyPressed(int key){
     
     infoText = "";
     bool buildTexture = false;
+    ofImage img;
     
     switch ( key) {
         case 'r':
@@ -143,8 +144,13 @@ void ofApp::keyPressed(int key){
                 infoText = "Training data saved to file";
             }else infoText = "WARNING: Failed to load training data from file";
             break;
+        case 'e':
+            img.grabScreen(0, 0 , ofGetWidth(), ofGetHeight());
+            img.save( ofToDataPath("screenshot.png") );
+            break;
         case 'c':
             trainingData.clear();
+            pipeline.clear();
             infoText = "Training data cleared";
             break;
         case 'i':
@@ -311,12 +317,12 @@ bool ofApp::setClassifier( const int type ){
         case SVM_LINEAR:
             svm.enableNullRejection( false );
             svm.setNullRejectionCoeff( 3 );
-            //pipeline.setClassifier( svm );
+            pipeline.setClassifier( SVM(SVM::LINEAR_KERNEL) );
         break;
         case SVM_RBF:
             svm.enableNullRejection( false );
             svm.setNullRejectionCoeff( 3 );
-            //pipeline.setClassifier( svm );
+            pipeline.setClassifier( SVM(SVM::RBF_KERNEL) );
         break;
         default:
             return false;
