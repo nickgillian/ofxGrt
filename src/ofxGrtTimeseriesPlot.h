@@ -48,15 +48,19 @@ public:
     
     /**
      @brief updates the plot pushing the input data into the plots internal buffer. The size of the input Vector must match the number of dimensions in the plot.
+     @param highlight whether or not to highlight the newly added data point (default false)
+     @param label the label associated with the highlight
      @return returns true if the plot was updated successfully, false otherwise
     */
-    bool update( const vector<float> &data );
-    
+    bool update( const vector<float> &data, bool highlight = false, std::string label = "" );
+
     /**
      @brief updates the plot pushing the input data into the plots internal buffer. The size of the input Vector must match the number of dimensions in the plot.
+     @param highlight whether or not to highlight the newly added data point (default false)
+     @param label the label associated with the highlight
      @return returns true if the plot was updated successfully, false otherwise
     */
-    bool update( const vector<double> &data );
+    bool update( const vector<double> &data, bool highlight = false, std::string label = "" );
 
     /**
      @brief draws the plot.     
@@ -291,7 +295,9 @@ protected:
     vector< bool > channelVisible;
     vector< std::pair<float,float> > channelRanges;
     CircularBuffer< vector<float> > dataBuffer;
-    
+    CircularBuffer< int > highlightBuffer;
+    CircularBuffer< std::string > labelBuffer;
+
     bool initialized;
     bool lockRanges; ///< If true, then the min/max values for the plots will not be updated
     bool linkRanges; ///< If true, then the min/max values for the plots will be based on the global min/max values across all channels, if false then the min/max values will be based per channel
