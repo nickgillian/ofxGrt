@@ -1,4 +1,5 @@
 #include "ofxGrtTimeseriesPlot.h"
+#include <algorithm>
 
 using namespace GRT;
     
@@ -640,7 +641,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
     //Draw the background
     ofFill();
     ofSetColor(backgroundColor);
-    ofDrawRectangle(INFO_MARGIN,INFO_MARGIN,w-INFO_MARGIN,h-INFO_MARGIN);
+    ofDrawRectangle(config->info_margin,config->info_margin,w-config->info_margin,h-config->info_margin);
     
     //Draw the grid if required
     if( drawGrid ){
@@ -651,34 +652,34 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         
         //Draw the horizontal lines
         for(unsigned int i=0; i<=numHLines; i++){
-            float xStart = INFO_MARGIN;
+            float xStart = config->info_margin;
             float xEnd = w;
-            float yStart = ofMap(i,0,numHLines,0,h-INFO_MARGIN);
+            float yStart = ofMap(i,0,numHLines,0,h-config->info_margin);
             float yEnd = yStart;
             ofDrawLine(xStart,yStart,xEnd,yEnd);
         }
         
         //Draw the vertical lines
         for(unsigned int i=0; i<=numVLines; i++){
-            float xStart = ofMap(i,0,numVLines,INFO_MARGIN,w);
+            float xStart = ofMap(i,0,numVLines,config->info_margin,w);
             float xEnd = xStart;
             float yStart = 0;
-            float yEnd = h-INFO_MARGIN;
+            float yEnd = h-config->info_margin;
             ofDrawLine(xStart,yStart,xEnd,yEnd);
         }
     }
     
     //Draw the axis lines
     ofSetColor(axisColor);
-    ofDrawLine(-5+INFO_MARGIN,h-INFO_MARGIN,w+5,h-INFO_MARGIN); //X Axis
-    ofDrawLine(0+INFO_MARGIN,-5,0+INFO_MARGIN,h+5-INFO_MARGIN); //Y Axis
+    ofDrawLine(-5+config->info_margin,h-config->info_margin,w+5,h-config->info_margin); //X Axis
+    ofDrawLine(0+config->info_margin,-5,0+config->info_margin,h+5-config->info_margin); //Y Axis
     
     ofSetColor(textColor[0],textColor[1],textColor[2]);
     //Draw axis info
     if(font)
     {
 
-        const float posX = -5+INFO_MARGIN;
+        const float posX = -5+config->info_margin;
         const float posY = h;
         
         font->drawString(xAxisInfo, posX, posY);
@@ -687,7 +688,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         {
             ofRotateZ(-90.0f);
             
-            const float posY = -float(h)+font->stringWidth(yAxisInfo)-INFO_MARGIN;
+            const float posY = -float(h)+font->stringWidth(yAxisInfo)-config->info_margin;
             const float posX = font->stringHeight(yAxisInfo);
             font->drawString(yAxisInfo, posY, posX);
         }
@@ -703,9 +704,9 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         
         //Draw the horizontal lines
         for(unsigned int i=0; i<=numHTicks; i++){
-            float xStart = -config->axisTicksSize+INFO_MARGIN;
-            float xEnd = config->axisTicksSize+INFO_MARGIN;
-            float yStart = ofMap(i,0,numHTicks,0,h-INFO_MARGIN);
+            float xStart = -config->axisTicksSize+config->info_margin;
+            float xEnd = config->axisTicksSize+config->info_margin;
+            float yStart = ofMap(i,0,numHTicks,0,h-config->info_margin);
             float yEnd = yStart;
             ofDrawLine(xStart,yStart,xEnd,yEnd);
             
@@ -713,10 +714,10 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         
         //Draw the vertical lines
         for(unsigned int i=0; i<=numVTicks; i++){
-            float xStart = ofMap(i,0,numVTicks,INFO_MARGIN,w);
+            float xStart = ofMap(i,0,numVTicks,config->info_margin,w);
             float xEnd = xStart;
-            float yStart = h-INFO_MARGIN;
-            float yEnd = h+5-INFO_MARGIN;
+            float yStart = h-config->info_margin;
+            float yEnd = h+5-config->info_margin;
             ofDrawLine(xStart,yStart,xEnd,yEnd);
         }
     }
@@ -724,7 +725,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
     //Draw the timeseries
     if( globalMin != globalMax ){
         float xPos = 0;
-        float xStep = (w-INFO_MARGIN) / (float)timeseriesLength;
+        float xStep = (w-config->info_margin) / (float)timeseriesLength;
         ofSetColor(32);
         for(unsigned int i=0; i<highlightBuffer.getNumValuesInBuffer(); i++){
             if (highlightBuffer[i]) ofDrawRectangle( xPos, 0, xStep, h );
@@ -749,7 +750,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         unsigned int channelIndex = 0;
         ofNoFill();
         for(unsigned int n=0; n<numChannels; n++){
-            xPos = INFO_MARGIN;
+            xPos = config->info_margin;
             index = 0;
             channelIndex = drawOrderInverted ? numChannels-1-n : n;
             if( channelVisible[ channelIndex ] ){
@@ -758,7 +759,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
                 ofSetColor( colors[ channelIndex ][0],colors[ channelIndex ][1],colors[ channelIndex ][2] );
                 ofBeginShape();
                 for(unsigned int i=0; i<timeseriesLength; i++){
-                    ofVertex( xPos, ofMap(dataBuffer[i][ channelIndex ], minY, maxY, h-INFO_MARGIN, 0, constrainValuesToGraph) );
+                    ofVertex( xPos, ofMap(dataBuffer[i][ channelIndex ], minY, maxY, h-config->info_margin, 0, constrainValuesToGraph) );
                     xPos += xStep;
                 }
                 ofEndShape(false);
@@ -776,7 +777,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         
         if( drawInfoText ){
             ofRectangle bounds = font->getStringBoundingBox(plotTitle, 0, 0);
-            int textX = INFO_MARGIN;
+            int textX = config->info_margin;
             int textY = -config->titleTextSpacer;
 //            int textSpacer = bounds.height + 5;
             
@@ -884,7 +885,7 @@ bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigne
     //Draw the background
     ofFill();
     ofSetColor(backgroundColor[0],backgroundColor[1],backgroundColor[2]);
-    ofDrawRectangle(INFO_MARGIN,INFO_MARGIN,w-INFO_MARGIN,h-INFO_MARGIN*2);
+    ofDrawRectangle(config->info_margin,config->info_margin,w-config->info_margin,h-config->info_margin*2);
     
     //Draw the grid if required
     if( drawGrid ){
@@ -895,34 +896,34 @@ bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigne
         
         //Draw the horizontal lines
         for(unsigned int i=0; i<=numChannels; i++){
-            float xStart = INFO_MARGIN;
+            float xStart = config->info_margin;
             float xEnd = w;
-            float yStart = ofMap(i,0,numChannels,INFO_MARGIN,h-INFO_MARGIN);
+            float yStart = ofMap(i,0,numChannels,config->info_margin,h-config->info_margin);
             float yEnd = yStart;
             ofDrawLine(xStart,yStart,xEnd,yEnd);
         }
         
         //Draw the vertical lines
         for(unsigned int i=0; i<=numVLines; i++){
-            float xStart = ofMap(i,0,numVLines,INFO_MARGIN,w);
+            float xStart = ofMap(i,0,numVLines,config->info_margin,w);
             float xEnd = xStart;
-            float yStart = INFO_MARGIN;
-            float yEnd = h-INFO_MARGIN;
+            float yStart = config->info_margin;
+            float yEnd = h-config->info_margin;
             ofDrawLine(xStart,yStart,xEnd,yEnd);
         }
     }
     
     //Draw the axis lines
     ofSetColor(axisColor);
-    ofDrawLine(-5+INFO_MARGIN,h-INFO_MARGIN,w+5,h-INFO_MARGIN); //X Axis
-    ofDrawLine(0+INFO_MARGIN,-5+INFO_MARGIN,0+INFO_MARGIN,h+5-INFO_MARGIN); //Y Axis
+    ofDrawLine(-5+config->info_margin,h-config->info_margin,w+5,h-config->info_margin); //X Axis
+    ofDrawLine(0+config->info_margin,-5+config->info_margin,0+config->info_margin,h+5-config->info_margin); //Y Axis
     
     ofSetColor(textColor);
     //Draw axis info
     if(font)
     {
         
-        const float posX = -5+INFO_MARGIN;
+        const float posX = -5+config->info_margin;
         const float posY = h;
         
         font->drawString(xAxisInfo, posX, posY);
@@ -931,7 +932,7 @@ bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigne
         {
             
             
-            const float posY = -float(h)+font->stringWidth(yAxisInfo)+INFO_MARGIN/2;
+            const float posY = -float(h)+font->stringWidth(yAxisInfo)+config->info_margin/2;
             const float posX = font->stringHeight(yAxisInfo);
             ofRotateZ(-90.0f);
             font->drawString(yAxisInfo, posY, posX);
@@ -947,9 +948,9 @@ bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigne
         
         //Draw the horizontal lines
         for(unsigned int i=0; i<=numHTicks; i++){
-            float xStart = -config->axisTicksSize+INFO_MARGIN;
-            float xEnd = 0+INFO_MARGIN;
-            float yStart = ofMap(i,0,numHTicks,INFO_MARGIN,h-INFO_MARGIN);
+            float xStart = -config->axisTicksSize+config->info_margin;
+            float xEnd = 0+config->info_margin;
+            float yStart = ofMap(i,0,numHTicks,config->info_margin,h-config->info_margin);
             float yEnd = yStart;
             ofDrawLine(xStart,yStart,xEnd,yEnd);
             
@@ -957,19 +958,19 @@ bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigne
         
         //Draw the vertical lines
         for(unsigned int i=0; i<=numVTicks; i++){
-            float xStart = ofMap(i,0,numVTicks,INFO_MARGIN,w);
+            float xStart = ofMap(i,0,numVTicks,config->info_margin,w);
             float xEnd = xStart;
-            float yStart = h-INFO_MARGIN;
-            float yEnd = h+config->axisTicksSize-INFO_MARGIN;
+            float yStart = h-config->info_margin;
+            float yEnd = h+config->axisTicksSize-config->info_margin;
             ofDrawLine(xStart,yStart,xEnd,yEnd);
         }
     }
     
     //Draw the timeseries
     if( globalMin != globalMax ){
-        float xPos = INFO_MARGIN;
-        const float yPos = INFO_MARGIN;
-        const float xStep = (w-INFO_MARGIN) / (float)timeseriesLength;
+        float xPos = config->info_margin;
+        const float yPos = config->info_margin;
+        const float xStep = (w-config->info_margin) / (float)timeseriesLength;
         ofSetColor(32);
         
         vector<string> labels;
@@ -982,16 +983,17 @@ bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigne
             if(colorIdx<0)
             {
                 ofSetColor(0,0,0,0);
-                ofDrawRectangle( xPos, yPos, xStep, h-INFO_MARGIN*2 );
+                ofDrawRectangle( xPos, yPos, xStep, h-config->info_margin*2 );
             }
             else
             {
                 ofSetColor(labelPlotColors[colorIdx].background);
-                ofDrawRectangle( xPos, yPos, xStep, h-INFO_MARGIN*2 );
-                if(dataBuffer[i][chanNum]!=dataBuffer[i-1][chanNum])
+                ofDrawRectangle( xPos, yPos, xStep, h-config->info_margin*2 );
+                const int prevIdx = max<int>(0,i-1);
+                if(dataBuffer[i][chanNum]!=dataBuffer[prevIdx][chanNum] || i==0)
                 {
                     labels.push_back(to_string((int)dataBuffer[i][chanNum]));
-                    positions.push_back(ofPoint(xPos+2, INFO_MARGIN+(h-INFO_MARGIN*2+font->stringHeight(to_string((int)dataBuffer[i][chanNum])))*0.5));
+                    positions.push_back(ofPoint(xPos+2, config->info_margin+(h-config->info_margin*2+font->stringHeight(to_string((int)dataBuffer[i][chanNum])))*0.5));
                     colors.push_back(labelPlotColors[dataBuffer[i][chanNum]].label);
                 }
             }
@@ -1019,7 +1021,7 @@ bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigne
         
         if( drawInfoText ){
             ofRectangle bounds = font->getStringBoundingBox(plotTitle, 0, 0);
-            int textX = INFO_MARGIN;
+            int textX = config->info_margin;
             int textY = bounds.height;
             int textSpacer = bounds.height + 5;
             
