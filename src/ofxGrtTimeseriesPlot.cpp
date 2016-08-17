@@ -16,7 +16,7 @@ ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     constrainValuesToGraph = true;
     drawInfoText = true;
     drawPlotTitle = true;
-    drawPlotValues = false;
+    drawPlotValues = true;
     drawGrid = true;    
     textColor = config->activeTextColor;
     backgroundColor = config->backgroundColor;
@@ -784,8 +784,9 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
                 ofSetColor(textColor);
                 font->drawString( plotTitle, textX, textY );
                 
-//                textY += textSpacer;
+//
             }
+            textY += font->getLineHeight();
             
             if( drawPlotValues ){
                 std::stringstream info;
