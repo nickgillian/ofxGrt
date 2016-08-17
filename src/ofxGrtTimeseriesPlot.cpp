@@ -685,7 +685,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         
         ofPushMatrix();
         {
-            ofRotateDeg(-90.0f);
+            ofRotateZ(-90.0f);
             
             const float posY = -float(h)+font->stringWidth(yAxisInfo)-INFO_MARGIN;
             const float posX = font->stringHeight(yAxisInfo);
@@ -933,7 +933,7 @@ bool ofxGrtTimeseriesPlot::drawLabeledGraph( const unsigned int x, const unsigne
             
             const float posY = -float(h)+font->stringWidth(yAxisInfo)+INFO_MARGIN/2;
             const float posX = font->stringHeight(yAxisInfo);
-            ofRotateDeg(-90.0f);
+            ofRotateZ(-90.0f);
             font->drawString(yAxisInfo, posY, posX);
         }
         ofPopMatrix();

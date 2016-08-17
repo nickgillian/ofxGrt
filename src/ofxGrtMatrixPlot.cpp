@@ -201,7 +201,7 @@ bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h,ofShader &shader)
         
         ofPushMatrix();
         {
-            ofRotateDeg(-90.0f);
+            ofRotateZ(-90.0f);
             font->drawString(yAxisInfo, -(textY+h)+config->info_margin-config->titleTextSpacer, textX-config->titleTextSpacer);
         }
         ofPopMatrix();
