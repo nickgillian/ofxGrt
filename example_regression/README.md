@@ -60,6 +60,8 @@ When a model is trained, the application will then iterate over every pixel on t
 
 ![alt text](images/regression_step_5.png "linear regression results")
 
+You can see that the output of the regression algorithm **continually changes over the mapping space**.  This is a key feature of regression algorithms and can be used to create very powerful mapping from any N-dimensional input space to a K-dimensional output space.
+
 The default regression algorithm is Linear Regression.  If you want to try the same training data on a different regression algorithm, then you can cycle through the regression algorithm using the **tab** key.  For example, press tab to move to the next algorithm and then press **t** to train a new model using the new regression algorithm. 
 
 For example, this is what the mapping looks like when using the original training data with a MLP neural network:
