@@ -100,7 +100,7 @@ void ofApp::draw(){
         smallFont.drawString( "[tab]: Select Regressifier", textX, textY ); textY += textSpacer;
 
         textY += textSpacer;
-        smallFont.drawString( "Taget Value: " + ofToString( targetVector[0] ) + " " + ofToString( targetVector[1] ) + " " + ofToString( targetVector[2] ), textX, textY ); textY += textSpacer;
+        smallFont.drawString( "Taget Value: " + ofToString( targetVector[0], 2 ) + " " + ofToString( targetVector[1], 2 ) + " " + ofToString( targetVector[2], 2 ), textX, textY ); textY += textSpacer;
         smallFont.drawString( "Classifier: " + regressifierTypeToString( regressifierType ), textX, textY ); textY += textSpacer;
         smallFont.drawString( infoText, textX, textY ); textY += textSpacer;
     }
@@ -134,18 +134,16 @@ void ofApp::keyPressed(int key){
             targetVector[2] = 1;
             break;
         case '4':
-            targetVector[0] = 0.5;
-            targetVector[1] = 0.5;
-            targetVector[2] = 0;
-            break;
-        case '5':
-            targetVector[0] = 0.5;
-            targetVector[1] = 0;
-            targetVector[2] = 0.5;
+            {
+                Random random;
+                targetVector[0] = random.getRandomNumberUniform(0.0,1.0);
+                targetVector[1] = random.getRandomNumberUniform(0.0,1.0);
+                targetVector[2] = random.getRandomNumberUniform(0.0,1.0);
+            }
             break;
         case 't':
             if( pipeline.train( trainingData ) ){
-                infoText = "Pipeline Trained";
+                infoText = "Pipeline Trained. RMS: " + ofToString( pipeline.getTrainingRMSError() );
                 buildTexture = true;
             }else infoText = "WARNING: Failed to train pipeline";
             break;
@@ -252,7 +250,7 @@ bool ofApp::setRegressifier( const int type ){
         case NEURAL_NET:
             {
                 unsigned int numInputNeurons = trainingData.getNumInputDimensions();
-                unsigned int numHiddenNeurons = 5;
+                unsigned int numHiddenNeurons = 3; //For more complex problems, increase the number of hidden units
                 unsigned int numOutputNeurons = trainingData.getNumTargetDimensions();
                 
                 //Initialize the MLP
