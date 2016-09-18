@@ -237,7 +237,7 @@ bool ofApp::setRegressifier( const int type ){
                 linearRegression.setMinChange( 1.0e-5 ); //This sets the minimum change allowed in training error between any two epochs
                 linearRegression.setLearningRate( 0.1 );
 
-                pipeline << MultidimensionalRegression(linearRegression,true);
+                pipeline << MultidimensionalRegression(linearRegression,true); //Wrap the linear regression algorithm in the MDRegression meta algorithm to support multi-dimensional outputs
             }
             break;
         case LOGISTIC_REGRESSION:
@@ -246,7 +246,7 @@ bool ofApp::setRegressifier( const int type ){
                 logisticRegression.setMaxNumEpochs( 1000 ); //This sets the maximum number of epochs (1 epoch is 1 complete iteration of the training data) that are allowed
                 logisticRegression.setMinChange( 1.0e-5 ); //This sets the minimum change allowed in training error between any two epochs
                 logisticRegression.setLearningRate( 0.1 );
-                pipeline << MultidimensionalRegression(logisticRegression,true);
+                pipeline << MultidimensionalRegression(logisticRegression,true); //Wrap the logistic regression algorithm in the MDRegression meta algorithm to support multi-dimensional outputs
             }
             break;
         case NEURAL_NET:
@@ -272,7 +272,7 @@ bool ofApp::setRegressifier( const int type ){
                 //The MLP generally works much better if the training and prediction data is first scaled to a common range (i.e. [0.0 1.0])
                 mlp.enableScaling( true );
 
-                pipeline << mlp; //MultidimensionalRegression(mlp,true);
+                pipeline << mlp; //The MLP algorithm directly supports multi-dimensional outputs, so MDRegression is not required here
             }
             break;
         default:
