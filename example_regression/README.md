@@ -14,7 +14,7 @@ This example sets up a basic framework that allows you to map a two dimensional 
 
 The example lets you add training data to different regions of the screen, then use this training data to build a model which is then used to color all the pixels on the screen, as shown in the image below.
 
-![alt text](https://github.com/nickgillian/ofxGrt/tree/master/example_regression/images/regression_step_10.png "Regression Example")
+![alt text](images/regression_step_10.png "Regression Example")
 
 All regression algorithms have both strengths and weaknesses.  This simply example should demonstrate some important aspects of each algorithm, such as:
 
