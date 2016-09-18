@@ -16,7 +16,7 @@ The example lets you add training data to different regions of the screen, then 
 
 ![alt text](images/regression_step_10.png "Regression Example")
 
-All regression algorithms have both strengths and weaknesses.  This simply example should demonstrate some important aspects of each algorithm, such as:
+All regression algorithms have both strengths and weaknesses.  This simple example demonstrates some important aspects of each algorithm, such as:
 
 * does the algorithm support multi-dimensional inputs (all GRT regression algorithms do!)
 * does the algorithm support multi-dimensional outputs (all GRT regression algorithms do, either inheriently like the MLP neural network, or via using the GRT MultidimensionalRegression meta algorithm)
@@ -46,7 +46,14 @@ The default target mapping is [1 0 0], this is red=1, green=0, blue=0, which res
 
 ![alt text](images/regression_step_2.png "Add some training examples")
 
-You can try some other pre-defined target values by pressing the number 1:5 number keys.  For example, pressing the **2** number key will change the target to [0 1 0], which is red=0, green=1, blue=0, which results in a green pixel.  Try changing the target mapping by pressing the **2** number key and adding some more training examples (with this new target mapping) by moving your mouse to a new location and pressing the **r** key to add new examples, as shown in the image below:
+You can try some other pre-defined target values by pressing the number 1:4 number keys. The number keys are mapped to:
+
+1. [1 0 0]
+2. [0 1 0]
+3. [0 0 1]
+4. [random(0.,1.) random(0.,1.) random(0.,1.)]
+
+For example, pressing the **2** number key will change the target to [0 1 0], which is red=0, green=1, blue=0, which results in a green pixel.  Try changing the target mapping by pressing the **2** number key and adding some more training examples (with this new target mapping) by moving your mouse to a new location and pressing the **r** key to add new examples, as shown in the image below:
 
 ![alt text](images/regression_step_3.png "Add some training examples")
 
@@ -99,7 +106,4 @@ You can clearly see in the examples above that the neural network significantly 
 Alternatively, the MLP neural network has the following advantages over linear and logistic regression:
 
 * it inherently supports multi-dimensional outputs (whereas the linear and logistic regression algorithms only support 1-dimensional outputs, however multi-dimensional outputs can be achived by using the GRT MultidimensionalRegression meta algorithm, which trains a seperate model for each output dimension)
-* it supports complex, non-linear mappings (using non-linear activiation functions like SIGMOID and TANH)
-
-
-
+* it supports complex, non-linear mappings (using non-linear activiation functions like SIGMOID and TANH) and can therefore be used to solve more challenging problems than other regression algorithms
