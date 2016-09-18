@@ -62,11 +62,7 @@ When a model is trained, the application will then iterate over every pixel on t
 
 The default regression algorithm is Linear Regression.  If you want to try the same training data on a different regression algorithm, then you can cycle through the regression algorithm using the **tab** key.  For example, press tab to move to the next algorithm and then press **t** to train a new model using the new regression algorithm. 
 
-For example, this is what the mapping looks like when using the original training data with a Logistic Regression algorithm:
+For example, this is what the mapping looks like when using the original training data with a MLP neural network:
 
-![alt text](images/regression_step_6.png "logistic regression results")
-
-This is what the mapping looks like when using the original training data with the MLP neural network algorithm:
-
-![alt text](images/regression_step_7.png "neural network results")
+![alt text](images/regression_step_6.png "neural network results")
 
