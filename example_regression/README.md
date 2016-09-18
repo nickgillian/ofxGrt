@@ -89,3 +89,17 @@ The image below shows the results for the same training data using the MLP neura
 
 ![alt text](images/regression_step_10.png "neural network results")
 
+You can clearly see in the examples above that the neural network significantly outperforms the linear and logistic regression algorithms for this kind of non-linear task.  The MLP neural network is a more sophisticated and powerful regression algorithm, however, this does not necessarily mean that the MLP algorithm is the best choice for all regression tasks, as the simplicity of both linear and logistic regression has several advantages:
+
+* linear and logistic regression models are much less prone to overfitting (compared with a neural network)
+* the results of linear and logistic regression models are generally stable (i.e., you should get very similar results from the algorithm when it is trained several times on the same datast), the MLP algorithm however can give significantly different results each time it is trained (because it starts from random starting weights each time it is trained and can get stuck in local minimas)
+* linear and logistic regression models can be significantly faster for both training and real-time prediction
+* linear and logistic regression have a significantly lower number of parameters that need to be tuned (compared to MLP)
+
+Alternatively, the MLP neural network has the following advantages over linear and logistic regression:
+
+* it inherently supports multi-dimensional outputs (whereas the linear and logistic regression algorithms only support 1-dimensional outputs, however multi-dimensional outputs can be achived by using the GRT MultidimensionalRegression meta algorithm, which trains a seperate model for each output dimension)
+* it supports complex, non-linear mappings (using non-linear activiation functions like SIGMOID and TANH)
+
+
+
