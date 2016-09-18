@@ -68,3 +68,24 @@ For example, this is what the mapping looks like when using the original trainin
 
 ![alt text](images/regression_step_6.png "neural network results")
 
+##Strengths & Weaknesses
+The GRT features a number of regression algorithms.  Each regression algorithm has its own strenths and weaknesses, so selecting the right regression algorithm for a specific task is an input factor in getting things to work.
+
+One of the main factors for regression algorithms (and machine learning algorithms in general), is whether they can support non-linear functions.  For example, both linear and logistic regression do not perform well for non-linear mapping tasks, however, neural networks can support much more complex mapping tasks.
+
+The image below shows a basic example for a non-linear mapping task, as there is clearly no easy way to draw a straight line between the two red clusters, without passing through the blue data. The same is true for the green data points.  
+
+![alt text](images/regression_step_7.png "non-linear training data")
+
+If this non-linear data is used to train a Linear Regression model, then the resulting model will perform badly, as the image below shows:
+
+![alt text](images/regression_step_8.png "linear regression results")
+
+The image below shows the results for the same training data using Logistic Regression:
+
+![alt text](images/regression_step_9.png "logistic regression results")
+
+The image below shows the results for the same training data using the MLP neural network:
+
+![alt text](images/regression_step_10.png "neural network results")
+
