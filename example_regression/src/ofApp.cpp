@@ -17,7 +17,7 @@ void ofApp::setup(){
     
     //Initialize the training and info variables
     infoText = "";
-    targetVector.resize(3);
+    targetVector.resize(3);  //target vector of 3 == [red, green, blue] pixel values
     targetVector[0] = 1;
     targetVector[1] = 0;
     targetVector[2] = 0;
@@ -150,12 +150,12 @@ void ofApp::keyPressed(int key){
             }else infoText = "WARNING: Failed to train pipeline";
             break;
         case 's':
-            if( trainingData.save( ofToDataPath("TrainingData.grt") ) ){
+            if( trainingData.save( ofToDataPath("training_data.grt") ) ){
                 infoText = "Training data saved to file";
             }else infoText = "WARNING: Failed to save training data to file";
             break;
         case 'l':
-            if( trainingData.load( ofToDataPath("TrainingData.grt") ) ){
+            if( trainingData.load( ofToDataPath("training_data.grt") ) ){
                 infoText = "Training data saved to file";
             }else infoText = "WARNING: Failed to load training data from file";
             break;
@@ -168,6 +168,13 @@ void ofApp::keyPressed(int key){
         break;
         case OF_KEY_TAB:
             setRegressifier( ++this->regressifierType % NUM_REGRESSIFIERS );
+        break;
+        case 'q':
+            {
+                ofImage img;
+                img.grabScreen(0, 0 , ofGetWidth(), ofGetHeight());
+                img.save( ofToDataPath( "screenshot_" + Util::timeAsString() + ".png") );
+            }
         break;
         default:
             break;
@@ -217,35 +224,47 @@ void ofApp::keyPressed(int key){
 
 bool ofApp::setRegressifier( const int type ){
 
-    LinearRegression linearRegression;
-    LogisticRegression logisticRegression;
-    MLP mlp;
-
     this->regressifierType = type;
 
     pipeline.clear();
+    texture.clear();
 
     switch( regressifierType ){
         case LINEAR_REGRESSION:
+            {
+                LinearRegression linearRegression;
+                linearRegression.setMaxNumEpochs( 1000 ); //This sets the maximum number of epochs (1 epoch is 1 complete iteration of the training data) that are allowed
+                linearRegression.setMinChange( 1.0e-5 ); //This sets the minimum change allowed in training error between any two epochs
+                linearRegression.setLearningRate( 0.1 );
+
                 pipeline << MultidimensionalRegression(linearRegression,true);
+            }
             break;
         case LOGISTIC_REGRESSION:
+            {
+                LogisticRegression logisticRegression;
+                logisticRegression.setMaxNumEpochs( 1000 ); //This sets the maximum number of epochs (1 epoch is 1 complete iteration of the training data) that are allowed
+                logisticRegression.setMinChange( 1.0e-5 ); //This sets the minimum change allowed in training error between any two epochs
+                logisticRegression.setLearningRate( 0.1 );
                 pipeline << MultidimensionalRegression(logisticRegression,true);
+            }
             break;
         case NEURAL_NET:
             {
                 unsigned int numInputNeurons = trainingData.getNumInputDimensions();
-                unsigned int numHiddenNeurons = 10;
-                unsigned int numOutputNeurons = 1; //1 as we are using multidimensional regression
+                unsigned int numHiddenNeurons = 5;
+                unsigned int numOutputNeurons = trainingData.getNumTargetDimensions();
                 
                 //Initialize the MLP
-                mlp.init(numInputNeurons, numHiddenNeurons, numOutputNeurons, Neuron::LINEAR, Neuron::SIGMOID, Neuron::SIGMOID );
+                MLP mlp;
+                mlp.init(numInputNeurons, numHiddenNeurons, numOutputNeurons, Neuron::LINEAR, Neuron::TANH, Neuron::TANH );
                 
                 //Set the training settings
                 mlp.setMaxNumEpochs( 1000 ); //This sets the maximum number of epochs (1 epoch is 1 complete iteration of the training data) that are allowed
                 mlp.setMinChange( 1.0e-10 ); //This sets the minimum change allowed in training error between any two epochs
-                mlp.setLearningRate( 0.001 ); //This sets the rate at which the learning algorithm updates the weights of the neural network
-                mlp.setNumRandomTrainingIterations( 5 ); //This sets the number of times the MLP will be trained, each training iteration starts with new random values
+                mlp.setLearningRate( 0.1 ); //This sets the rate at which the learning algorithm updates the weights of the neural network
+                mlp.setMomentum( 0.5 );
+                mlp.setNumRandomTrainingIterations( 1 ); //This sets the number of times the MLP will be trained, each training iteration starts with new random values
                 mlp.setUseValidationSet( true ); //This sets aside a small portiion of the training data to be used as a validation set to mitigate overfitting
                 mlp.setValidationSetSize( 20 ); //Use 20% of the training data for validation during the training phase
                 mlp.setRandomiseTrainingOrder( true ); //Randomize the order of the training data so that the training algorithm does not bias the training
@@ -253,7 +272,7 @@ bool ofApp::setRegressifier( const int type ){
                 //The MLP generally works much better if the training and prediction data is first scaled to a common range (i.e. [0.0 1.0])
                 mlp.enableScaling( true );
 
-                pipeline << MultidimensionalRegression(mlp,true);
+                pipeline << mlp; //MultidimensionalRegression(mlp,true);
             }
             break;
         default:

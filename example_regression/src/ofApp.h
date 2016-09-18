@@ -1,5 +1,5 @@
 /*
-  This example demonstrates how to use the GRT ANBC algorithm in openFrameworks. See the README file for more info.
+  This example demonstrates how to use the GRT regression algorithms in openFrameworks. See the README file for more info.
  */
 
 #pragma once
@@ -13,7 +13,7 @@ using namespace GRT;
 class ofApp : public ofBaseApp{
 
 public:
-    enum RegressifierType{ LINEAR_REGRESSION=0, LOGISTIC_REGRESSION, NEURAL_NET, NUM_REGRESSIFIERS };
+    enum RegressifierType{ LINEAR_REGRESSION=0, LOGISTIC_REGRESSION, NEURAL_NET, NUM_REGRESSIFIERS }; ///<The main algorithms that can be used in this example
 
     void setup();
     void update();
@@ -33,7 +33,7 @@ public:
     
     //Create some variables for the demo
     RegressionData trainingData;      		//This will store our training data
-    GestureRecognitionPipeline pipeline;        //This is a wrapper for our classifier and any pre/post processing modules 
+    GestureRecognitionPipeline pipeline;        //This is a wrapper for our regression and any pre/post processing modules 
     bool record;                                //This is a flag that keeps track of when we should record training data
     bool drawInfo;
     GRT::VectorFloat targetVector;              //This will hold the current label for when we are training the classifier
