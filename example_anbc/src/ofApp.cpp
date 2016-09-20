@@ -10,6 +10,12 @@
 void ofApp::setup(){
     
     ofSetFrameRate(60);
+
+    largeFont.load("verdana.ttf", 12, true, true);
+    largeFont.setLineHeight(14.0f);
+    smallFont.load("verdana.ttf", 10, true, true);
+    smallFont.setLineHeight(12.0f);
+    drawInfo = true;
     
     //Initialize the training and info variables
     infoText = "";
@@ -62,14 +68,16 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    
-    ofBackground(0, 0, 0);
+
+    ofBackground(225, 225, 225);
 
     //If the model has been trained, then draw the texture
     if( pipeline.getTrained() ){
         ofSetColor(255,255,255);
         ofFill();
+        ofEnableAlphaBlending();
         texture.draw( 0, 0, ofGetWidth(), ofGetHeight() );
+        ofDisableAlphaBlending();
     }
     
     //Draw the training data
@@ -82,6 +90,29 @@ void ofApp::draw(){
         ofSetColor(0,0,0);
         ofNoFill();
         ofDrawEllipse(x,y,5+1,5+1);
+    }
+
+    //Draw the info text
+    if( drawInfo ){
+        float textX = 10;
+        float textY = 25;
+        float textSpacer = smallFont.getLineHeight() * 1.5;
+
+        ofFill();
+        ofSetColor(100,100,100);
+        ofDrawRectangle( 5, 5, 250, 225 );
+        ofSetColor( 255, 255, 255 );
+
+        largeFont.drawString( "GRT Naive Bayes Example", textX, textY ); textY += textSpacer*2;
+
+        smallFont.drawString( "[i]: Toogle Info", textX, textY ); textY += textSpacer;
+        smallFont.drawString( "[r]: Record Sample", textX, textY ); textY += textSpacer;
+        smallFont.drawString( "[t]: Train Model", textX, textY ); textY += textSpacer;
+        smallFont.drawString( "[1,2,3]: Set Class Label", textX, textY ); textY += textSpacer;
+
+        textY += textSpacer;
+        smallFont.drawString( "Class Label: " + ofToString( trainingClassLabel ), textX, textY ); textY += textSpacer;
+        smallFont.drawString( infoText, textX, textY ); textY += textSpacer;
     }
     
 }
@@ -125,6 +156,13 @@ void ofApp::keyPressed(int key){
             trainingData.clear();
             infoText = "Training data cleared";
             break;
+        case 'q':
+            {
+                ofImage img;
+                img.grabScreen(0, 0 , ofGetWidth(), ofGetHeight());
+                img.save( ofToDataPath( "screenshot_" + Util::timeAsString() + ".png") );
+            }
+        break;
         default:
             break;
     }

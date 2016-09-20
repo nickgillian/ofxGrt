@@ -35,4 +35,8 @@ public:
     string infoText;                            //This string will be used to draw some info messages to the main app window
     vector< ofColor > classColors;
     ofTexture texture;
+
+    bool drawInfo;
+    ofTrueTypeFont largeFont;
+    ofTrueTypeFont smallFont;
 };
