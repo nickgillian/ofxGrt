@@ -41,10 +41,19 @@ make run
 ##Using the example
 To record a training example, simply move your mouse to a specific location in the app window and press the **r** key.  This will add one training example for the current class.  You can change the class label by pressing keys **1**, **2**, or **3**.  This will set the class color to red, green, or blue respectively.
 
-For example, the image below shows 
+Try adding several examples in a rough group, like the image below:
+
+![alt text](images/classification_step_1.png "Classification Example")
+
+
+![alt text](images/classification_step_2.png "Classification Example")
+
+![alt text](images/classification_step_3.png "Classification Example")
 
 When you have recorded a few training examples for each class, press the **t** key to train a model for the currently selected classifier.
 
-After the model has been trained, it will automatically color each pixel on the screen with the color of the most likely class.
+After the model has been trained, it will automatically color each pixel on the screen with the color of the most likely class, this should result in every pixel in the screen being colored which should look something like the image below:
+
+![alt text](images/classification_step_4.png "Classification Example")
 
 To change the classifier type, use the **tab** key.
