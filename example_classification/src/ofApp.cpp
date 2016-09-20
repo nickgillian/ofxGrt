@@ -3,7 +3,8 @@
  */
 
 #include "ofApp.h"
-#define TEXTURE_RESOLUTION 1024
+//Note, decrease the texture resolution if you want to draw the background texture faster
+#define TEXTURE_RESOLUTION 2048
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -156,6 +157,13 @@ void ofApp::keyPressed(int key){
             break;
         case 'i':
             drawInfo = !drawInfo;
+        break;
+        case 'q':
+            {
+                ofImage img;
+                img.grabScreen(0, 0 , ofGetWidth(), ofGetHeight());
+                img.save( ofToDataPath( "screenshot_" + Util::timeAsString() + ".png") );
+            }
         break;
         case OF_KEY_TAB:
             setClassifier( ++this->classifierType % NUM_CLASSIFIERS );
