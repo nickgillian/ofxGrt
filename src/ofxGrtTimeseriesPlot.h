@@ -21,8 +21,19 @@
 #pragma once
 #include "ofMain.h"
 #include "GRT/GRT.h"
+#include <iostream>
+#include <vector>
+#include "settings.h"
+
+#define INFO_MARGIN 20
 
 using namespace GRT;
+
+struct labelPlotColor
+{
+    ofColor background;
+    ofColor label;
+};
 
 class ofxGrtTimeseriesPlot{
 public:
@@ -59,14 +70,35 @@ public:
      @param highlight whether or not to highlight the newly added data point (default false)
      @param label the label associated with the highlight
      @return returns true if the plot was updated successfully, false otherwise
-    */
+     */
     bool update( const vector<double> &data, bool highlight = false, std::string label = "" );
 
+    /**
+     @brief updates the plot pushing the input data into the plots internal buffer. The size of the input Vector must match the number of dimensions in the plot.
+     @param label the label associated with the current data
+     @return returns true if the plot was updated successfully, false otherwise
+     */
+    bool update( const vector<double> &data, std::string label );
+    
+    /**
+     @brief updates the plot pushing the input data into the plots internal buffer. The size of the input Vector must match the number of dimensions in the plot.
+     @param label the label associated with the current data
+     @return returns true if the plot was updated successfully, false otherwise
+     */
+    bool update( const vector<float> &data, std::string label );
+
+    
     /**
      @brief draws the plot.     
      @return returns true if the plot was drawn successfully, false otherwise
     */
     bool draw( const unsigned int x, const unsigned int y, const unsigned int w, const unsigned int h );
+    
+    /**
+     @brief draws labled plot.
+     @return returns true if the plot was drawn successfully, false otherwise
+     */
+    bool drawLabeledGraph( const unsigned int x, const unsigned int y, const unsigned int w, const unsigned int h, const int chanNum=0);
     
     /**
      @brief resets the plot, this resets the axis min/max values and sets all the values in the plot buffer to zero
@@ -124,7 +156,7 @@ public:
      @param dynamicScale: if true, then the contents of the plot will be scaled by on the current min/max values found in the timeseries buffer
      @return returns true if the parameters were update successfully, false otherwise
     */
-    bool setRanges( const float minY, const float maxY, const bool lockRanges = false, const bool linkRanges = false, const bool dynamicScale = false );
+    bool setRanges( const float minY, const float maxY, const std::vector<labelPlotColor> labelPlotColors = vector<labelPlotColor>(), const bool lockRanges = false, const bool linkRanges = false, const bool dynamicScale = false );
 
     /**
      @brief sets the Y axis ranges used to scale the data for plotting.  The minY and maxY values set the min/max range of the plot
@@ -134,7 +166,7 @@ public:
      @param dynamicScale: if true, then the contents of the plot will be scaled by on the current min/max values found in the timeseries buffer
      @return returns true if the parameters were update successfully, false otherwise
     */
-    bool setRanges( const vector< GRT::MinMax > &ranges, const bool lockRanges = false, const bool linkRanges = false, const bool dynamicScale = false );
+    bool setRanges( const vector< GRT::MinMax > &ranges, const std::vector<labelPlotColor> labelPlotColors = vector<labelPlotColor>(), const bool lockRanges = false, const bool linkRanges = false, const bool dynamicScale = false );
 
     /**
      @brief controls if a background grid pattern will be rendered behind the main graph
@@ -278,12 +310,29 @@ public:
     /**
      @brief gets a vector containing the colors used to plot each channel (a.k.a. dimension) in the data
      @returns returns a vector containing the colors used to plot each channel (a.k.a. dimension) in the data
-    */
-    vector< ofColor > getChannelColors() const { 
+     */
+    vector< ofColor > getChannelColors() const {
         std::unique_lock<std::mutex> lock( mtx );
-        return colors; 
+        return colors;
     }
-
+    
+    /**
+     @brief set the visibility to plot each channel
+     @return returns true if the parameter was update successfully, false otherwise
+     */
+    bool setChannelVisible(const int idx, bool visible);
+    
+    /**
+     @brief get the vector containing the name for each channel
+     @return returns the vector containing the name for each channel
+     */
+    vector< std::string > getChannelNames();
+    
+    
+    bool setNamesForChannels(const vector<std::string> names);
+    
+    void setAxisTitle(const std::string x, const std::string y);
+    
 protected:
     mutable std::mutex mtx;
     unsigned int numChannels;
@@ -292,12 +341,14 @@ protected:
     float globalMax;
     std::string plotTitle;
     vector< std::string > channelNames;
-    vector< bool > channelVisible;
+    std::vector< bool > channelVisible;
     vector< std::pair<float,float> > channelRanges;
     CircularBuffer< vector<float> > dataBuffer;
     CircularBuffer< int > highlightBuffer;
     CircularBuffer< std::string > labelBuffer;
-
+    
+    std::string xAxisInfo, yAxisInfo;
+    
     bool initialized;
     bool lockRanges; ///< If true, then the min/max values for the plots will not be updated
     bool linkRanges; ///< If true, then the min/max values for the plots will be based on the global min/max values across all channels, if false then the min/max values will be based per channel
@@ -311,11 +362,14 @@ protected:
     
     ofColor textColor;
     ofColor gridColor;
+    ofColor axisColor;
+    
     ofColor backgroundColor;
     vector< ofColor > colors;
+    vector< labelPlotColor > labelPlotColors;
     ErrorLog errorLog;
     const ofTrueTypeFont *font;
-    
+    std::shared_ptr<settings::variables> config;
 };
 
 
