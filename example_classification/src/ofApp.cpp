@@ -3,7 +3,8 @@
  */
 
 #include "ofApp.h"
-#define TEXTURE_RESOLUTION 1024
+//Note, decrease the texture resolution if you want to draw the background texture faster
+#define TEXTURE_RESOLUTION 2048
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -113,6 +114,7 @@ void ofApp::keyPressed(int key){
     
     infoText = "";
     bool buildTexture = false;
+    ofImage img;
     
     switch ( key) {
         case 'r':
@@ -143,12 +145,25 @@ void ofApp::keyPressed(int key){
                 infoText = "Training data saved to file";
             }else infoText = "WARNING: Failed to load training data from file";
             break;
+        case 'e':
+            img.grabScreen(0, 0 , ofGetWidth(), ofGetHeight());
+            img.save( ofToDataPath("screenshot.png") );
+            break;
         case 'c':
             trainingData.clear();
+            pipeline.clear();
+            setClassifier( this->classifierType );
             infoText = "Training data cleared";
             break;
         case 'i':
             drawInfo = !drawInfo;
+        break;
+        case 'q':
+            {
+                ofImage img;
+                img.grabScreen(0, 0 , ofGetWidth(), ofGetHeight());
+                img.save( ofToDataPath( "screenshot_" + Util::timeAsString() + ".png") );
+            }
         break;
         case OF_KEY_TAB:
             setClassifier( ++this->classifierType % NUM_CLASSIFIERS );
@@ -311,12 +326,12 @@ bool ofApp::setClassifier( const int type ){
         case SVM_LINEAR:
             svm.enableNullRejection( false );
             svm.setNullRejectionCoeff( 3 );
-            //pipeline.setClassifier( svm );
+            pipeline.setClassifier( SVM(SVM::LINEAR_KERNEL) );
         break;
         case SVM_RBF:
             svm.enableNullRejection( false );
             svm.setNullRejectionCoeff( 3 );
-            //pipeline.setClassifier( svm );
+            pipeline.setClassifier( SVM(SVM::RBF_KERNEL) );
         break;
         default:
             return false;

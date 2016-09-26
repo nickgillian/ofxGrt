@@ -3,13 +3,13 @@
 
 using namespace GRT;
 
-ofxGrtMatrixPlot::ofxGrtMatrixPlot(){
-    plotTitle = "";
-    font = NULL;
+ofxGrtMatrixPlot::ofxGrtMatrixPlot(const std::string &plotTitle, const std::string &xAxisInfo, const std::string &yAxisInfo){
+    this->plotTitle = plotTitle;
+    this->xAxisInfo = xAxisInfo;
+    this->yAxisInfo = yAxisInfo;
+    font = &config->fontNormal;
     rows = cols = 0;
-    textColor[0] = 255;
-    textColor[1] = 0;
-    textColor[2] = 0;
+    config = ofxGrtSettings::GetInstance().get();
 }
 
 bool ofxGrtMatrixPlot::resize( const unsigned int rows, const unsigned int cols ){
@@ -130,18 +130,23 @@ bool ofxGrtMatrixPlot::draw(float x, float y) const{
 bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h) const{
 
     if( pixels.size() == 0 ) return false;
+    
+    float tempX = x;
+    float tempY = y;
+    float tempH = h;
+    float tempW= w;
 
 	auto & tex = texture;
-	auto ratio = w/h;
+	auto ratio = tempW/tempH;
 	auto texRatio = tex.getWidth()/tex.getHeight();
 	if(ratio > texRatio){
-		auto drawW = h*texRatio;
-		auto drawX = x+(w-drawW)/2;
-		tex.draw(drawX,y,drawW,h);
+        auto drawW = tempH*texRatio;
+        auto drawX = tempX+(tempW-drawW)/2;
+        tex.draw(drawX,tempY,drawW,tempH);
 	}else{
-		auto drawH = w/texRatio;
-		auto drawY = y+(h-drawH)/2;
-		tex.draw(x,drawY,w,drawH);
+        auto drawH = tempW/texRatio;
+        auto drawY = tempY+(tempH-drawH)/2;
+        tex.draw(tempX,drawY,tempW,drawH);
 	}
 
     //Only draw the text if the font has been loaded
@@ -149,14 +154,11 @@ bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h) const{
 
         if( !font->isLoaded() ) return false;
         
-        ofRectangle bounds = font->getStringBoundingBox(plotTitle, 0, 0);
-        int textX = 10;
-        int textY = bounds.height + 5;
-        int textSpacer = bounds.height + 5;
+        float textX = x;//tempX + 5;
+        float textY = y-config->titleTextSpacer;//tempY + 5 + (font->getLineHeight()*0.5);
 
-        ofSetColor(textColor[0],textColor[1],textColor[2]);
+        ofSetColor(config->activeTextColor);
         font->drawString( plotTitle, textX, textY );
-        textY += textSpacer;
     }
 
     return true;
@@ -165,18 +167,24 @@ bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h) const{
 bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h,ofShader &shader) const{
 
     if( pixels.size() == 0 ) return false;
+    
+    float tempX = x;
+    float tempY = y;
+    float tempH = h;
+    float tempW= w;
+    
     auto & tex = texture;
-    auto ratio = w/h;
+    auto ratio = tempW/tempH;
     auto texRatio = tex.getWidth()/tex.getHeight();
     shader.begin();
     if(ratio > texRatio){
-        auto drawW = h*texRatio;
-        auto drawX = x+(w-drawW)/2;
-        tex.draw(drawX,y,drawW,h);
+        auto drawW = tempH*texRatio;
+        auto drawX = tempX+(tempW-drawW)/2;
+        tex.draw(drawX,tempY,drawW,tempH);
     }else{
-        auto drawH = w/texRatio;
-        auto drawY = y+(h-drawH)/2;
-        tex.draw(x,drawY,w,drawH);
+        auto drawH = tempW/texRatio;
+        auto drawY = tempY+(tempH-drawH)/2;
+        tex.draw(tempX,drawY,tempW,drawH-config->info_margin);
     }
     shader.end();
 
@@ -185,13 +193,20 @@ bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h,ofShader &shader)
 
         if( !font->isLoaded() ) return false;
         
-        float textX = x + 5;
-        float textY = y + 5 + (font->getLineHeight()*0.5);
-        float textSpacer = font->getLineHeight() + 5;
+        float textX = x;//tempX + 5;
+        float textY = y-config->titleTextSpacer;//tempY + 5 + (font->getLineHeight()*0.5);
 
-        ofSetColor(textColor[0],textColor[1],textColor[2]);
+        ofSetColor(config->activeTextColor);
         font->drawString( plotTitle, textX, textY );
-        textY += textSpacer;
+        
+        ofPushMatrix();
+        {
+            ofRotateZ(-90.0f);
+            font->drawString(yAxisInfo, -(textY+h)+config->info_margin-config->titleTextSpacer, textX-config->titleTextSpacer);
+        }
+        ofPopMatrix();
+        
+        font->drawString( xAxisInfo, textX, textY+h+font->getLineHeight()-config->info_margin+config->titleTextSpacer );
     }
 
     return true;

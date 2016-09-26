@@ -22,12 +22,13 @@
 #include <GRT/GRT.h>
 
 #include "ofMain.h"
+#include "ofxGrtSettings.h"
 
 using namespace GRT;
 
 class ofxGrtMatrixPlot {
 public:
-    ofxGrtMatrixPlot();
+    ofxGrtMatrixPlot( const std::string &plotTitle = "", const std::string &xAxisInfo = "", const std::string &yAxisInfo = "");
     bool resize( const unsigned int rows, const unsigned int cols );
     void update( const Matrix<double> &data );
     void update( const Matrix<float> &data );
@@ -48,11 +49,15 @@ protected:
     unsigned int cols;
 
     std::string plotTitle;
+    std::string xAxisInfo;
+    std::string yAxisInfo;
     ofColor textColor;
     vector<float> pixelData;
     ofFloatPixels pixels;
     ofTexture texture;
     const ofTrueTypeFont *font;
+    
+    std::shared_ptr<ofxGrtSettings::variables> config;
 };
 
 
