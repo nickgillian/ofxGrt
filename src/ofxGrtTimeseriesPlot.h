@@ -93,7 +93,7 @@ public:
      @param data: the data that will be used to fill the plot buffer, the size of this outer vector should match the timeseries length of the plot, the size of the inner vector should match the number of dimensions
      @return returns true if the data was set successfully, false otherwise
     */
-    bool setData( const vector< vector<float> > &data );
+    bool setData( const vector< vector<float> > &data, const bool rowsAreChannels=true );
 
     /**
      @brief directly fills the plot buffer with the data, this differs from update as instead of update(...) pushing data into the plot buffer, the setData function directly fills

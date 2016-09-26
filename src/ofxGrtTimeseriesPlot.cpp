@@ -231,45 +231,54 @@ bool ofxGrtTimeseriesPlot::setData( const vector<double> &data ){
     return true;
 }
     
-bool ofxGrtTimeseriesPlot::setData( const vector< vector<float> > &data ){
+bool ofxGrtTimeseriesPlot::setData( const vector< vector<float> > &data, const bool rowsAreChannels ){
 
-    std::unique_lock<std::mutex> lock( mtx );
+	std::unique_lock<std::mutex> lock( mtx );
+	
+	if( rowsAreChannels ){
+		//The outer vector (rows) should contain the channel data
+		//The inner vector (cols) should contain the timeseries data for channel n
+		const unsigned int N = (unsigned int)data.size();
+
+    		if( N != numChannels ) return false;
+		
+		dataBuffer.reset();
+
+		if( !lockRanges ){
+			globalMin =  std::numeric_limits<float>::max();
+			globalMax =  -std::numeric_limits<float>::max();
+			for(size_t i=0; i<channelRanges.size(); i++){
+            			channelRanges[i].first = globalMin;
+            			channelRanges[i].second = globalMax;
+        		}
+    		}
     
-    const unsigned int M = (unsigned int)data.size();
+    		for(unsigned int i=0; i<N; i++){
+        		if( data[i].size() != timeseriesLength ){
+            			return false;
+        		}
+        		for(unsigned int j=0; j<timeseriesLength; j++){
+            			dataBuffer(j)[i] = data[i][j];
 
-    if( numChannels != 1 ) return false;
-    if( M != timeseriesLength ) return false;
+            			//Check the min and max values
+            			if( !lockRanges ){
+                			//Update the global min/max
+                			if( data[i][j] < globalMin ){ globalMin = data[i][j]; }
+                			else if( data[i][j] > globalMax ){ globalMax = data[i][j]; }
 
-    dataBuffer.reset();
+                			//Update the channel min/max
+                			if( data[i][j] < channelRanges[i].first ){ channelRanges[i].first = data[i][j]; }
+                			else if( data[i][j] > channelRanges[i].second ){ channelRanges[i].second = data[i][j]; }
+            			}
+        		}		
+    		}
+	}else{
 
-    if( !lockRanges ){
-        globalMin =  std::numeric_limits<float>::max();
-        globalMax =  -std::numeric_limits<float>::max();
-        for(size_t i=0; i<channelRanges.size(); i++){
-            channelRanges[i].first = globalMin;
-            channelRanges[i].second = globalMax;
-        }
-    }
+
+
+	}
+	
     
-    for(size_t i=0; i<M; i++){
-        if( data[i].size() != numChannels ){
-            return false;
-        }
-        for(size_t j=0; j<numChannels; j++){
-            dataBuffer(i)[j] = data[i][j];
-
-            //Check the min and max values
-            if( !lockRanges ){
-                //Update the global min/max
-                if( data[i][j] < globalMin ){ globalMin = data[i][j]; }
-                else if( data[i][j] > globalMax ){ globalMax = data[i][j]; }
-
-                //Update the channel min/max
-                if( data[i][j] < channelRanges[j].first ){ channelRanges[j].first = data[i][j]; }
-                else if( data[i][j] > channelRanges[j].second ){ channelRanges[j].second = data[i][j]; }
-            }
-        }
-    }
     
     return true;
 }
