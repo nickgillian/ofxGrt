@@ -23,21 +23,20 @@ public:
             fontLarge.load(fontFile,14);
         }
         
-        static const int info_margin = 15;
+        static int info_margin;
         
-        static const std::string fontFile;
+        static std::string fontFile;
         
         static ofTrueTypeFont fontSmall;
         static ofTrueTypeFont fontNormal;
         static ofTrueTypeFont fontLarge;
-        static const ofColor activeTextColor;
-        static const ofColor gridColor;
-        static const ofColor axisColor;
-        static const ofColor backgroundColor;
-        static const ofColor disabledTextColor;
-        static const int titleTextSpacer = 5;
-        
-        static const int axisTicksSize = 5;
+        static ofColor activeTextColor;
+        static ofColor gridColor;
+        static ofColor axisColor;
+        static ofColor backgroundColor;
+        static ofColor disabledTextColor;
+        static int titleTextSpacer;
+        static int axisTicksSize;
         
     };
     
