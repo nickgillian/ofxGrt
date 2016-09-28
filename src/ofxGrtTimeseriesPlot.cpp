@@ -197,6 +197,25 @@ bool ofxGrtTimeseriesPlot::setRanges( const float globalMin, const float globalM
     return true;
 }
 
+bool ofxGrtTimeseriesPlot::setRanges( const float globalMin, const float globalMax, const bool lockRanges, const bool linkRanges, const bool dynamicScale ){
+    std::unique_lock<std::mutex> lock( mtx );
+
+    if( globalMin == globalMax ){
+        return false;
+    }
+    this->globalMin = globalMin;
+    this->globalMax = globalMax;
+    this->lockRanges = lockRanges;
+    this->linkRanges = linkRanges;
+    this->dynamicScale = dynamicScale;
+    for(size_t i=0; i<channelRanges.size(); i++){
+        channelRanges[i].first = globalMin;
+        channelRanges[i].second = globalMax;
+    }
+    
+    return true;
+}
+
 bool ofxGrtTimeseriesPlot::setRanges( const vector< GRT::MinMax > &ranges, const vector<labelPlotColor> labelPlotColors, const bool lockRanges, const bool linkRanges, const bool dynamicScale ){
 
     std::unique_lock<std::mutex> lock( mtx );
@@ -224,6 +243,32 @@ bool ofxGrtTimeseriesPlot::setRanges( const vector< GRT::MinMax > &ranges, const
         this->labelPlotColors = labelPlotColors;
 
 
+    return true;
+}
+
+bool ofxGrtTimeseriesPlot::setRanges( const vector< GRT::MinMax > &ranges, const bool lockRanges, const bool linkRanges, const bool dynamicScale ){
+
+    std::unique_lock<std::mutex> lock( mtx );
+
+    if( ranges.size() != channelRanges.size() ){
+        return false;
+    }
+
+    this->lockRanges = lockRanges;
+    this->linkRanges = linkRanges;
+    this->dynamicScale = dynamicScale;
+
+    globalMin =  std::numeric_limits<float>::max();
+    globalMax =  -std::numeric_limits<float>::max();
+    
+    for(size_t i=0; i<channelRanges.size(); i++){
+        channelRanges[i].first = ranges[i].minValue;
+        channelRanges[i].second = ranges[i].maxValue;
+
+        if( channelRanges[i].first < globalMin ){ globalMin = channelRanges[i].first; }
+        else if( channelRanges[i].second > globalMax ){ globalMax = channelRanges[i].second; }
+    }
+    
     return true;
 }
 

@@ -156,6 +156,27 @@ public:
      @param dynamicScale: if true, then the contents of the plot will be scaled by on the current min/max values found in the timeseries buffer
      @return returns true if the parameters were update successfully, false otherwise
     */
+    bool setRanges( const float minY, const float maxY, const bool lockRanges = false, const bool linkRanges = false, const bool dynamicScale = false );
+
+    /**
+     @brief sets the Y axis ranges used to scale the data for plotting.  The minY and maxY values set the min/max range of the plot
+     @param ranges: a vector containing the min/max values for each channel
+     @param lockRanges: if true, then the ranges of the plot will be fixed to minY/maxY, if false then the min/max ranges of the plot will be updated based on the min/max values observed in the data
+     @param linkRanges: if true, then the channels of the plot will all be scaled using a global min/max value (updated across all ranges). If false, then each channel will have it's own min/max value and be updated independently from the other channels
+     @param dynamicScale: if true, then the contents of the plot will be scaled by on the current min/max values found in the timeseries buffer
+     @return returns true if the parameters were update successfully, false otherwise
+    */
+    bool setRanges( const vector< GRT::MinMax > &ranges, const bool lockRanges = false, const bool linkRanges = false, const bool dynamicScale = false );
+
+    /**
+     @brief sets the Y axis ranges used to scale the data for plotting.  The minY and maxY values set the min/max range of the plot
+     @param minY: the minimum range for the Y axis
+     @param maxY: the maximum range for the Y axis
+     @param lockRanges: if true, then the ranges of the plot will be fixed to minY/maxY, if false then the min/max ranges of the plot will be updated based on the min/max values observed in the data
+     @param linkRanges: if true, then the channels of the plot will all be scaled using a global min/max value (updated across all ranges). If false, then each channel will have it's own min/max value and be updated independently from the other channels
+     @param dynamicScale: if true, then the contents of the plot will be scaled by on the current min/max values found in the timeseries buffer
+     @return returns true if the parameters were update successfully, false otherwise
+    */
     bool setRanges( const float minY, const float maxY, const std::vector<labelPlotColor> labelPlotColors = vector<labelPlotColor>(), const bool lockRanges = false, const bool linkRanges = false, const bool dynamicScale = false );
 
     /**
