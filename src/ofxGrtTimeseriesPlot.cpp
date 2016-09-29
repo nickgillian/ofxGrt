@@ -410,42 +410,80 @@ bool ofxGrtTimeseriesPlot::setData( const vector< vector<float> > &data, const b
     
     const unsigned int M = (unsigned int)data.size();
 
-    if( numChannels != 1 ) return false;
-    if( M != timeseriesLength ) return false;
-
     dataBuffer.reset(); highlightBuffer.reset(); labelBuffer.reset();
 
     if( !lockRanges ){
         globalMin =  std::numeric_limits<float>::max();
         globalMax =  -std::numeric_limits<float>::max();
-        for(size_t i=0; i<channelRanges.size(); i++){
+        const size_t numChannels = channelRanges.size();
+        for(size_t i=0; i<numChannels; i++){
             channelRanges[i].first = globalMin;
             channelRanges[i].second = globalMax;
         }
     }
-    
-    for(size_t i=0; i<M; i++){
-        if( data[i].size() != numChannels ){
-            return false;
+
+    if( rowsAreChannels ){
+        //The outer vector (rows) should contain the channel data
+        //The inner vector (cols) should contain the timeseries data for channel n
+
+        const size_t numRows = data.size();
+
+        if( numRows != numChannels ) return false;
+
+        for(size_t i=0; i<numRows; i++){
+            if( data[i].size() != timeseriesLength ){
+                return false;
+            }
+            for(unsigned int j=0; j<timeseriesLength; j++){
+                dataBuffer(j)[i] = data[i][j];
+
+                //Check the min and max values
+                if( !lockRanges ){
+                    //Update the global min/max
+                    if( data[i][j] < globalMin ){ globalMin = data[i][j]; }
+                    else if( data[i][j] > globalMax ){ globalMax = data[i][j]; }
+
+                    //Update the channel min/max
+                    if( data[i][j] < channelRanges[i].first ){ channelRanges[i].first = data[i][j]; }
+                    else if( data[i][j] > channelRanges[i].second ){ channelRanges[i].second = data[i][j]; }
+                }
+            }       
         }
-        for(size_t j=0; j<numChannels; j++){
-            dataBuffer(i)[j] = data[i][j];
-            highlightBuffer[i] = 0;
+        
+        return true;
+    }else{
+        //The outer vector (rows) should contain the timeseries data for channel n
+        //The inner vector (cols) should contain the channel data
 
-            //Check the min and max values
-            if( !lockRanges ){
-                //Update the global min/max
-                if( data[i][j] < globalMin ){ globalMin = data[i][j]; }
-                else if( data[i][j] > globalMax ){ globalMax = data[i][j]; }
+        const size_t numRows = data.size();
 
-                //Update the channel min/max
-                if( data[i][j] < channelRanges[j].first ){ channelRanges[j].first = data[i][j]; }
-                else if( data[i][j] > channelRanges[j].second ){ channelRanges[j].second = data[i][j]; }
+        if( numRows != timeseriesLength ) return false;
+    
+        for(size_t i=0; i<numRows; i++){
+            if( data[i].size() != numChannels ){
+                return false;
+            }
+            for(size_t j=0; j<numChannels; j++){
+                dataBuffer(i)[j] = data[i][j];
+                highlightBuffer[i] = 0;
+
+                //Check the min and max values
+                if( !lockRanges ){
+                    //Update the global min/max
+                    if( data[i][j] < globalMin ){ globalMin = data[i][j]; }
+                    else if( data[i][j] > globalMax ){ globalMax = data[i][j]; }
+
+                    //Update the channel min/max
+                    if( data[i][j] < channelRanges[j].first ){ channelRanges[j].first = data[i][j]; }
+                    else if( data[i][j] > channelRanges[j].second ){ channelRanges[j].second = data[i][j]; }
+                }
             }
         }
+
+        return true;
     }
 
-    return true;
+    return false;
 }
     
 bool ofxGrtTimeseriesPlot::setData( const Matrix<float> &data ){

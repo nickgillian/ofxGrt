@@ -124,12 +124,18 @@ public:
 
     /**
      @brief directly fills the plot buffer with the data, this differs from update as instead of update(...) pushing data into the plot buffer, the setData function directly fills
-     the entire plot buffer.  This function should only be called if the plot has been setup with a dimensionality of N (where N is the size of the inner vector) and the size of the outter data vector
-     matches the length of the plot.
-     @param data: the data that will be used to fill the plot buffer, the size of this outer vector should match the timeseries length of the plot, the size of the inner vector should match the number of dimensions
+     the entire plot buffer.  This function should only be called if the plot has been setup.
+
+     The rowsAreChannels option sets how the vector data should be parsed. 
+
+     If true, then the outer data vector should have a size that matches the number of channels in the plot, the length of each inner vector should match the timeseries length of the plot.  
+     If false, then the outer data vector should have a size that matches the timeseries length of the plot, the inner vector should have a size that matches the number of channels in the plot.
+
+     @param data: the data that will be used to fill the plot buffer
+     @param rowsAreChannels: defines how the data is stored within the input vector
      @return returns true if the data was set successfully, false otherwise
     */
-    bool setData( const vector< vector<float> > &data, const bool rowsAreChannels=true );
+    bool setData( const vector< vector<float> > &data, const bool rowsAreChannels=false );
 
     /**
      @brief directly fills the plot buffer with the data, this differs from update as instead of update(...) pushing data into the plot buffer, the setData function directly fills
