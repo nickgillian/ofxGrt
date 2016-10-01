@@ -6,7 +6,7 @@ using namespace GRT;
 ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     config = ofxGrtSettings::GetInstance().get();
     plotTitle = "";
-    font = NULL;
+    font = &config.get()->fontNormal;
     initialized = false;
     lockRanges = false;
     linkRanges = false;
@@ -108,7 +108,7 @@ bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const uns
     labelPlotColors[9].label = {0, 0, 0, 255};
     
     labelPlotColors = {
-        {{16, 16, 16, 40},{0, 0, 0, 255}},    
+        {config.get()->activeTextColor,{0, 0, 0, 255}},
         {{255, 127, 0, 255},{255,255,255,255}},
         {{31, 120, 180, 255},{255,255,255,255}},
         {{210, 189, 26, 255},{255,255,255,255}},
@@ -775,7 +775,7 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
     //Draw the background
     ofFill();
     ofSetColor(backgroundColor);
-    ofDrawRectangle(config->info_margin,config->info_margin,w-config->info_margin,h-config->info_margin);
+    ofDrawRectangle(config->info_margin,0,w-config->info_margin,h-config->info_margin);
     
     //Draw the grid if required
     if( drawGrid ){
@@ -858,21 +858,21 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
     
     //Draw the timeseries
     if( globalMin != globalMax ){
-        float xPos = 0;
+        float xPos = config->info_margin;
         float xStep = (w-config->info_margin) / (float)timeseriesLength;
         ofSetColor(32);
         for(unsigned int i=0; i<highlightBuffer.getNumValuesInBuffer(); i++){
-            if (highlightBuffer[i]) ofDrawRectangle( xPos, 0, xStep, h );
+            if (highlightBuffer[i]) ofDrawRectangle( xPos, 0, xStep, h-config->info_margin );
             xPos += xStep;
         }
         std::string label = "";
-        xPos = 0;
+        xPos = config->info_margin;
         ofSetColor(255);
         ofFill();
         for(unsigned int i=0; i<highlightBuffer.getNumValuesInBuffer(); i++){
             if (highlightBuffer[i]) {
                 if (labelBuffer[i] != label) {
-                    ofDrawBitmapString(labelBuffer[i], xPos, h);
+                    ofDrawBitmapString(labelBuffer[i], xPos, h-config->info_margin);
                     label = labelBuffer[i];
                 }
             } else {
