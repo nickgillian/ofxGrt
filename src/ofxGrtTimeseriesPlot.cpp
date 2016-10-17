@@ -27,6 +27,8 @@ ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     errorLog.setProceedingText("[ERROR ofxGrtTimeseriesPlot]");
     xAxisInfo = "X";
     yAxisInfo = "   Y";
+    insetPlotByInfoMarginX = true;
+    insetPlotByInfoMarginY = true;
 }
 
 ofxGrtTimeseriesPlot::~ofxGrtTimeseriesPlot(){
@@ -702,8 +704,7 @@ bool ofxGrtTimeseriesPlot::update( const vector<double> &data, std::string label
     
 }
     
-bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, const unsigned int w, const unsigned int h ){
-
+bool ofxGrtTimeseriesPlot::draw( int x, int y, int w, int h ){
     std::unique_lock<std::mutex> lock( mtx );
     
     if( !initialized ) return false;
@@ -768,6 +769,16 @@ bool ofxGrtTimeseriesPlot::draw( const unsigned int x, const unsigned int y, con
         }
     }
     
+    if (!insetPlotByInfoMarginX) {
+        x -= config->info_margin;
+        w += config->info_margin;
+    }
+
+    if (!insetPlotByInfoMarginY) {
+        y -= config->info_margin;
+        h += config->info_margin;
+    }
+
     ofPushMatrix();
     ofEnableAlphaBlending();
     ofTranslate(x, y);
