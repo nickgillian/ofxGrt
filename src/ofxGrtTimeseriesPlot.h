@@ -92,7 +92,7 @@ public:
      @brief draws the plot.     
      @return returns true if the plot was drawn successfully, false otherwise
     */
-    bool draw( const unsigned int x, const unsigned int y, const unsigned int w, const unsigned int h );
+    bool draw( int x, int y, int w, int h );
     
     /**
      @brief draws labled plot.
@@ -324,6 +324,17 @@ public:
         this->backgroundColor = backgroundColor;
         return true;
     }
+  
+    /**
+     @brief Whether or not to count the axis labels as part of the plot width and height.
+     @param x: if true, the plot's x position and width will refer to the width of the plot plus the y-axis label (which is drawn outside of the plot itself). if false, the x position and width will refer to just the plot itself, with the y-axis label drawn outside of this area.
+     @param y: if true, the plot's y position and height will refer to the height of the plot plus the x-axis label (which is drawn outside of the plot itself). if false, the y position and height will refer to just the plot itself, with the x-axis label drawn outside of this area.
+     */
+    bool setIncludeAxisLabelsInPlotDimensions(bool x, bool y) {
+        insetPlotByInfoMarginX = x;
+        insetPlotByInfoMarginY = y;
+        return true;
+    }
 
     /**
      @brief gets the global min and max range information.
@@ -375,6 +386,7 @@ protected:
     CircularBuffer< std::string > labelBuffer;
     
     std::string xAxisInfo, yAxisInfo;
+    bool insetPlotByInfoMarginX, insetPlotByInfoMarginY;
     
     bool initialized;
     bool lockRanges; ///< If true, then the min/max values for the plots will not be updated
