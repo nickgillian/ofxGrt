@@ -775,7 +775,6 @@ bool ofxGrtTimeseriesPlot::draw( int x, int y, int w, int h ){
     }
 
     if (!insetPlotByInfoMarginY) {
-        y -= config->info_margin;
         h += config->info_margin;
     }
 
