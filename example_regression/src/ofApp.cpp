@@ -27,7 +27,7 @@ void ofApp::setup(){
     //The input to the training data will be the [x y] from the mouse, so we set the number of dimensions to 2
     trainingData.setInputAndTargetDimensions( 2, 3 );
     
-    //set the default classifier
+    //set the default regressifer 
     setRegressifier( LINEAR_REGRESSION );
 }
 
@@ -101,7 +101,7 @@ void ofApp::draw(){
 
         textY += textSpacer;
         smallFont.drawString( "Taget Value: " + ofToString( targetVector[0], 2 ) + " " + ofToString( targetVector[1], 2 ) + " " + ofToString( targetVector[2], 2 ), textX, textY ); textY += textSpacer;
-        smallFont.drawString( "Classifier: " + regressifierTypeToString( regressifierType ), textX, textY ); textY += textSpacer;
+        smallFont.drawString( "Regressifier: " + regressifierTypeToString( regressifierType ), textX, textY ); textY += textSpacer;
         smallFont.drawString( infoText, textX, textY ); textY += textSpacer;
     }
     
@@ -154,7 +154,7 @@ void ofApp::keyPressed(int key){
             break;
         case 'l':
             if( trainingData.load( ofToDataPath("training_data.grt") ) ){
-                infoText = "Training data saved to file";
+                infoText = "Training data file loaded";
             }else infoText = "WARNING: Failed to load training data from file";
             break;
         case 'c':

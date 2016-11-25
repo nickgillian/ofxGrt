@@ -205,7 +205,7 @@ void ofApp::keyPressed(int key){
             break;
         case 'l':
             if( trainingData.load( ofToDataPath("TrainingData.grt") ) ){
-                infoText = "Training data saved to file";
+                infoText = "Training data file loaded";
             }else infoText = "WARNING: Failed to load training data from file";
             break;
         case 'c':
