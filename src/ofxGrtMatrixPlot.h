@@ -20,7 +20,6 @@
 #pragma once
 
 #include <GRT/GRT.h>
-
 #include "ofMain.h"
 
 using namespace GRT;
@@ -114,12 +113,20 @@ public:
     bool draw(const float x, const float y, const float w, const float h,const ofShader &shader) const;
 
     /**
-    Sets the font used to draw information about the matrix, the matrix instance will use a reference to this font for drawing so it must exist for the lifetime of the matrix instance.
-    @param font: a reference to the font that will be used for drawing information on this instance
+    Sets the font used to draw information about the matrix, the matrix instance will use a pointer to this font for drawing so it must exist for the lifetime of the matrix instance.
+    @param font: a pointer to the font that will be used for drawing information on this instance
     @param textColor: sets the color used when drawing any text
     @return returns true if the parameter was updated successfully, false otherwise
     */
-    bool setFont( const ofTrueTypeFont &font, const ofColor &textColor = ofColor(255,255,255) );
+    bool setFont( const ofTrueTypeFont *font, const ofColor &textColor = ofColor(255,255,255) );
+
+    /**
+    Sets the font used to draw information about the matrix, the matrix instance will use a pointer to this font for drawing so it must exist for the lifetime of the matrix instance.
+    @param font: a pointer to the font that will be used for drawing information on this instance
+    @param textColor: sets the color used when drawing any text
+    @return returns true if the parameter was updated successfully, false otherwise
+    */
+    GRT_DEPRECATED_MSG( "use setFont(const ofTrueTypeFont *font, const ofColor &textColor = ofColor(255,255,255)) instead.", bool setFont( const ofTrueTypeFont &font, const ofColor &textColor = ofColor(255,255,255) ) );
 
     /**
     Sets the title of this matrix, which will be draw in the top center of the matrix

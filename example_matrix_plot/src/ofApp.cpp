@@ -17,11 +17,11 @@ void ofApp::setup(){
     heatmap.load("heatmap");
 
     //Set the font and text for each plot
-    plot1.setFont( font, ofColor( 255, 255, 255 ) );
+    plot1.setFont( &font, ofColor( 255, 255, 255 ) );
     plot1.setTitle( "plot 1" );
-    plot2.setFont( font, ofColor( 255, 255, 255 ) );
+    plot2.setFont( &font, ofColor( 255, 255, 255 ) );
     plot2.setTitle( "plot 2" );
-    plot3.setFont( font, ofColor( 255, 255, 255 ) );
+    plot3.setFont( &font, ofColor( 255, 255, 255 ) );
     plot3.setTitle( "plot 3" );
 
     //Setup the first matrix, this will plot a sigmoid function

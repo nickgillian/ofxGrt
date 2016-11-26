@@ -12,7 +12,7 @@ ofxGrtMatrixPlot::ofxGrtMatrixPlot( const unsigned int rows, const unsigned int 
 
     if( rows && cols > 0 ) resize( rows, cols );
     if( title != "" ) setTitle( title );
-    if( font ) setFont( *font, textColor );
+    if( font ) setFont( font, textColor );
 }
 
 bool ofxGrtMatrixPlot::resize( const unsigned int rows, const unsigned int cols ){
@@ -208,10 +208,15 @@ unsigned int ofxGrtMatrixPlot::getHeight() const{
     return this->rows;
 }
 
-bool ofxGrtMatrixPlot::setFont( const ofTrueTypeFont &font, const ofColor &textColor ){ 
-    this->font = &font; 
+bool ofxGrtMatrixPlot::setFont( const ofTrueTypeFont *font, const ofColor &textColor ){ 
+    this->font = font; 
     this->textColor = textColor;
-    return this->font->isLoaded(); 
+    if( this->font != NULL ) return this->font->isLoaded();
+    return true; 
+}
+
+bool ofxGrtMatrixPlot::setFont( const ofTrueTypeFont &font, const ofColor &textColor ){
+    return setFont( &font, textColor );
 }
 
 bool ofxGrtMatrixPlot::setTitle( const std::string &plotTitle ){ 
