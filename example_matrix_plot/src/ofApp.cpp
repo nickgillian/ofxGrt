@@ -14,11 +14,20 @@ void ofApp::setup(){
     //Load the font for the graph
     font.load("verdana.ttf", 12, true, true);
     font.setLineHeight(14.0f);
+    heatmap.load("heatmap");
+
+    //Set the font and text for each plot
+    plot1.setFont( font, ofColor( 255, 255, 255 ) );
+    plot1.setTitle( "plot 1" );
+    plot2.setFont( font, ofColor( 255, 255, 255 ) );
+    plot2.setTitle( "plot 2" );
+    plot3.setFont( font, ofColor( 255, 255, 255 ) );
+    plot3.setTitle( "plot 3" );
 
     //Setup the first matrix, this will plot a sigmoid function
     {
-        const unsigned int numRows = 100;
-        const unsigned int numCols = 50;
+        const unsigned int numRows = 250;
+        const unsigned int numCols = 100;
         const float cx = numRows * 0.2f;
         const float cy = numCols * 0.5f;
         const float sigma = 10.0f;
@@ -33,8 +42,8 @@ void ofApp::setup(){
 
     //Setup the second matrix, this will plot a ramp across the rows
     {
-        const unsigned int numRows = 100;
-        const unsigned int numCols = 50;
+        const unsigned int numRows = 250;
+        const unsigned int numCols = 100;
         Matrix<float> mat( numRows, numCols );
         for(unsigned int i=0; i<numRows; i++){
             for(unsigned int j=0; j<numCols; j++){
@@ -46,8 +55,8 @@ void ofApp::setup(){
 
     //Setup the third matrix, this will plot a ramp across the cols
     {
-        const unsigned int numRows = 100;
-        const unsigned int numCols = 50;
+        const unsigned int numRows = 250;
+        const unsigned int numCols = 100;
         Matrix<float> mat( numRows, numCols );
         for(unsigned int i=0; i<numRows; i++){
             for(unsigned int j=0; j<numCols; j++){
@@ -66,38 +75,37 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-    int zoom = 5;
+    int zoom = 2;
     int plotX = 10;
     int plotY = 10;
-    int plotW = plot1.getWidth() * zoom;
-    int plotH = plot1.getHeight() * zoom;
+    int plotW = 0;
+    int plotH = 0;
+    int spacer = 10;
 
-    ofSetColor(255,255,255);
-    ofFill();
-	plot1.draw( plotX, plotY, plotW, plotH );
-    ofSetColor(255,0,0);
-    ofNoFill();
-    ofDrawRectangle( plotX, plotY, plotW, plotH );
-    plotX += 25 + plotW;
+    vector< ofxGrtMatrixPlot* > plots;
+    plots.push_back( &plot1 );
+    plots.push_back( &plot2 );
+    plots.push_back( &plot3 );
 
-    plotW = plot2.getWidth() * zoom;
-    plotH = plot2.getHeight() * zoom;
-    ofSetColor(255,255,255);
-    ofFill();
-    plot2.draw( plotX, plotY, plotW, plotH );
-    ofSetColor(255,0,0);
-    ofNoFill();
-    ofDrawRectangle( plotX, plotY, plotW, plotH );
-    plotX += 25 + plotW;
+    //Draw the matrices
+    for(auto mat : plots){
+        ofSetColor(255,255,255);
+        ofFill();
+        plotW = mat->getWidth() * zoom;
+        plotH = mat->getHeight() * zoom;
+        mat->draw( plotX, plotY, plotW, plotH );
+        plotX += spacer + plotW;
+    }
 
-    plotW = plot3.getWidth() * zoom;
-    plotH = plot3.getHeight() * zoom;
-    ofSetColor(255,255,255);
-    ofFill();
-    plot3.draw( plotX, plotY, plotW, plotH );
-    ofSetColor(255,0,0);
-    ofNoFill();
-    ofDrawRectangle( plotX, plotY, plotW, plotH );
+    //Draw the same matrices but with the shader
+    for(auto mat : plots){
+        ofSetColor(255,255,255);
+        ofFill();
+        plotW = mat->getWidth() * zoom;
+        plotH = mat->getHeight() * zoom;
+        mat->draw( plotX, plotY, plotW, plotH, heatmap );
+        plotX += spacer + plotW;
+    }
 }
 
 //--------------------------------------------------------------

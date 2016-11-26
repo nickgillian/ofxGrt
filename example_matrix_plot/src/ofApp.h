@@ -37,4 +37,5 @@ public:
 	ofxGrtMatrixPlot plot1;
 	ofxGrtMatrixPlot plot2;
 	ofxGrtMatrixPlot plot3;
+	ofShader heatmap;
 };
