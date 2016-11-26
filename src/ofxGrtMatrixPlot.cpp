@@ -137,16 +137,24 @@ bool ofxGrtMatrixPlot::draw(const float x, const float y, const float w, const f
     //Draw the texture
     texture.draw(x,y,w,h);
 
-    //Only draw the text if the font has been loaded
-    if( font && plotTitle != "" ){
+    //Draw the text
+    if( plotTitle != "" ){
 
-        if( !font->isLoaded() ) return false;
-        
         ofSetColor(textColor[0],textColor[1],textColor[2]);
         float textX = x + w*0.5;
-        float textY = y + (font->getLineHeight()*0.5);
-        ofRectangle bounds = font->getStringBoundingBox( plotTitle, 0, 0 );
-        font->drawString( plotTitle, textX - bounds.width*0.5 , textY + bounds.height );
+        float textY = y;
+        ofRectangle bounds;
+
+        if( font ){
+            if( !font->isLoaded() ) return false;
+
+            textY = y + (font->getLineHeight()*0.5);
+            bounds = font->getStringBoundingBox( plotTitle, 0, 0 );
+            font->drawString( plotTitle, textX - bounds.width*0.5 , textY + bounds.height );
+
+        }else{
+            ofDrawBitmapString( plotTitle, textX, textY );
+        }
     }
 
     return true;
@@ -161,16 +169,24 @@ bool ofxGrtMatrixPlot::draw(const float x, const float y, const float w, const f
     texture.draw(x,y,w,h);
     shader.end();
 
-    //Only draw the text if the font has been loaded
-    if( font && plotTitle != "" ){
+    //Draw the text
+    if( plotTitle != "" ){
 
-        if( !font->isLoaded() ) return false;
-        
         ofSetColor(textColor[0],textColor[1],textColor[2]);
         float textX = x + w*0.5;
-        float textY = y + (font->getLineHeight()*0.5);
-        ofRectangle bounds = font->getStringBoundingBox( plotTitle, 0, 0 );
-        font->drawString( plotTitle, textX - bounds.width*0.5 , textY + bounds.height );
+        float textY = y;
+        ofRectangle bounds;
+
+        if( font ){
+            if( !font->isLoaded() ) return false;
+
+            textY = y + (font->getLineHeight()*0.5);
+            bounds = font->getStringBoundingBox( plotTitle, 0, 0 );
+            font->drawString( plotTitle, textX - bounds.width*0.5 , textY + bounds.height );
+
+        }else{
+            ofDrawBitmapString( plotTitle, textX, textY );
+        }
     }
 
     return true;
