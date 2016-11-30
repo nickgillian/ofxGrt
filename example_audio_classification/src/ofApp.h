@@ -1,5 +1,5 @@
 /*
-  This example demonstrates how to use the GRT FFT algorithm in openFrameworks
+  This example demonstrates how to use the GRT FFT algorithm to create a spectrogram for audio classification in openFrameworks
  */
 
 #pragma once
@@ -32,12 +32,19 @@ public:
     
     //Create some variables for the demo
     GestureRecognitionPipeline pipeline;
-    TimeSeriesClassificationDataStream trainingData;
-    MatrixFloat trainingSample;
+    ClassificationData trainingData;
+    VectorFloat fftInputData;
+    VectorFloat featureVector;
+    FastFourierTransform fft;
+    CircularBuffer< VectorFloat > spectrogram;
+    CircularBuffer< VectorFloat > spectrogramPlotBuffer;
     ofxGrtTimeseriesPlot magnitudePlot;
     ofxGrtTimeseriesPlot classLikelihoodsPlot;
+    ofxGrtMatrixPlot spectrogramPlot;
     unsigned int trainingClassLabel;
+    unsigned int sampleCounter;
     bool record;
     bool processAudio;
     string infoText;
+    ofShader heatmap;
 };
