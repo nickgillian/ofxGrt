@@ -1,5 +1,5 @@
 /*
- 
+  See readme
  */
 
 #include "ofApp.h"

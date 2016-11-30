@@ -1,6 +1,6 @@
 ##Audio Classification Example
 
-This example demonstrates how to perform some basic audio classification using an FFT and a RandomForests classifier.
+This example demonstrates how to perform some basic audio classification using an FFT, a spectrogram and a RandomForests classifier.
 
 ##Building the example
 You can build this example on OSX by opening terminal in this directory and running:
@@ -16,6 +16,9 @@ If you want to build this example on Linux or want to compile the example agains
 main **addon_config.mk** file to change the location of the GRT header and library paths.
 
 ##Using the example
+When you run the example, you should see two real-time graphs on the screen. The top graph shows the instantaneous magnitude data from the FFT.  The bottom graph shows the spectrogram data (which shows the frequencies from the FFT over time).  The input to the classifier consists of the spectrogram data for a small time segment.
+
+If you make some noises near your microphone you should see the FFT data and spectrogram data change.
 
 ###Training
 You can record some training data for this example by:
@@ -29,6 +32,6 @@ You can record some training data for this example by:
 7. Press the **t** key to train a model (this could take several seconds depending on the number of training samples)
 
 ###Prediction
-After training a model, the application will immediately start real-time prediction.  You should now see two graphs on the screen, the top graph shows the FFT magnitude data, with the bottom class shows the class likelihoods for each class in the model.
+After training a model, the application will immediately start real-time prediction.  You should now see one additional graph on the screen, this shows the class likelihoods for each class in the model.
 
 If you make the sound for each class, you should hopefully see the class likelihoods change in the lower graph.
