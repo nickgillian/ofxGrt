@@ -1,4 +1,4 @@
 [submodule "libs/grt"]
 	path = libs/grt
 	url = https://github.com/nickgillian/grt.git
-	branch = master
+	branch = dev
