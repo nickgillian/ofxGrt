@@ -21,6 +21,11 @@ To use ofxGrt:
     git submodule update
 ```
 
+- if you are working off any branch of ofxGrt that is not master (e.g., dev), then you can sync with the remote GRT version of that branch via:
+```
+    git submodule update --remote
+```
+
 - to build and run any of the ofxGRT examples, cd to an example folder and run:
 ```
     cd ofxGrt/example_timeseries_plot
