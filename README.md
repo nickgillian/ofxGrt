@@ -37,3 +37,13 @@ You can find additional README files in each of the examples that describe more 
 
 ##License
 The ofxGRT is available under a MIT license.
+
+##Examples
+
+See the specific examples directories for a full description on each example.
+
+[Classification Example](example_classification)
+![alt text](images/classification_spiral_2.png "Classification Example")
+
+[Regression Example](example_regression)
+![alt text](images/regression_step_10.png "Regression Example")
