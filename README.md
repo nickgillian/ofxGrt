@@ -35,9 +35,6 @@ To use ofxGrt:
 
 You can find additional README files in each of the examples that describe more details about each specific example.
 
-##License
-The ofxGRT is available under a MIT license.
-
 ##Examples
 
 See the specific examples directories for a full description on each example.
@@ -50,3 +47,9 @@ See the specific examples directories for a full description on each example.
 
 [Linear Least Squares Example](example_linear_least_squares)
 ![alt text](example_linear_least_squares/images/lls_1.png "Linear Least Squares Example")
+
+[Matrix Plot Example](example_matrix_plot)
+![alt text](example_matrix_plot/images/matrix_plot.png "Matrix Plot Example")
+
+##License
+The ofxGRT is available under a MIT license.

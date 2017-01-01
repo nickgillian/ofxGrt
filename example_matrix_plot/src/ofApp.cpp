@@ -111,6 +111,16 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
+    switch(key){
+        case 'q':
+            {
+                ofImage img;
+                img.grabScreen(0, 0 , ofGetWidth(), ofGetHeight());
+                img.save( ofToDataPath( "screenshot_" + Util::timeAsString() + ".png") );
+            }
+        break;
+    }
+
 }
 
 //--------------------------------------------------------------
