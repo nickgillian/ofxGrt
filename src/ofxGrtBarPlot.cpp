@@ -18,7 +18,7 @@ ofxGrtBarPlot::ofxGrtBarPlot(){
 	barColor[1] = 0;
 	barColor[2] = 0;
     
-    warningLog.setProceedingText("WARNING ofxGrtBarPlot");
+    warningLog.setKey("WARNING ofxGrtBarPlot");
 }
 
 ofxGrtBarPlot::~ofxGrtBarPlot(){
