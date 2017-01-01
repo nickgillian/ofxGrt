@@ -47,3 +47,6 @@ See the specific examples directories for a full description on each example.
 
 [Regression Example](example_regression)
 ![alt text](example_regression/images/regression_step_10.png "Regression Example")
+
+[Linear Least Squares Example](example_linear_least_squares)
+![alt text](example_linear_least_squares/images/lls_1.png "Linear Least Squares Example")
