@@ -1,10 +1,10 @@
-##Matrix Plot Example
+##Bar Plot Example
 
-This example demonstrates the how to use ofxGrt Matrix Plot class. 
+This example demonstrates the how to use ofxGrt Bar Plot class. 
 
-The example will generate three matrices, and plot them with the default grayscale plot and using a heatmap texture.
+The example will generate a basic sine wave signal and plot this using the bar plot class.
 
-![alt text](images/matrix_plot.png "Matrix Plot Example")
+![alt text](images/bar_plot.png "Bar Plot Example")
 
 ##Building and running the example
 On OS X and Linux, you can build this example by running the following command in terminal:

@@ -51,5 +51,8 @@ See the specific examples directories for a full description on each example.
 [Matrix Plot Example](example_matrix_plot)
 ![alt text](example_matrix_plot/images/matrix_plot.png "Matrix Plot Example")
 
+[Bar Plot Example](example_bar_plot)
+![alt text](example_bar_plot/images/bar_plot.png "Bar Plot Example")
+
 ##License
 The ofxGRT is available under a MIT license.
