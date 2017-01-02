@@ -69,10 +69,10 @@ Non Linear Training Data
 The images below show the results of using the dataset above to train a model for a number of GRT classifiers.  After training the model, each pixel on the screen is classified and colored with the likelihood of belonging to each class.
 
 ![alt text](images/nonlinear_knn_1.png "KNN")
-MinDist
+KNN (K=10)
 
 ![alt text](images/nonlinear_mindist_1.png "MinDist")
-KNN (K=10)
+MinDist
 
 ![alt text](images/nonlinear_decision_tree_1.png "Decision Tree")
 Random Forest (1 Decision Tree)
