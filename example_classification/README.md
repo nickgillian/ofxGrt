@@ -45,7 +45,6 @@ Try adding several examples in a rough group, like the image below:
 
 ![alt text](images/classification_step_1.png "Classification Example")
 
-
 ![alt text](images/classification_step_2.png "Classification Example")
 
 ![alt text](images/classification_step_3.png "Classification Example")
@@ -57,3 +56,15 @@ After the model has been trained, it will automatically color each pixel on the 
 ![alt text](images/classification_step_4.png "Classification Example")
 
 To change the classifier type, use the **tab** key.
+
+![alt text](images/decision_tree_1.png "Decision Tree")
+Random Forest (1 Decision Tree)
+
+![alt text](images/rf_10.png "Random Forest 10")
+Random Forest (10 Decision Trees)
+
+![alt text](images/rf_100.png "Random Forest 100")
+Random Forest (100 Decision Trees)
+
+![alt text](images/rf_200.png "Random Forest 200")
+Random Forest (200 Decision Trees)
