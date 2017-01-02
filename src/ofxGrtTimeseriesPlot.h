@@ -47,9 +47,10 @@ public:
      @param timeseriesLength: sets the size of the timeseries buffer
      @param numChannels: sets the number of dimensions in the input data
      @param title: sets the title of the plot, an empty std::string will stop the title from being drawn
+     @param font: the font you want to use to draw text (can be NULL)
      @return returns true if the plot was setup successfully, false otherwise
     */
-    bool setup( const unsigned int timeseriesLength, const unsigned int numChannels, const std::string title="");
+    bool setup( const unsigned int timeseriesLength, const unsigned int numChannels, const std::string title="", const ofTrueTypeFont *font = NULL );
 
     /**
      @brief updates the plot using the last input data, this is useful if you have no data but still want to update the graph.

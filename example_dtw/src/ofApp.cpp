@@ -310,10 +310,10 @@ void ofApp::keyPressed(int key){
                 //Setup the plots for prediction
                 predictedClassPlot.setup( FRAME_RATE * 5, 1, "predicted label" );
                 predictedClassPlot.setFont( font );
-                predictedClassPlot.setRanges( 0, pipeline.getNumClasses() );
+                predictedClassPlot.setRanges( 0.0, pipeline.getNumClasses(), true );
                 classLikelihoodsPlot.setup( FRAME_RATE * 5, pipeline.getNumClasses(), "class likelihoods" );
                 classLikelihoodsPlot.setFont( font );
-                classLikelihoodsPlot.setRanges( 0, 1 );
+                classLikelihoodsPlot.setRanges( 0.0, 1.0, true );
 
 
             }else infoText = "WARNING: Failed to train pipeline";

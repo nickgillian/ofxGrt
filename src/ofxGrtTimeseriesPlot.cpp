@@ -34,7 +34,7 @@ ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
 ofxGrtTimeseriesPlot::~ofxGrtTimeseriesPlot(){
 }
 
-bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const unsigned int numChannels, const std::string title ){
+bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const unsigned int numChannels, const std::string title, const ofTrueTypeFont *font ){
 
     std::unique_lock<std::mutex> lock( mtx );
     
@@ -51,6 +51,7 @@ bool ofxGrtTimeseriesPlot::setup( const unsigned int timeseriesLength, const uns
     this->timeseriesLength = timeseriesLength;
     this->numChannels = numChannels;
     this->plotTitle = title;
+    if( font ) this->font = font;
 
     dataBuffer.resize(timeseriesLength, vector<float>(numChannels,-1));
     highlightBuffer.resize(timeseriesLength, 0);
