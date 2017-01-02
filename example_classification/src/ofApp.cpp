@@ -186,6 +186,7 @@ void ofApp::keyPressed(int key){
         VectorFloat likelihoods;
         float r,g,b,a;
         float maximumLikelihood;
+        const UINT numClasses = pipeline.getNumClasses();
         for(unsigned int j=0; j<cols; j++){
             for(unsigned int i=0; i<rows; i++){
                 featureVector[0] = i/double(rows);
@@ -194,33 +195,54 @@ void ofApp::keyPressed(int key){
                     classLabel = pipeline.getPredictedClassLabel();
                     maximumLikelihood = pipeline.getMaximumLikelihood();
                     likelihoods = pipeline.getClassLikelihoods();
-                    switch( classLabel ){
-                        case 1:
-                            r = 1.0;
-                            g = 0.0;
-                            b = 0.0;
-                            a = maximumLikelihood;
+                    if( numClasses <= 3 ){
+                        //If there are three or less class then we can use the class likelihoods to blend the colors
+                        switch( classLabel ){
+                            case 1:
+                            case 2:
+                            case 3:
+                                r = likelihoods[0];
+                                g = likelihoods[1];
+                                b = likelihoods[2];
+                                a = maximumLikelihood;
+                                break;
+                            default:
+                                r = 0;
+                                g = 0;
+                                b = 0;
+                                a = 1;
                             break;
-                        case 2: 
-                            r = 0.0;
-                            g = 1.0;
-                            b = 0.0;
-                            a = maximumLikelihood;
+                        }
+                    }else{
+                        switch( classLabel ){
+                            case 1:
+                                r = 1.0;
+                                g = 0.0;
+                                b = 0.0;
+                                a = maximumLikelihood;
+                                break;
+                            case 2: 
+                                r = 0.0;
+                                g = 1.0;
+                                b = 0.0;
+                                a = maximumLikelihood;
+                                break;
+                            case 3: 
+                                r = 0.0;
+                                g = 0.0;
+                                b = 1.0;
+                                a = maximumLikelihood;
+                                break;
                             break;
-                        case 3: 
-                            r = 0.0;
-                            g = 0.0;
-                            b = 1.0;
-                            a = maximumLikelihood;
+                            default:
+                                r = 1;
+                                g = 0;
+                                b = 1;
+                                a = 1;
                             break;
-                        break;
-                        default:
-                            r = 1;
-                            g = 0;
-                            b = 1;
-                            a = 1;
-                        break;
+                        }
                     }
+                    
                     pixelData[ index++ ] = r;
                     pixelData[ index++ ] = g;
                     pixelData[ index++ ] = b;
