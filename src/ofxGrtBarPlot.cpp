@@ -18,7 +18,7 @@ ofxGrtBarPlot::ofxGrtBarPlot(){
 	barColor[1] = 0;
 	barColor[2] = 0;
     
-    warningLog.setProceedingText("WARNING ofxGrtBarPlot");
+    warningLog.setKey("WARNING ofxGrtBarPlot");
 }
 
 ofxGrtBarPlot::~ofxGrtBarPlot(){
@@ -135,6 +135,11 @@ bool ofxGrtBarPlot::draw(unsigned int x,unsigned int y,unsigned int w,unsigned i
     std::unique_lock<std::mutex> lock( mtx );
     
     if( !initialized ) return false;
+
+    float xStart = 0;
+    float xEnd = 0;
+    float yStart = 0;
+    float yEnd = 0;
     
     ofPushMatrix();
     ofEnableAlphaBlending();
@@ -153,19 +158,19 @@ bool ofxGrtBarPlot::draw(unsigned int x,unsigned int y,unsigned int w,unsigned i
         
         //Draw the horizontal lines
         for(unsigned int i=0; i<numHLines; i++){
-            float xStart = 0;
-            float xEnd = w;
-            float yStart = ofMap(i,0,numHLines,0,h);
-            float yEnd = yStart;
-            ofLine(xStart,yStart,xEnd,yEnd);
+            xStart = 0;
+            xEnd = w;
+            yStart = ofMap(i,0,numHLines,0,h);
+            yEnd = yStart;
+            ofDrawLine(xStart,yStart,xEnd,yEnd);
         }
         
         //Draw the vertical lines
         for(unsigned int i=0; i<numVLines; i++){
-            float xStart = ofMap(i,0,numVLines,0,w);
-            float xEnd = xStart+1;
-            float yStart = 0;
-            float yEnd = h;
+            xStart = ofMap(i,0,numVLines,0,w);
+            xEnd = xStart+1;
+            yStart = 0;
+            yEnd = h;
             ofDrawLine(xStart,yStart,xEnd,yEnd);
         }
     }

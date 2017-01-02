@@ -1,39 +1,51 @@
 /*
- 
+  See readme
  */
 
 #include "ofApp.h"
 
-#define AUDIO_BUFFER_SIZE 512
+#define AUDIO_BUFFER_SIZE 256
 #define AUDIO_SAMPLE_RATE 44100
-#define FFT_WINDOW_SIZE 2048
+#define FFT_WINDOW_SIZE 512
+#define FFT_MAG_SIZE FFT_WINDOW_SIZE/2
 #define FFT_HOP_SIZE AUDIO_BUFFER_SIZE
+#define SPECTROGRAM_SIZE 128
+#define SPECTROGRAM_PLOT_SIZE SPECTROGRAM_SIZE*5
 
 //--------------------------------------------------------------
 void ofApp::setup(){
     
     ofSetFrameRate(60);
+
+    heatmap.load("heatmap");
     
     //Setup the FFT
-    FFT fft;
-    fft.init(FFT_WINDOW_SIZE,FFT_HOP_SIZE,1,FFT::RECTANGULAR_WINDOW,true,false,DATA_TYPE_MATRIX);
+    fft.init( FFT_WINDOW_SIZE, FastFourierTransform::HAMMING_WINDOW, true, false, false );
+    fftInputData.resize( FFT_WINDOW_SIZE );
+    spectrogram.resize( SPECTROGRAM_SIZE, VectorFloat(FFT_MAG_SIZE) );
+
+    //Setup the plots
+    magnitudePlot.setup( FFT_MAG_SIZE, 1 );
+    //spectrogramPlot.setup( SPECTROGRAM_PLOT_SIZE, FFT_MAG_SIZE );
+    spectrogramPlotBuffer.resize( SPECTROGRAM_PLOT_SIZE, VectorFloat(FFT_MAG_SIZE) );
+
+    trainingClassLabel = 1;
+    sampleCounter = 0;
+    record = false;
+    processAudio = true;
+    featureVector.resize( SPECTROGRAM_SIZE * FFT_MAG_SIZE ); //The feature vector is the data from the spectrogram
+    trainingData.setNumDimensions( featureVector.getSize() ); 
+    trainingData.reserve( 100 * 1000 );
 
     //Setup the classifier
     RandomForests forest;
     forest.setForestSize( 10 );
-    forest.setNumRandomSplits( 100 );
+    forest.setNumRandomSplits( (UINT)floor( featureVector.getSize()/10.0 ) );
     forest.setMaxDepth( 10 );
     forest.setMinNumSamplesPerNode( 10 );
 
-    //Add the feature extraction and classifier to the pipeline
-    pipeline.addFeatureExtractionModule( fft );
-    pipeline.setClassifier( forest );
-
-    trainingClassLabel = 1;
-    record = false;
-    processAudio = true;
-    trainingData.setNumDimensions( 1 ); //We are only going to use the data from one microphone channel, so the dimensions are 1
-    trainingSample.resize( AUDIO_BUFFER_SIZE, 1 ); //We will set the training matrix to match the audio buffer size
+    //Add the lassifier to the pipeline
+    pipeline << forest;
 
     //Setup the audio card
     ofSoundStreamSetup(2, 1, this, AUDIO_SAMPLE_RATE, AUDIO_BUFFER_SIZE, 4);
@@ -42,6 +54,15 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
     //All the updates are performed in the audio callback
+
+    //Update the spectrogram plot, plot the data transposed as it looks nicer
+    MatrixFloat matrix(FFT_MAG_SIZE,SPECTROGRAM_PLOT_SIZE);
+    for(UINT i=0; i<SPECTROGRAM_PLOT_SIZE; i++){
+        for(UINT j=0; j<FFT_MAG_SIZE; j++){
+            matrix[j][i] = spectrogramPlotBuffer[i][FFT_MAG_SIZE-1-j];
+        }
+    }
+    spectrogramPlot.update( matrix );
 }
 
 //--------------------------------------------------------------
@@ -54,6 +75,17 @@ void ofApp::draw(){
     const int graphSpacer = 15;
     int textX = MARGIN;
     int textY = MARGIN;
+
+    float margin = 10;
+    float x = margin;
+    float y = textY += 35;
+    float w = ofGetWidth() - margin*2;
+    float h = 250;
+
+    magnitudePlot.draw( x, y, w, h );
+
+    y += h + 25;
+    spectrogramPlot.draw( x, y, w, h, heatmap );
 
     //If the pipeline has been trained, then draw the plots
     if( pipeline.getTrained() ){
@@ -71,13 +103,7 @@ void ofApp::draw(){
         text = "Predicted Class Label: " + ofToString( pipeline.getPredictedClassLabel() );
         ofDrawBitmapString(text, textX,textY);
 
-        float margin = 10;
-        float x = margin;
-        float y = textY += 35;
-        float w = ofGetWidth() - margin*2;
-        float h = 250;
-
-        magnitudePlot.draw( x, y, w, h );
+        
 
         y += h + 15;
         classLikelihoodsPlot.draw( x, y, w, h );
@@ -117,27 +143,46 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
     if( !processAudio ) return;
 
     for (int i=0; i<bufferSize; i++) {
-        trainingSample[i][0] = input[i];
+        fftInputData[sampleCounter++] = input[i];
     }
 
-    if( record ){
-        trainingData.addSample( trainingClassLabel, trainingSample );
-    }
-
-    if( pipeline.getTrained() ){
-
-        //Run the prediction using the matrix of audio data
-        pipeline.predict( trainingSample );
+    if( sampleCounter >= FFT_HOP_SIZE ){
+        sampleCounter = 0;
+        //Compute the fft
+        if( !fft.computeFFT( fftInputData ) ) return;
 
         //Update the FFT plot
-        FFT *fft = pipeline.getFeatureExtractionModule< FFT >( 0 );
-        if( fft ){
-            vector< FastFourierTransform > &results =  fft->getFFTResultsPtr();
-            magnitudePlot.setData( results[0].getMagnitudeData() );
+        VectorFloat rawMagData = fft.getMagnitudeData();
+        magnitudePlot.setData( rawMagData );
+
+        //Update the spectorgram
+        VectorFloat scaledMagData( FFT_MAG_SIZE );
+        Float minValue = -64;
+        Float maxValue = 32;
+        for(UINT i=0; i<FFT_MAG_SIZE; i++){
+            scaledMagData[i] = GRT::Util::scale( 20.0 * log10( rawMagData[i] + 1.0e-8 ), minValue, maxValue, 0.0, 1.0, true );
+        }
+        spectrogram.push_back( scaledMagData );
+        spectrogramPlotBuffer.push_back( scaledMagData );
+
+        UINT featureIndex = 0;
+        for(UINT i=0; i<SPECTROGRAM_SIZE; i++){
+            for(UINT j=0; j<FFT_MAG_SIZE; j++){
+                featureVector[ featureIndex++ ] = spectrogram[i][j];
+            }
         }
 
-        //Update the likelihood plot
-        classLikelihoodsPlot.update( pipeline.getClassLikelihoods() );
+        if( record ){
+            trainingData.addSample( trainingClassLabel, featureVector );
+        }
+        else if( pipeline.getTrained() ){
+
+            //Run the prediction using the spectrogram features
+            pipeline.predict( featureVector );
+
+            //Update the likelihood plot
+            classLikelihoodsPlot.update( pipeline.getClassLikelihoods() );
+        }
     }
 }
 
@@ -166,7 +211,6 @@ void ofApp::keyPressed(int key){
                 infoText = "Pipeline Trained";
 
                 //Update the plots
-                magnitudePlot.setup( FFT_WINDOW_SIZE/2, 1 );
                 classLikelihoodsPlot.setup( 60 * 5, pipeline.getNumClasses() );
                 classLikelihoodsPlot.setRanges(0,1);
             }else infoText = "WARNING: Failed to train pipeline";

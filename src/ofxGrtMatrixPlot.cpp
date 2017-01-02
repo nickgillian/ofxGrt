@@ -3,13 +3,26 @@
 
 using namespace GRT;
 
+ofxGrtMatrixPlot::ofxGrtMatrixPlot( const std::string &title, const ofTrueTypeFont *font, const ofColor &textColor ){
+    plotTitle = "";
+    this->font = NULL;
+    this->rows = 0;
+    this->cols = 0;
+    this->textColor = textColor;
+    config = ofxGrtSettings::GetInstance().get();
+    if( font == NULL ) this->font = &config->fontNormal;
+    if( title != "" ) setTitle( title );
+    if( font ) setFont( font, textColor );
+}
+
 ofxGrtMatrixPlot::ofxGrtMatrixPlot(const std::string &plotTitle, const std::string &xAxisInfo, const std::string &yAxisInfo){
     this->plotTitle = plotTitle;
     this->xAxisInfo = xAxisInfo;
     this->yAxisInfo = yAxisInfo;
+    config = ofxGrtSettings::GetInstance().get();
+    textColor = config->activeTextColor;
     font = &config->fontNormal;
     rows = cols = 0;
-    config = ofxGrtSettings::GetInstance().get();
 }
 
 bool ofxGrtMatrixPlot::resize( const unsigned int rows, const unsigned int cols ){
@@ -22,11 +35,10 @@ bool ofxGrtMatrixPlot::resize( const unsigned int rows, const unsigned int cols 
     for(unsigned int i=0; i<size; i++){
         pixelData[ i++ ] = 0.0;
     }
-    float *data = &pixelData[0];
 
     const unsigned int width = cols;
     const unsigned int height = rows;
-    pixels.setFromExternalPixels(data,width,height,OF_PIXELS_GRAY);
+    pixels.setFromExternalPixels(&pixelData[0],width,height,OF_PIXELS_GRAY);
 
     if(!texture.isAllocated()){
         texture.allocate( pixels, false );
@@ -38,7 +50,7 @@ bool ofxGrtMatrixPlot::resize( const unsigned int rows, const unsigned int cols 
     return true;
 }
 
-void ofxGrtMatrixPlot::update( const Matrix<double> &data ){
+bool ofxGrtMatrixPlot::update( const Matrix<double> &data ){
  
     const unsigned int rows = data.getNumRows(); 
     const unsigned int cols = data.getNumCols();
@@ -58,10 +70,10 @@ void ofxGrtMatrixPlot::update( const Matrix<double> &data ){
     }
     float *pixelPointer = &pixelData[0];
 
-    update( pixelPointer, rows, cols );
+    return update( pixelPointer, rows, cols );
 }
 
-void ofxGrtMatrixPlot::update( const Matrix<float> &data ){
+bool ofxGrtMatrixPlot::update( const Matrix<float> &data ){
  
     const unsigned int rows = data.getNumRows(); 
     const unsigned int cols = data.getNumCols();
@@ -81,10 +93,10 @@ void ofxGrtMatrixPlot::update( const Matrix<float> &data ){
     }
     float *pixelPointer = &pixelData[0];
 
-    update( pixelPointer, rows, cols );
+    return update( pixelPointer, rows, cols );
 }
 
-void ofxGrtMatrixPlot::update( const MatrixFloat &data, float minValue, float maxValue ){
+bool ofxGrtMatrixPlot::update( const MatrixFloat &data, const float minValue, const float maxValue ){
 
     const unsigned int rows = data.getNumRows(); 
     const unsigned int cols = data.getNumCols();
@@ -104,10 +116,10 @@ void ofxGrtMatrixPlot::update( const MatrixFloat &data, float minValue, float ma
     }
     float *pixelPointer = &pixelData[0];
 
-    update( pixelPointer, rows, cols );
+    return update( pixelPointer, rows, cols );
 }
 
-void ofxGrtMatrixPlot::update( float *data, const unsigned int rows, const unsigned int cols ){
+bool ofxGrtMatrixPlot::update( float *data, const unsigned int rows, const unsigned int cols ){
     
     const unsigned int width = cols;
     const unsigned int height = rows;
@@ -120,93 +132,89 @@ void ofxGrtMatrixPlot::update( float *data, const unsigned int rows, const unsig
     texture.loadData( pixels );
     texture.setTextureMinMagFilter( GL_LINEAR, GL_LINEAR );
 
+    return true;
 }
 
-bool ofxGrtMatrixPlot::draw(float x, float y) const{
+bool ofxGrtMatrixPlot::draw(const float x, const float y) const{
     if( pixels.size() == 0 ) return false;
     return draw(x, y, texture.getWidth(), texture.getHeight());
 }
 
-bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h) const{
+bool ofxGrtMatrixPlot::draw(const float x, const float y, const float w, const float h) const{
 
     if( pixels.size() == 0 ) return false;
-    
-    float tempX = x;
-    float tempY = y;
-    float tempH = h;
-    float tempW= w;
 
-	auto & tex = texture;
-	auto ratio = tempW/tempH;
-	auto texRatio = tex.getWidth()/tex.getHeight();
-	if(ratio > texRatio){
-        auto drawW = tempH*texRatio;
-        auto drawX = tempX+(tempW-drawW)/2;
-        tex.draw(drawX,tempY,drawW,tempH);
-	}else{
-        auto drawH = tempW/texRatio;
-        auto drawY = tempY+(tempH-drawH)/2;
-        tex.draw(tempX,drawY,tempW,drawH);
-	}
+    //Draw the texture
+    texture.draw(x,y,w,h);
 
-    //Only draw the text if the font has been loaded
-    if( font && plotTitle != "" ){
+    //Draw the text
+    if( plotTitle != "" ){
 
-        if( !font->isLoaded() ) return false;
-        
-        float textX = x;//tempX + 5;
+        ofSetColor(textColor);
+        float textX = x + w*0.5;
         float textY = y-config->titleTextSpacer;//tempY + 5 + (font->getLineHeight()*0.5);
+        ofRectangle bounds;
 
-        ofSetColor(config->activeTextColor);
-        font->drawString( plotTitle, textX, textY );
+        if( font ){
+            if( !font->isLoaded() ) return false;
+
+            textY = y + (font->getLineHeight()*0.5);
+            bounds = font->getStringBoundingBox( plotTitle, 0, 0 );
+            font->drawString( plotTitle, textX - bounds.width*0.5 , textY + bounds.height );
+
+            ofPushMatrix();
+            {
+                ofRotateZDeg(-90.0f);
+                font->drawString(yAxisInfo, -(textY+h)+config->info_margin-config->titleTextSpacer, textX-config->titleTextSpacer);
+            }
+            ofPopMatrix();
+            
+            font->drawString( xAxisInfo, textX, textY+h+font->getLineHeight()-config->info_margin+config->titleTextSpacer );
+
+        }else{
+            ofDrawBitmapString( plotTitle, textX, textY );
+        }
     }
 
     return true;
 }
 
-bool ofxGrtMatrixPlot::draw(float x, float y, float w, float h,ofShader &shader) const{
+bool ofxGrtMatrixPlot::draw(const float x, const float y, const float w, const float h,const ofShader &shader) const{
 
     if( pixels.size() == 0 ) return false;
     
-    float tempX = x;
-    float tempY = y;
-    float tempH = h;
-    float tempW= w;
-    
-    auto & tex = texture;
-    auto ratio = tempW/tempH;
-    auto texRatio = tex.getWidth()/tex.getHeight();
+    //Set the shader and draw the texture
     shader.begin();
-    if(ratio > texRatio){
-        auto drawW = tempH*texRatio;
-        auto drawX = tempX+(tempW-drawW)/2;
-        tex.draw(drawX,tempY,drawW,tempH);
-    }else{
-        auto drawH = tempW/texRatio;
-        auto drawY = tempY+(tempH-drawH)/2;
-        tex.draw(tempX,drawY,tempW,drawH-config->info_margin);
-    }
+    texture.draw(x,y,w,h);
     shader.end();
 
-    //Only draw the text if the font has been loaded
-    if( font && plotTitle != "" ){
+    //Draw the text
+    if( plotTitle != "" ){
 
-        if( !font->isLoaded() ) return false;
-        
-        float textX = x;//tempX + 5;
+        ofSetColor(textColor);
+        float textX = x + w*0.5;
         float textY = y-config->titleTextSpacer;//tempY + 5 + (font->getLineHeight()*0.5);
+        ofRectangle bounds;
 
-        ofSetColor(config->activeTextColor);
-        font->drawString( plotTitle, textX, textY );
-        
-        ofPushMatrix();
-        {
-            ofRotateZ(-90.0f);
-            font->drawString(yAxisInfo, -(textY+h)+config->info_margin-config->titleTextSpacer, textX-config->titleTextSpacer);
+        if( font ){
+            if( !font->isLoaded() ) return false;
+
+            textY = y + (font->getLineHeight()*0.5);
+            bounds = font->getStringBoundingBox( plotTitle, 0, 0 );
+            font->drawString( plotTitle, textX - bounds.width*0.5 , textY + bounds.height );
+
+            ofPushMatrix();
+            {
+                ofRotateZDeg(-90.0f);
+                font->drawString(yAxisInfo, -(textY+h)+config->info_margin-config->titleTextSpacer, textX-config->titleTextSpacer);
+            }
+            ofPopMatrix();
+            
+            font->drawString( xAxisInfo, textX, textY+h+font->getLineHeight()-config->info_margin+config->titleTextSpacer );
+
+        }else{
+            ofDrawBitmapString( plotTitle, textX, textY );
         }
-        ofPopMatrix();
-        
-        font->drawString( xAxisInfo, textX, textY+h+font->getLineHeight()-config->info_margin+config->titleTextSpacer );
     }
 
     return true;
@@ -226,6 +234,22 @@ unsigned int ofxGrtMatrixPlot::getWidth() const{
 
 unsigned int ofxGrtMatrixPlot::getHeight() const{
     return this->rows;
+}
+
+bool ofxGrtMatrixPlot::setFont( const ofTrueTypeFont *font, const ofColor &textColor ){ 
+    this->font = font; 
+    this->textColor = textColor;
+    if( this->font != NULL ) return this->font->isLoaded();
+    return true; 
+}
+
+bool ofxGrtMatrixPlot::setFont( const ofTrueTypeFont &font, const ofColor &textColor ){
+    return setFont( &font, textColor );
+}
+
+bool ofxGrtMatrixPlot::setTitle( const std::string &plotTitle ){ 
+    this->plotTitle = plotTitle; 
+    return true; 
 }
 
 

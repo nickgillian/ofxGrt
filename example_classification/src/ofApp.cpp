@@ -186,6 +186,7 @@ void ofApp::keyPressed(int key){
         VectorFloat likelihoods;
         float r,g,b,a;
         float maximumLikelihood;
+        const UINT numClasses = pipeline.getNumClasses();
         for(unsigned int j=0; j<cols; j++){
             for(unsigned int i=0; i<rows; i++){
                 featureVector[0] = i/double(rows);
@@ -194,33 +195,54 @@ void ofApp::keyPressed(int key){
                     classLabel = pipeline.getPredictedClassLabel();
                     maximumLikelihood = pipeline.getMaximumLikelihood();
                     likelihoods = pipeline.getClassLikelihoods();
-                    switch( classLabel ){
-                        case 1:
-                            r = 1.0;
-                            g = 0.0;
-                            b = 0.0;
-                            a = maximumLikelihood;
+                    if( numClasses <= 3 ){
+                        //If there are three or less class then we can use the class likelihoods to blend the colors
+                        switch( classLabel ){
+                            case 1:
+                            case 2:
+                            case 3:
+                                r = likelihoods[0];
+                                g = likelihoods[1];
+                                b = likelihoods[2];
+                                a = maximumLikelihood;
+                                break;
+                            default:
+                                r = 0;
+                                g = 0;
+                                b = 0;
+                                a = 1;
                             break;
-                        case 2: 
-                            r = 0.0;
-                            g = 1.0;
-                            b = 0.0;
-                            a = maximumLikelihood;
+                        }
+                    }else{
+                        switch( classLabel ){
+                            case 1:
+                                r = 1.0;
+                                g = 0.0;
+                                b = 0.0;
+                                a = maximumLikelihood;
+                                break;
+                            case 2: 
+                                r = 0.0;
+                                g = 1.0;
+                                b = 0.0;
+                                a = maximumLikelihood;
+                                break;
+                            case 3: 
+                                r = 0.0;
+                                g = 0.0;
+                                b = 1.0;
+                                a = maximumLikelihood;
+                                break;
                             break;
-                        case 3: 
-                            r = 0.0;
-                            g = 0.0;
-                            b = 1.0;
-                            a = maximumLikelihood;
+                            default:
+                                r = 1;
+                                g = 0;
+                                b = 1;
+                                a = 1;
                             break;
-                        break;
-                        default:
-                            r = 0;
-                            g = 0;
-                            b = 0;
-                            a = 1;
-                        break;
+                        }
                     }
+                    
                     pixelData[ index++ ] = r;
                     pixelData[ index++ ] = g;
                     pixelData[ index++ ] = b;
@@ -251,87 +273,89 @@ bool ofApp::setClassifier( const int type ){
     RandomForests randomForest;
     Softmax softmax;
     SVM svm;
+    bool enableNullRejection = false;
 
     this->classifierType = type;
+    pipeline.clear();
 
     switch( classifierType ){
         case ADABOOST:
-            adaboost.enableNullRejection( false );
+            adaboost.enableNullRejection( enableNullRejection );
             adaboost.setNullRejectionCoeff( 3 );
-            pipeline.setClassifier( adaboost );
+            pipeline << adaboost;
         break;
         case DECISION_TREE:
-            dtree.enableNullRejection( false );
+            dtree.enableNullRejection( enableNullRejection );
             dtree.setNullRejectionCoeff( 3 );
             dtree.setMaxDepth( 10 );
             dtree.setMinNumSamplesPerNode( 3 );
-            dtree.setRemoveFeaturesAtEachSpilt( false );
-            pipeline.setClassifier( dtree );
+            dtree.setRemoveFeaturesAtEachSplit( false );
+            pipeline << dtree;
         break;
         case KKN:
-            knn.enableNullRejection( false );
+            knn.enableNullRejection( enableNullRejection );
             knn.setNullRejectionCoeff( 3 );
-            pipeline.setClassifier( knn );
+            pipeline << knn;
         break;
         case GAUSSIAN_MIXTURE_MODEL:
-            gmm.enableNullRejection( false );
+            gmm.enableNullRejection( enableNullRejection );
             gmm.setNullRejectionCoeff( 3 );
-            pipeline.setClassifier( gmm );
+            pipeline << gmm;
         break;
         case NAIVE_BAYES:
-            naiveBayes.enableNullRejection( false );
+            naiveBayes.enableNullRejection( enableNullRejection );
             naiveBayes.setNullRejectionCoeff( 3 );
-            pipeline.setClassifier( naiveBayes );
+            pipeline << naiveBayes;
         break;
         case MINDIST:
-            minDist.enableNullRejection( false );
+            minDist.enableNullRejection( enableNullRejection );
             minDist.setNullRejectionCoeff( 3 );
-            pipeline.setClassifier( minDist );
+            pipeline << MinDist( false, true );
         break;
         case RANDOM_FOREST_10:
-            randomForest.enableNullRejection( false );
+            randomForest.enableNullRejection( enableNullRejection );
             randomForest.setNullRejectionCoeff( 3 );
             randomForest.setForestSize( 10 );
             randomForest.setNumRandomSplits( 2 );
             randomForest.setMaxDepth( 10 );
-            randomForest.setMinNumSamplesPerNode( 3 );
-            randomForest.setRemoveFeaturesAtEachSpilt( false );
-            pipeline.setClassifier( randomForest );
+            randomForest.setMinNumSamplesPerNode( 5 );
+            randomForest.setRemoveFeaturesAtEachSplit( false );
+            pipeline << randomForest;
         break;
         case RANDOM_FOREST_100:
-            randomForest.enableNullRejection( false );
+            randomForest.enableNullRejection( enableNullRejection );
             randomForest.setNullRejectionCoeff( 3 );
             randomForest.setForestSize( 100 );
             randomForest.setNumRandomSplits( 2 );
             randomForest.setMaxDepth( 10 );
             randomForest.setMinNumSamplesPerNode( 3 );
-            randomForest.setRemoveFeaturesAtEachSpilt( false );
-            pipeline.setClassifier( randomForest );
+            randomForest.setRemoveFeaturesAtEachSplit( false );
+            pipeline << randomForest;
         break;
         case RANDOM_FOREST_200:
-            randomForest.enableNullRejection( false );
+            randomForest.enableNullRejection( enableNullRejection );
             randomForest.setNullRejectionCoeff( 3 );
             randomForest.setForestSize( 200 );
             randomForest.setNumRandomSplits( 2 );
             randomForest.setMaxDepth( 10 );
             randomForest.setMinNumSamplesPerNode( 3 );
-            randomForest.setRemoveFeaturesAtEachSpilt( false );
-            pipeline.setClassifier( randomForest );
+            randomForest.setRemoveFeaturesAtEachSplit( false );
+            pipeline << randomForest;
         break;
         case SOFTMAX:
-            softmax.enableNullRejection( false );
+            softmax.enableNullRejection( enableNullRejection );
             softmax.setNullRejectionCoeff( 3 );
-            pipeline.setClassifier( softmax );
+            pipeline << softmax;
         break;
         case SVM_LINEAR:
-            svm.enableNullRejection( false );
+            svm.enableNullRejection( enableNullRejection );
             svm.setNullRejectionCoeff( 3 );
-            pipeline.setClassifier( SVM(SVM::LINEAR_KERNEL) );
+            pipeline << SVM(SVM::LINEAR_KERNEL);
         break;
         case SVM_RBF:
-            svm.enableNullRejection( false );
+            svm.enableNullRejection( enableNullRejection );
             svm.setNullRejectionCoeff( 3 );
-            pipeline.setClassifier( SVM(SVM::RBF_KERNEL) );
+            pipeline << SVM(SVM::RBF_KERNEL);
         break;
         default:
             return false;

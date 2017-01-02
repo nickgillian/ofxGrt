@@ -14,7 +14,6 @@ void ofApp::setup(){
     //Setup the plot
     plot1.setup( NUM_DIMENSIONS, "sine data");
     plot1.setRanges( -1.0, 1.0, true );
-    
 }
 
 
@@ -33,11 +32,10 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-    int zoom = 5;
     int plotX = 10;
     int plotY = 10;
     int plotW = ofGetWidth() - plotX*2;
-    int plotH = 100;
+    int plotH = ofGetHeight() - 20;
 
     ofSetColor(255,255,255);
     ofFill();
@@ -51,6 +49,16 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+
+    switch(key){
+        case 'q':
+            {
+                ofImage img;
+                img.grabScreen(0, 0 , ofGetWidth(), ofGetHeight());
+                img.save( ofToDataPath( "screenshot_" + Util::timeAsString() + ".png") );
+            }
+        break;
+    }
 
 }
 

@@ -24,11 +24,12 @@ ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     gridColor = config->gridColor;
     axisColor = config->axisColor;
     
-    errorLog.setProceedingText("[ERROR ofxGrtTimeseriesPlot]");
+    errorLog.setKey("[ERROR ofxGrtTimeseriesPlot]");
     xAxisInfo = "X";
     yAxisInfo = "   Y";
     insetPlotByInfoMarginX = true;
     insetPlotByInfoMarginY = true;
+    errorLog.setKey("[ERROR ofxGrtTimeseriesPlot]");
 }
 
 ofxGrtTimeseriesPlot::~ofxGrtTimeseriesPlot(){
@@ -496,7 +497,7 @@ bool ofxGrtTimeseriesPlot::setData( const Matrix<float> &data ){
     const unsigned int N = data.getNumCols();
     
     if( N != numChannels ){
-        errorLog << "setData( const MatrixFloat &data ) - The number of dimensions in the data does not match the number of dimensions in the graph!" << endl;
+        errorLog << __GRT_LOG__ << " The number of dimensions in the data does not match the number of dimensions in the graph!" << endl;
         return false;
     }
     
@@ -540,7 +541,7 @@ bool ofxGrtTimeseriesPlot::setData( const Matrix<double> &data ){
     const unsigned int N = data.getNumCols();
     
     if( N != numChannels ){
-        errorLog << "setData( const MatrixDouble &data ) - The number of dimensions in the data does not match the number of dimensions in the graph!" << endl;
+        errorLog << __GRT_LOG__ << " The number of dimensions in the data does not match the number of dimensions in the graph!" << endl;
         return false;
     }
     dataBuffer.reset(); highlightBuffer.reset(); labelBuffer.reset();

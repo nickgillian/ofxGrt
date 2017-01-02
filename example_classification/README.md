@@ -22,7 +22,7 @@ This demonstrates the various decision boundaries learned by each classification
 
 The example lets you add training data to different regions of the screen, then use this training data to build a model which is then used to color all the pixels on the screen, as shown in the image below.
 
-![alt text](images/classification_spiral_2.png "Classification Example")
+![alt text](images/classification_example_1.png "Classification Example")
 
 ##Building and running the example
 On OS X and Linux, you can build this example by running the following command in terminal:
@@ -45,7 +45,6 @@ Try adding several examples in a rough group, like the image below:
 
 ![alt text](images/classification_step_1.png "Classification Example")
 
-
 ![alt text](images/classification_step_2.png "Classification Example")
 
 ![alt text](images/classification_step_3.png "Classification Example")
@@ -57,3 +56,32 @@ After the model has been trained, it will automatically color each pixel on the 
 ![alt text](images/classification_step_4.png "Classification Example")
 
 To change the classifier type, use the **tab** key.
+
+##Examples
+
+###Non Linear Example
+
+Here is a fairly complex 3 class, nonlinear, example.  The image below shows the training data, with each point representing a training sample and the color representing the class.
+
+![alt text](images/nonlinear_data_1.png "Nonlinear")
+Non Linear Training Data
+
+The images below show the results of using the dataset above to train a model for a number of GRT classifiers.  After training the model, each pixel on the screen is classified and colored with the likelihood of belonging to each class.
+
+![alt text](images/nonlinear_knn_1.png "KNN")
+KNN (K=10)
+
+![alt text](images/nonlinear_mindist_1.png "MinDist")
+MinDist
+
+![alt text](images/nonlinear_decision_tree_1.png "Decision Tree")
+Random Forest (1 Decision Tree)
+
+![alt text](images/nonlinear_rf_10.png "Random Forest 10")
+Random Forest (10 Decision Trees)
+
+![alt text](images/nonlinear_rf_100.png "Random Forest 100")
+Random Forest (100 Decision Trees)
+
+![alt text](images/nonlinear_rf_200.png "Random Forest 200")
+Random Forest (200 Decision Trees)
