@@ -251,43 +251,44 @@ bool ofApp::setClassifier( const int type ){
     RandomForests randomForest;
     Softmax softmax;
     SVM svm;
-    bool enableNullRejection = true;
+    bool enableNullRejection = false;
 
     this->classifierType = type;
+    pipeline.clear();
 
     switch( classifierType ){
         case ADABOOST:
             adaboost.enableNullRejection( enableNullRejection );
             adaboost.setNullRejectionCoeff( 3 );
-            pipeline.setClassifier( adaboost );
+            pipeline << adaboost;
         break;
         case DECISION_TREE:
             dtree.enableNullRejection( enableNullRejection );
             dtree.setNullRejectionCoeff( 3 );
             dtree.setMaxDepth( 10 );
             dtree.setMinNumSamplesPerNode( 3 );
-            dtree.setRemoveFeaturesAtEachSpilt( false );
-            pipeline.setClassifier( dtree );
+            dtree.setRemoveFeaturesAtEachSplit( false );
+            pipeline << dtree;
         break;
         case KKN:
             knn.enableNullRejection( enableNullRejection );
             knn.setNullRejectionCoeff( 3 );
-            pipeline.setClassifier( knn );
+            pipeline << knn;
         break;
         case GAUSSIAN_MIXTURE_MODEL:
             gmm.enableNullRejection( enableNullRejection );
             gmm.setNullRejectionCoeff( 3 );
-            pipeline.setClassifier( gmm );
+            pipeline << gmm;
         break;
         case NAIVE_BAYES:
             naiveBayes.enableNullRejection( enableNullRejection );
             naiveBayes.setNullRejectionCoeff( 3 );
-            pipeline.setClassifier( naiveBayes );
+            pipeline << naiveBayes;
         break;
         case MINDIST:
             minDist.enableNullRejection( enableNullRejection );
             minDist.setNullRejectionCoeff( 3 );
-            pipeline.setClassifier( MinDist( false, true ) );
+            pipeline << MinDist( false, true );
         break;
         case RANDOM_FOREST_10:
             randomForest.enableNullRejection( enableNullRejection );
@@ -295,9 +296,9 @@ bool ofApp::setClassifier( const int type ){
             randomForest.setForestSize( 10 );
             randomForest.setNumRandomSplits( 2 );
             randomForest.setMaxDepth( 10 );
-            randomForest.setMinNumSamplesPerNode( 3 );
-            randomForest.setRemoveFeaturesAtEachSpilt( false );
-            pipeline.setClassifier( randomForest );
+            randomForest.setMinNumSamplesPerNode( 5 );
+            randomForest.setRemoveFeaturesAtEachSplit( false );
+            pipeline << randomForest;
         break;
         case RANDOM_FOREST_100:
             randomForest.enableNullRejection( enableNullRejection );
@@ -306,8 +307,8 @@ bool ofApp::setClassifier( const int type ){
             randomForest.setNumRandomSplits( 2 );
             randomForest.setMaxDepth( 10 );
             randomForest.setMinNumSamplesPerNode( 3 );
-            randomForest.setRemoveFeaturesAtEachSpilt( false );
-            pipeline.setClassifier( randomForest );
+            randomForest.setRemoveFeaturesAtEachSplit( false );
+            pipeline << randomForest;
         break;
         case RANDOM_FOREST_200:
             randomForest.enableNullRejection( enableNullRejection );
@@ -316,23 +317,23 @@ bool ofApp::setClassifier( const int type ){
             randomForest.setNumRandomSplits( 2 );
             randomForest.setMaxDepth( 10 );
             randomForest.setMinNumSamplesPerNode( 3 );
-            randomForest.setRemoveFeaturesAtEachSpilt( false );
-            pipeline.setClassifier( randomForest );
+            randomForest.setRemoveFeaturesAtEachSplit( false );
+            pipeline << randomForest;
         break;
         case SOFTMAX:
             softmax.enableNullRejection( enableNullRejection );
             softmax.setNullRejectionCoeff( 3 );
-            pipeline.setClassifier( softmax );
+            pipeline << softmax;
         break;
         case SVM_LINEAR:
             svm.enableNullRejection( enableNullRejection );
             svm.setNullRejectionCoeff( 3 );
-            pipeline.setClassifier( SVM(SVM::LINEAR_KERNEL) );
+            pipeline << SVM(SVM::LINEAR_KERNEL);
         break;
         case SVM_RBF:
             svm.enableNullRejection( enableNullRejection );
             svm.setNullRejectionCoeff( 3 );
-            pipeline.setClassifier( SVM(SVM::RBF_KERNEL) );
+            pipeline << SVM(SVM::RBF_KERNEL);
         break;
         default:
             return false;

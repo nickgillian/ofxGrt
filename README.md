@@ -40,7 +40,7 @@ You can find additional README files in each of the examples that describe more 
 See the specific examples directories for a full description on each example.
 
 [Classification Example](example_classification)
-![alt text](example_classification/images/classification_spiral_2.png "Classification Example")
+![alt text](example_classification/images/classification_example_1.png "Classification Example")
 
 [Regression Example](example_regression)
 ![alt text](example_regression/images/regression_step_10.png "Regression Example")

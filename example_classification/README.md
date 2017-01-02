@@ -22,7 +22,7 @@ This demonstrates the various decision boundaries learned by each classification
 
 The example lets you add training data to different regions of the screen, then use this training data to build a model which is then used to color all the pixels on the screen, as shown in the image below.
 
-![alt text](images/classification_spiral_2.png "Classification Example")
+![alt text](images/classification_example_1.png "Classification Example")
 
 ##Building and running the example
 On OS X and Linux, you can build this example by running the following command in terminal:

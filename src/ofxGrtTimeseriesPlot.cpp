@@ -28,7 +28,7 @@ ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     gridColor[2] = 255;
     gridColor[3] = 100;
     
-    errorLog.setProceedingText("[ERROR ofxGrtTimeseriesPlot]");
+    errorLog.setKey("[ERROR ofxGrtTimeseriesPlot]");
 }
 
 ofxGrtTimeseriesPlot::~ofxGrtTimeseriesPlot(){
