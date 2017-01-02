@@ -61,8 +61,18 @@ To change the classifier type, use the **tab** key.
 
 ###Non Linear Example
 
+Here is a fairly complex 3 class, nonlinear, example.  The image below shows the training data, with each point representing a training sample and the color representing the class.
+
 ![alt text](images/nonlinear_data_1.png "Nonlinear")
 Non Linear Training Data
+
+The images below show the results of using the dataset above to train a model for a number of GRT classifiers.  After training the model, each pixel on the screen is classified and colored with the likelihood of belonging to each class.
+
+![alt text](images/nonlinear_knn_1.png "KNN")
+MinDist
+
+![alt text](images/nonlinear_mindist_1.png "MinDist")
+KNN (K=10)
 
 ![alt text](images/nonlinear_decision_tree_1.png "Decision Tree")
 Random Forest (1 Decision Tree)
