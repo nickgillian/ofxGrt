@@ -43,11 +43,7 @@ void ofApp::update(){
     //Update the 1st plot
     data[0] = mouseX;
     data[1] = mouseY;
-    if (abs(mouseX - lastX) > abs(mouseY - lastY))
-        plot1.update( data, 1, "Horizontal" );
-    else if (abs(mouseX - lastX) < abs(mouseY - lastY))
-        plot1.update( data, 2, "Vertical" );
-    else plot1.update( data );
+    plot1.update( data );
 
     //Update the 2nd plot
     data[0] = lastX > 0 ? (mouseX-lastX) / delta : 0.0;

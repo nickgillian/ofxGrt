@@ -29,7 +29,6 @@ ofxGrtTimeseriesPlot::ofxGrtTimeseriesPlot(){
     yAxisInfo = "   Y";
     insetPlotByInfoMarginX = true;
     insetPlotByInfoMarginY = true;
-    errorLog.setKey("[ERROR ofxGrtTimeseriesPlot]");
 }
 
 ofxGrtTimeseriesPlot::~ofxGrtTimeseriesPlot(){
@@ -410,8 +409,6 @@ bool ofxGrtTimeseriesPlot::setData( const vector< vector<float> > &data, const b
 bool ofxGrtTimeseriesPlot::setData( const vector< vector<float> > &data, const bool rowsAreChannels ){
 
     std::unique_lock<std::mutex> lock( mtx );
-    
-    const unsigned int M = (unsigned int)data.size();
 
     dataBuffer.reset(); highlightBuffer.reset(); labelBuffer.reset();
 
