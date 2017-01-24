@@ -31,7 +31,7 @@ bool ofxGrtMatrixPlot::resize( const unsigned int rows, const unsigned int cols 
     this->rows = rows;
     this->cols = cols;
     pixelData.resize( size );
-    
+
     for(unsigned int i=0; i<size; i++){
         pixelData[ i++ ] = 0.0;
     }
@@ -51,8 +51,8 @@ bool ofxGrtMatrixPlot::resize( const unsigned int rows, const unsigned int cols 
 }
 
 bool ofxGrtMatrixPlot::update( const Matrix<double> &data ){
- 
-    const unsigned int rows = data.getNumRows(); 
+
+    const unsigned int rows = data.getNumRows();
     const unsigned int cols = data.getNumCols();
     const size_t size = rows*cols;
 
@@ -61,7 +61,7 @@ bool ofxGrtMatrixPlot::update( const Matrix<double> &data ){
         this->cols = cols;
         pixelData.resize( size );
     }
-    
+
     unsigned int index = 0;
     for(unsigned int i=0; i<rows; i++){
         for(unsigned int j=0; j<cols; j++){
@@ -74,8 +74,8 @@ bool ofxGrtMatrixPlot::update( const Matrix<double> &data ){
 }
 
 bool ofxGrtMatrixPlot::update( const Matrix<float> &data ){
- 
-    const unsigned int rows = data.getNumRows(); 
+
+    const unsigned int rows = data.getNumRows();
     const unsigned int cols = data.getNumCols();
     const size_t size = rows*cols;
 
@@ -84,7 +84,7 @@ bool ofxGrtMatrixPlot::update( const Matrix<float> &data ){
         this->cols = cols;
         pixelData.resize( size );
     }
-    
+
     unsigned int index = 0;
     for(unsigned int i=0; i<rows; i++){
         for(unsigned int j=0; j<cols; j++){
@@ -98,7 +98,7 @@ bool ofxGrtMatrixPlot::update( const Matrix<float> &data ){
 
 bool ofxGrtMatrixPlot::update( const MatrixFloat &data, const float minValue, const float maxValue ){
 
-    const unsigned int rows = data.getNumRows(); 
+    const unsigned int rows = data.getNumRows();
     const unsigned int cols = data.getNumCols();
     const size_t size = rows*cols;
 
@@ -107,7 +107,7 @@ bool ofxGrtMatrixPlot::update( const MatrixFloat &data, const float minValue, co
         this->cols = cols;
         pixelData.resize( size );
     }
-    
+
     unsigned int index = 0;
     for(unsigned int i=0; i<rows; i++){
         for(unsigned int j=0; j<cols; j++){
@@ -120,7 +120,7 @@ bool ofxGrtMatrixPlot::update( const MatrixFloat &data, const float minValue, co
 }
 
 bool ofxGrtMatrixPlot::update( float *data, const unsigned int rows, const unsigned int cols ){
-    
+
     const unsigned int width = cols;
     const unsigned int height = rows;
     pixels.setFromExternalPixels(data,width,height,OF_PIXELS_GRAY);
@@ -164,11 +164,11 @@ bool ofxGrtMatrixPlot::draw(const float x, const float y, const float w, const f
 
             ofPushMatrix();
             {
-                ofRotateZDeg(-90.0f);
+                ofRotateZ(-90.0f);
                 font->drawString(yAxisInfo, -(textY+h)+config->info_margin-config->titleTextSpacer, textX-config->titleTextSpacer);
             }
             ofPopMatrix();
-            
+
             font->drawString( xAxisInfo, textX, textY+h+font->getLineHeight()-config->info_margin+config->titleTextSpacer );
 
         }else{
@@ -182,7 +182,7 @@ bool ofxGrtMatrixPlot::draw(const float x, const float y, const float w, const f
 bool ofxGrtMatrixPlot::draw(const float x, const float y, const float w, const float h,const ofShader &shader) const{
 
     if( pixels.size() == 0 ) return false;
-    
+
     //Set the shader and draw the texture
     shader.begin();
     texture.draw(x,y,w,h);
@@ -205,11 +205,11 @@ bool ofxGrtMatrixPlot::draw(const float x, const float y, const float w, const f
 
             ofPushMatrix();
             {
-                ofRotateZDeg(-90.0f);
+                ofRotateZ(-90.0f);
                 font->drawString(yAxisInfo, -(textY+h)+config->info_margin-config->titleTextSpacer, textX-config->titleTextSpacer);
             }
             ofPopMatrix();
-            
+
             font->drawString( xAxisInfo, textX, textY+h+font->getLineHeight()-config->info_margin+config->titleTextSpacer );
 
         }else{
@@ -236,20 +236,20 @@ unsigned int ofxGrtMatrixPlot::getHeight() const{
     return this->rows;
 }
 
-bool ofxGrtMatrixPlot::setFont( const ofTrueTypeFont *font, const ofColor &textColor ){ 
-    this->font = font; 
+bool ofxGrtMatrixPlot::setFont( const ofTrueTypeFont *font, const ofColor &textColor ){
+    this->font = font;
     this->textColor = textColor;
     if( this->font != NULL ) return this->font->isLoaded();
-    return true; 
+    return true;
 }
 
 bool ofxGrtMatrixPlot::setFont( const ofTrueTypeFont &font, const ofColor &textColor ){
     return setFont( &font, textColor );
 }
 
-bool ofxGrtMatrixPlot::setTitle( const std::string &plotTitle ){ 
-    this->plotTitle = plotTitle; 
-    return true; 
+bool ofxGrtMatrixPlot::setTitle( const std::string &plotTitle ){
+    this->plotTitle = plotTitle;
+    return true;
 }
 
 
