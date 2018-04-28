@@ -1,4 +1,4 @@
-#ofxGrt
+# ofxGrt
 
 This repo contains an [openFrameworks](http://openframeworks.cc) extension for the [Gesture Recognition Toolkit](https://github.com/nickgillian/grt) (GRT).
 
@@ -13,7 +13,7 @@ To use ofxGrt:
 - download openFrameworks (you will need an OF version that supports C++11, you can find the latest version on the openFrameworks github page)
 
 - clone this repo to the openFrameworks addons folder
-```
+```sh
     cd openFrameworks/addons
     git clone https://github.com/nickgillian/ofxGrt
     cd ofxGrt
@@ -22,12 +22,12 @@ To use ofxGrt:
 ```
 
 - if you are working off any branch of ofxGrt that is not master (e.g., dev), then you can sync with the remote GRT version of that branch via:
-```
+```sh
     git submodule update --remote
 ```
 
 - to build and run any of the ofxGRT examples, cd to an example folder and run:
-```
+```sh
     cd ofxGrt/example_timeseries_plot
     make
     make run
@@ -35,7 +35,7 @@ To use ofxGrt:
 
 You can find additional README files in each of the examples that describe more details about each specific example.
 
-##Examples
+## Examples
 
 See the specific examples directories for a full description on each example.
 
@@ -54,5 +54,5 @@ See the specific examples directories for a full description on each example.
 [Bar Plot Example](example_bar_plot)
 ![alt text](example_bar_plot/images/bar_plot.png "Bar Plot Example")
 
-##License
+## License
 The ofxGRT is available under a MIT license.
